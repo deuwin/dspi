@@ -1,0 +1,125 @@
+grf {
+    grfid: "de\01\01";
+    name: string(STR_GRF_NAME);
+    desc: string(STR_GRF_DESCRIPTION);
+    version: 0;
+    min_compatible_version: 0;
+}
+
+cargotable {
+    PASS, COAL, MAIL, OIL_, LVST, GOOD, GRAI, WOOD, IORE, STEL, VALU
+}
+
+BASE_PRODUCTION = 10;
+STOCKPILE_LIMIT = 100;
+
+//////////
+// Steel Mill
+//
+
+// production of cargo
+produce(smProduce,
+    [
+        IORE: LOAD_TEMP(1);
+    ],
+    [
+        STEL: LOAD_TEMP(1);
+    ],
+    0
+)
+
+produce(doNothing, [], [])
+
+switch(FEAT_INDUSTRIES, SELF, smCanProduce, [
+    STORE_TEMP(min(BASE_PRODUCTION, incoming_cargo_waiting("IORE")), 1),
+    incoming_cargo_waiting("IORE")
+]) {
+    0: doNothing;
+    smProduce;
+}
+
+item (FEAT_INDUSTRIES, steel_mill) {
+    property {
+        substitute: INDUSTRYTYPE_STEEL_MILL;
+        override:   INDUSTRYTYPE_STEEL_MILL;
+        cargo_types: [
+            accept_cargo("IORE"),
+            produce_cargo("STEL", 0),
+        ];
+    }
+    graphics {
+        produce_cargo_arrival: doNothing;
+        produce_256_ticks: smCanProduce;
+    }
+}
+
+// acceptance of cargo
+switch(FEAT_INDUSTRYTILES, PARENT, calcAcceptAmount, [0]) {
+    return STOCKPILE_LIMIT - incoming_cargo_waiting("IORE");
+}
+
+item(FEAT_INDUSTRYTILES, steel_mill_tile_1) {
+    property {
+        substitute: 52;
+        override: 52;
+        special_flags: bitmask(INDTILE_FLAG_ACCEPT_ALL);
+    }
+    graphics {
+        cargo_amount_accept: calcAcceptAmount;
+    }
+}
+
+item(FEAT_INDUSTRYTILES, steel_mill_tile_2) {
+    property {
+        substitute: 53;
+        override: 53;
+        special_flags: bitmask(INDTILE_FLAG_ACCEPT_ALL);
+    }
+    graphics {
+        cargo_amount_accept: calcAcceptAmount;
+    }
+}
+
+item(FEAT_INDUSTRYTILES, steel_mill_tile_3) {
+    property {
+        substitute: 54;
+        override: 54;
+        special_flags: bitmask(INDTILE_FLAG_ACCEPT_ALL);
+    }
+    graphics {
+        cargo_amount_accept: calcAcceptAmount;
+    }
+}
+
+item(FEAT_INDUSTRYTILES, steel_mill_tile_4) {
+    property {
+        substitute: 55;
+        override: 55;
+        special_flags: bitmask(INDTILE_FLAG_ACCEPT_ALL);
+    }
+    graphics {
+        cargo_amount_accept: calcAcceptAmount;
+    }
+}
+
+item(FEAT_INDUSTRYTILES, steel_mill_tile_5) {
+    property {
+        substitute: 56;
+        override: 56;
+        special_flags: bitmask(INDTILE_FLAG_ACCEPT_ALL);
+    }
+    graphics {
+        cargo_amount_accept: calcAcceptAmount;
+    }
+}
+
+item(FEAT_INDUSTRYTILES, steel_mill_tile_6) {
+    property {
+        substitute: 57;
+        override: 57;
+        special_flags: bitmask(INDTILE_FLAG_ACCEPT_ALL);
+    }
+    graphics {
+        cargo_amount_accept: calcAcceptAmount;
+    }
+}

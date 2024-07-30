@@ -1,0 +1,4 @@
+##grflangid 0x01
+
+STR_GRF_NAME        :{NAME} v{VERSION}
+STR_GRF_DESCRIPTION :A vanilla industry stockpiling GRF.{}{COPYRIGHT} deuwin 2024{}Licensed under GPLv2
