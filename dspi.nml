@@ -10,7 +10,9 @@ cargotable {
     PASS, COAL, MAIL, OIL_, LVST, GOOD, GRAI, WOOD, IORE, STEL, VALU
 }
 
-BASE_PRODUCTION = 10;
+PRODUCTION_BASE = 16;
+PRODUCTION_MIN  = 5;
+PRODUCTION_MAX  = 255;
 STOCKPILE_LIMIT = 1000;
 
 
@@ -82,10 +84,10 @@ switch(FEAT_INDUSTRIES, SELF, isProductionIncrease, [0]) {
 // represent a negative number directly.
 // https://github.com/OpenTTD/nml/blob/0.7.5/nml/actions/action2var.py#L26
 switch(FEAT_INDUSTRIES, SELF, calcNewProduction, [0]) {
-    return
+    return min(PRODUCTION_MAX, max(PRODUCTION_MIN,
         getProductionRate()
         + (isProductionIncrease() ? 1 : -1)
-        * getProductionChange();
+        * getProductionChange()));
 }
 
 switch(FEAT_INDUSTRIES, SELF, doProductionChange, [
@@ -154,7 +156,7 @@ produce(noProduction, [], [])
  *      0x00: Production Rate
  *      0x02: Misc. Debug */
 switch(FEAT_INDUSTRIES, SELF, initPermanentStorage, [
-    STORE_PERM(BASE_PRODUCTION, 0)
+    STORE_PERM(PRODUCTION_BASE, 0)
 ]) { return; }
 
 item(FEAT_INDUSTRIES, steel_mill) {
