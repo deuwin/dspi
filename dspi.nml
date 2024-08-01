@@ -26,9 +26,7 @@ STOCKPILE_LIMIT = 1000;
  * Not sure if temporary storage is initialised to zero, so let's make sure */
 switch(FEAT_INDUSTRIES, SELF, initRandomBits, [
     STORE_TEMP(0, 0)
-]) {
-    return;
-}
+]) { return; }
 
 /* getRandomBits(amount)
  * Convenience function to get random bits, so one does not need to remember to
@@ -37,15 +35,13 @@ switch(FEAT_INDUSTRIES, SELF, initRandomBits, [
 switch(FEAT_INDUSTRIES, SELF, getRandomBits, amount, [
     STORE_TEMP(getbits(extra_callback_info2, LOAD_TEMP(0), amount), 1),
     STORE_TEMP(LOAD_TEMP(0) + amount, 0)
-]) {
-    return LOAD_TEMP(1);
-}
+]) { return LOAD_TEMP(1); }
 
 /* setProductionRate(), getProductionRate()
  * Convenience functions to get/set production rate. */
-switch(FEAT_INDUSTRIES, SELF, setProductionRate, rate, [
-    STORE_PERM(rate, 0)
-]) { return; }
+switch(FEAT_INDUSTRIES, SELF, setProductionRate, rate, [0]) {
+    return STORE_PERM(rate, 0);
+}
 switch(FEAT_INDUSTRIES, SELF, getProductionRate, [0]) {
     return LOAD_PERM(0);
 }
