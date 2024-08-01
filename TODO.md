@@ -3,10 +3,12 @@ Things to do, ordered roughly by importance. Nothing here is set in stone and
 this list will be subject to many changes.
 
 * Implement and test production rate changes
+    * Add stockpile level to rate change calculation
 * Handle industry closure
 * Add nml templating
 * Extra cargo inputs for:
     * Steel Mill: Iron Ore and Coal
+        * Apparently the real life ratio of Ore:Coal is 2:1 [^1][^2]
     * Power Station: Coal and Oil
 <br/>
 <br/>
@@ -21,3 +23,6 @@ this list will be subject to many changes.
 * Add support for all default landscapes/climates
 * Economy type toggle?
 * Randomise initial production rate?
+
+[^1]: https://www.bhp.com/what-we-do/products/iron-ore
+[^2]: https://www.bhp.com/what-we-do/products/metallurgical-coal
