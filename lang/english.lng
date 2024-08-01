@@ -2,3 +2,5 @@
 
 STR_GRF_NAME        :{NAME} v{VERSION}
 STR_GRF_DESCRIPTION :A vanilla industry stockpiling GRF.{}{COPYRIGHT} deuwin 2024{}Licensed under GPLv2
+
+STR_INDUSTRY_EXTRA_TEXT:Prod. Rate: {COMMA}{}Prod. Level: {COMMA}{}Misc. Debug: {HEX}

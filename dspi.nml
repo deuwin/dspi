@@ -11,34 +11,150 @@ cargotable {
 }
 
 BASE_PRODUCTION = 10;
-STOCKPILE_LIMIT = 100;
+STOCKPILE_LIMIT = 1000;
 
-//////////
-// Steel Mill
-//
 
-// production of cargo
-produce(smProduce,
+
+
+/********************
+ * Production Changes
+ ********************/
+
+/* initRandomBits()
+ * Not sure if temporary storage is initialised to zero, so let's make sure */
+switch(FEAT_INDUSTRIES, SELF, initRandomBits, [
+    STORE_TEMP(0, 0)
+]) {
+    return;
+}
+
+/* getRandomBits(amount)
+ * Convenience function to get random bits, so one does not need to remember to
+ * bit shift extra_callback_info2.
+ * NOTE: Make sure you're not using more than 32 bits! */
+switch(FEAT_INDUSTRIES, SELF, getRandomBits, amount, [
+    STORE_TEMP(getbits(extra_callback_info2, LOAD_TEMP(0), amount), 1),
+    STORE_TEMP(LOAD_TEMP(0) + amount, 0)
+]) {
+    return LOAD_TEMP(1);
+}
+
+/* setProductionRate(), getProductionRate()
+ * Convenience functions to get/set production rate. */
+switch(FEAT_INDUSTRIES, SELF, setProductionRate, rate, [
+    STORE_PERM(rate, 0)
+]) { return; }
+switch(FEAT_INDUSTRIES, SELF, getProductionRate, [0]) {
+    return LOAD_PERM(0);
+}
+
+switch(FEAT_INDUSTRIES, SELF, setProductionLevel, [
+    // naively half the rate to get the level, for now anyway
+    // TODO: handle industry closure when this reaches zero
+    STORE_TEMP(getProductionRate() / 2, 0x100)
+]) {
+    return;
+}
+
+/* getProductionChange()
+ * should give a change in the range 3-23%, just like the smooth economy option */
+switch(FEAT_INDUSTRIES, SELF, getProductionChange, [0]) {
+    return max(1,
+        ((getRandomBits(16) * 50 / 65536 + 10) * getProductionRate()) / 256
+    );
+}
+
+/* isProductionIncrease()
+ * 50:50 chance of increase or decrease, for now
+ * TODO: make this use transported cargo percentage, also incorperate stockpile
+ * levels */
+switch(FEAT_INDUSTRIES, SELF, isProductionIncrease, [0]) {
+    return getRandomBits(1);
+}
+
+// Integers returned from switch statements are only 15 bits so you can't
+// represent a negative number directly.
+// https://github.com/OpenTTD/nml/blob/0.7.5/nml/actions/action2var.py#L26
+switch(FEAT_INDUSTRIES, SELF, calcNewProduction, [0]) {
+    return
+        getProductionRate()
+        + (isProductionIncrease() ? 1 : -1)
+        * getProductionChange();
+}
+
+switch(FEAT_INDUSTRIES, SELF, doProductionChange, [
+    setProductionRate(calcNewProduction()),
+    setProductionLevel()
+]) {
+    return CB_RESULT_IND_PROD_SET_BY_0x100;
+}
+
+/* shouldProductionChange()
+ * 50:50 chance of monthly change, for now
+ * TODO: Decide on an appropriate chance */
+switch(FEAT_INDUSTRIES, SELF, shouldProductionChange, [0]) {
+    return getRandomBits(1);
+}
+
+switch(FEAT_INDUSTRIES, SELF, changeProduction, [
+    initRandomBits(),
+    shouldProductionChange()
+]) {
+    0: CB_RESULT_IND_PROD_NO_CHANGE;
+    1: doProductionChange;
+}
+
+
+// genExtraText()
+// Debugging for now, should display useful information in future!
+switch(FEAT_INDUSTRIES, SELF, genExtraText, [
+    STORE_TEMP(getProductionRate(), 256),
+    STORE_TEMP(production_level, 257),
+    STORE_TEMP(LOAD_PERM(2), 258),
+]) {
+    return string(STR_INDUSTRY_EXTRA_TEXT);
+}
+
+
+/********************
+ * Steel Mill
+ ********************/
+
+// Cargo acceptance
+switch(FEAT_INDUSTRIES, SELF, isStockpileFull, [0]) {
+    return STOCKPILE_LIMIT > incoming_cargo_waiting("IORE");
+}
+
+// Cargo production
+produce(produceCargo,
     [
-        IORE: LOAD_TEMP(1);
+        IORE: LOAD_TEMP(0);
     ],
     [
-        STEL: LOAD_TEMP(1);
+        STEL: LOAD_TEMP(0);
     ],
     0
 )
 
-produce(doNothing, [], [])
-
-switch(FEAT_INDUSTRIES, SELF, smCanProduce, [
-    STORE_TEMP(min(BASE_PRODUCTION, incoming_cargo_waiting("IORE")), 1),
-    incoming_cargo_waiting("IORE")
+/* evalProductionCycle()
+ * A production cycle is 256 ticks long */
+switch(FEAT_INDUSTRIES, SELF, evalProductionCycle, [
+    STORE_TEMP(min(getProductionRate(), incoming_cargo_waiting("IORE")), 0)
 ]) {
-    0: doNothing;
-    smProduce;
+    return produceCargo;
 }
 
-item (FEAT_INDUSTRIES, steel_mill) {
+produce(noProduction, [], [])
+
+/* initPermanentStorage()
+ * Registers:
+ *      0x00: Production Rate
+ *      0x02: Misc. Debug */
+switch(FEAT_INDUSTRIES, SELF, initPermanentStorage, [
+    STORE_PERM(BASE_PRODUCTION, 0)
+]) { return; }
+
+item(FEAT_INDUSTRIES, steel_mill) {
     property {
         substitute: INDUSTRYTYPE_STEEL_MILL;
         override:   INDUSTRYTYPE_STEEL_MILL;
@@ -48,24 +164,22 @@ item (FEAT_INDUSTRIES, steel_mill) {
         ];
     }
     graphics {
-        produce_cargo_arrival: doNothing;
-        produce_256_ticks: smCanProduce;
+        extra_text_industry:   genExtraText;
+        produce_256_ticks:     evalProductionCycle;
+        produce_cargo_arrival: noProduction;
+        monthly_prod_change:   changeProduction;
+        random_prod_change:    CB_RESULT_IND_PROD_NO_CHANGE;
+        stop_accept_cargo:     isStockpileFull;
+        build_prod_change:     initPermanentStorage;
     }
 }
 
-// acceptance of cargo
-switch(FEAT_INDUSTRYTILES, PARENT, calcAcceptAmount, [0]) {
-    return STOCKPILE_LIMIT - incoming_cargo_waiting("IORE");
-}
-
+// tile override
 item(FEAT_INDUSTRYTILES, steel_mill_tile_1) {
     property {
         substitute: 52;
         override: 52;
         special_flags: bitmask(INDTILE_FLAG_ACCEPT_ALL);
-    }
-    graphics {
-        cargo_amount_accept: calcAcceptAmount;
     }
 }
 
@@ -75,9 +189,6 @@ item(FEAT_INDUSTRYTILES, steel_mill_tile_2) {
         override: 53;
         special_flags: bitmask(INDTILE_FLAG_ACCEPT_ALL);
     }
-    graphics {
-        cargo_amount_accept: calcAcceptAmount;
-    }
 }
 
 item(FEAT_INDUSTRYTILES, steel_mill_tile_3) {
@@ -85,9 +196,6 @@ item(FEAT_INDUSTRYTILES, steel_mill_tile_3) {
         substitute: 54;
         override: 54;
         special_flags: bitmask(INDTILE_FLAG_ACCEPT_ALL);
-    }
-    graphics {
-        cargo_amount_accept: calcAcceptAmount;
     }
 }
 
@@ -97,9 +205,6 @@ item(FEAT_INDUSTRYTILES, steel_mill_tile_4) {
         override: 55;
         special_flags: bitmask(INDTILE_FLAG_ACCEPT_ALL);
     }
-    graphics {
-        cargo_amount_accept: calcAcceptAmount;
-    }
 }
 
 item(FEAT_INDUSTRYTILES, steel_mill_tile_5) {
@@ -108,9 +213,6 @@ item(FEAT_INDUSTRYTILES, steel_mill_tile_5) {
         override: 56;
         special_flags: bitmask(INDTILE_FLAG_ACCEPT_ALL);
     }
-    graphics {
-        cargo_amount_accept: calcAcceptAmount;
-    }
 }
 
 item(FEAT_INDUSTRYTILES, steel_mill_tile_6) {
@@ -118,8 +220,5 @@ item(FEAT_INDUSTRYTILES, steel_mill_tile_6) {
         substitute: 57;
         override: 57;
         special_flags: bitmask(INDTILE_FLAG_ACCEPT_ALL);
-    }
-    graphics {
-        cargo_amount_accept: calcAcceptAmount;
     }
 }
