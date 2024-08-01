@@ -53,10 +53,8 @@ switch(FEAT_INDUSTRIES, SELF, getProductionRate, [0]) {
 switch(FEAT_INDUSTRIES, SELF, setProductionLevel, [
     // naively half the rate to get the level, for now anyway
     // TODO: handle industry closure when this reaches zero
-    STORE_TEMP(getProductionRate() / 2, 0x100)
-]) {
-    return;
-}
+    STORE_TEMP((getProductionRate() / 2) << 16, 0x100)
+]) { return; }
 
 /* getProductionChange()
  * should give a change in the range 3-23%, just like the smooth economy option */
