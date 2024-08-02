@@ -46,17 +46,40 @@ switch(FEAT_INDUSTRIES, SELF, getProductionRate, [0]) {
     return LOAD_PERM(0);
 }
 
+/* Industry Closure */
+ABANDONMENT_PERIOD = 60;    // months
+CLOSURE_CHANCE     = 180;   // 1/180 per month
+
+/* evalCloseChance() */
+switch(FEAT_INDUSTRIES, SELF, evalCloseChance,
+    (getRandomBits(8) * CLOSURE_CHANCE) < 256
+) { return; }
+
+/* isAbandoned()
+ * If the industry has not produced anything in 60 consecutive months (5 years)
+ * it is considered abandoned and has a chance of closing. */
+switch(FEAT_INDUSTRIES, SELF, isAbandoned, [
+    (last_month_production("STEL") == 0)
+        ? STORE_PERM(LOAD_PERM(1) + 1, 1)
+        : STORE_PERM(0, 1),
+    LOAD_PERM(1) > ABANDONMENT_PERIOD
+]) {
+    1: evalCloseChance();
+    0;
+}
+
 switch(FEAT_INDUSTRIES, SELF, setProductionLevel, [
     // naively half the rate to get the level, for now anyway
-    // TODO: handle industry closure when this reaches zero
     STORE_TEMP((getProductionRate() / 2) << 16, 0x100)
-]) { return; }
+]) {
+    return CB_RESULT_IND_PROD_SET_BY_0x100;
+}
 
 /* getProductionChange()
  * should give a change in the range 3-23%, just like the smooth economy option */
 switch(FEAT_INDUSTRIES, SELF, getProductionChange, [0]) {
     return max(1,
-        ((getRandomBits(10) * 50 / 1024 + 10) * getProductionRate()) / 256
+        ((getRandomBits(8) * 50 / 256 + 10) * getProductionRate()) / 256
     );
 }
 
@@ -71,7 +94,7 @@ switch(FEAT_INDUSTRIES, SELF, getIncreaseChance, [
 }
 
 switch(FEAT_INDUSTRIES, SELF, isProductionIncrease, [0]) {
-    return ((getRandomBits(10) * 100 / 1024) < getIncreaseChance()) ? 1 : 0;
+    return ((getRandomBits(8) * 100 / 256) < getIncreaseChance()) ? 1 : 0;
 }
 
 // Integers returned from switch statements are only 15 bits so you can't
@@ -84,25 +107,26 @@ switch(FEAT_INDUSTRIES, SELF, calcNewProduction, [0]) {
         * getProductionChange()));
 }
 
-switch(FEAT_INDUSTRIES, SELF, doProductionChange, [
-    setProductionRate(calcNewProduction()),
-    setProductionLevel()
-]) {
-    return CB_RESULT_IND_PROD_SET_BY_0x100;
+switch(FEAT_INDUSTRIES, SELF, shouldProductionChange, [0]) {
+    return ((getRandomBits(8) * 100 / 256) < 25) ? 1 : 0;
 }
 
-switch(FEAT_INDUSTRIES, SELF, shouldProductionChange, [0]) {
-    return ((getRandomBits(10) * 100 / 1024) < 25) ? 1 : 0;
-}
+switch(FEAT_INDUSTRIES, SELF, doProductionChange,
+    shouldProductionChange()
+        ? [
+            setProductionRate(calcNewProduction()),
+            setProductionLevel()
+        ]
+        : CB_RESULT_IND_PROD_NO_CHANGE
+) { return; }
 
 switch(FEAT_INDUSTRIES, SELF, changeProduction, [
     initRandomBits(),
-    shouldProductionChange()
+    isAbandoned()
 ]) {
-    0: CB_RESULT_IND_PROD_NO_CHANGE;
-    1: doProductionChange;
+    1: CB_RESULT_IND_PROD_CLOSE;
+    doProductionChange();
 }
-
 
 // genExtraText()
 // Debugging for now, should display useful information in future!
@@ -148,7 +172,7 @@ produce(noProduction, [], [])
 /* initPermanentStorage()
  * Registers:
  *      0x00: Production Rate
- *      0x02: Misc. Debug */
+ *      0x01: Months Abandoned */
 switch(FEAT_INDUSTRIES, SELF, initPermanentStorage, [
     STORE_PERM(PRODUCTION_BASE, 0)
 ]) { return; }

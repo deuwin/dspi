@@ -4,7 +4,6 @@ this list will be subject to many changes.
 
 * Implement and test production rate changes
     * Add stockpile level to rate change calculation
-* Handle industry closure
 * Add nml templating
 * Extra cargo inputs for:
     * Steel Mill: Iron Ore and Coal
