@@ -22,20 +22,48 @@ STOCKPILE_LIMIT = 1000;
  * Production Changes
  ********************/
 
-/* initRandomBits()
- * Not sure if temporary storage is initialised to zero, so let's make sure */
-switch(FEAT_INDUSTRIES, SELF, initRandomBits, [
-    STORE_TEMP(0, 0)
-]) { return; }
+/* Random
+ * A couple of functions to get range and chance. Downside is that RANDOM_CALLS
+ * needs to be manually tracked...
+ *
+ * I could really do with more random numbers, but this is a GRF not an
+ * encryption algorithm. So hopefully it'll do? */
 
-/* getRandomBits(amount)
+//
+// NOTE: You must keep track of RANDOM_CALLS manually! It will need updated if
+// you use more random functions in the monthly_prod_change callback chain.
+//
+RANDOM_CALLS      = 4;
+BIT_LEN           = 32 / RANDOM_CALLS;  // extra_callback_info2 is 32 bits long
+RAND_MAX_PLUS_ONE = bitmask(BIT_LEN);
+
+/* initRandom()
+ * Not sure if temporary storage is initialised to zero, so let's make sure */
+switch(FEAT_INDUSTRIES, SELF, initRandom,
+    STORE_TEMP(0, 0)
+) { return; }
+
+/* getRandomBits()
  * Convenience function to get random bits, so one does not need to remember to
- * bit shift extra_callback_info2.
- * NOTE: Make sure you're not using more than 32 bits! */
-switch(FEAT_INDUSTRIES, SELF, getRandomBits, amount, [
-    STORE_TEMP(getbits(extra_callback_info2, LOAD_TEMP(0), amount), 1),
-    STORE_TEMP(LOAD_TEMP(0) + amount, 0)
+ * bit shift extra_callback_info2. */
+switch(FEAT_INDUSTRIES, SELF, getRandomBits, [
+    STORE_TEMP(getbits(extra_callback_info2, LOAD_TEMP(0), BIT_LEN), 1),
+    STORE_TEMP(LOAD_TEMP(0) + BIT_LEN, 0)
 ]) { return LOAD_TEMP(1); }
+
+/* randomChance(n, d)
+ * n - numerator
+ * d - denominator
+ * Returns 2 with a probability of n/d. */
+switch(FEAT_INDUSTRIES, SELF, randomChance, n, d,
+    getRandomBits() < (RAND_MAX_PLUS_ONE * n / d)
+) { return; }
+
+/* randomRange(min, max)
+ * Returns a random number in the range [min, max - 1] */
+switch(FEAT_INDUSTRIES, SELF, randomRange, min, max,
+    getRandomBits() * (max - min) / RAND_MAX_PLUS_ONE + min
+) { return; }
 
 /* setProductionRate(), getProductionRate()
  * Convenience functions to get/set production rate. */
@@ -46,25 +74,19 @@ switch(FEAT_INDUSTRIES, SELF, getProductionRate, [0]) {
     return LOAD_PERM(0);
 }
 
-/* Industry Closure */
-ABANDONMENT_PERIOD = 60;    // months
-CLOSURE_CHANCE     = 180;   // 1/180 per month
-
-/* evalCloseChance() */
-switch(FEAT_INDUSTRIES, SELF, evalCloseChance,
-    (getRandomBits(8) * CLOSURE_CHANCE) < 256
-) { return; }
-
-/* isAbandoned()
- * If the industry has not produced anything in 60 consecutive months (5 years)
+/* Industry Closure
+ * If an industry has not produced anything in 60 consecutive months (5 years)
  * it is considered abandoned and has a chance of closing. */
+ABANDONMENT_PERIOD = 60;    // months
+CLOSURE_CHANCE     = 180;
+
 switch(FEAT_INDUSTRIES, SELF, isAbandoned, [
     (last_month_production("STEL") == 0)
         ? STORE_PERM(LOAD_PERM(1) + 1, 1)
         : STORE_PERM(0, 1),
     LOAD_PERM(1) > ABANDONMENT_PERIOD
 ]) {
-    1: evalCloseChance();
+    1: randomChance(1, CLOSURE_CHANCE);
     0;
 }
 
@@ -79,40 +101,30 @@ switch(FEAT_INDUSTRIES, SELF, setProductionLevel, [
  * should give a change in the range 3-23%, just like the smooth economy option */
 switch(FEAT_INDUSTRIES, SELF, getProductionChange, [0]) {
     return max(1,
-        ((getRandomBits(8) * 50 / 256 + 10) * getProductionRate()) / 256
+        randomRange(10, 60) * getProductionRate() / 256
     );
 }
 
+
 /* getIncreaseChance()
- * Returns percentage chance of production increase based on transported cargo */
-switch(FEAT_INDUSTRIES, SELF, getIncreaseChance, [
+ * Returns chance of production increase based on transported cargo. Should
+ * closely mirror the values used in a smooth economy */
+switch(FEAT_INDUSTRIES, SELF, getIncreaseChance,
     transported_last_month_pct("STEL")
-]) {
-    0..60:   33;
-    61..80:  66;
-    81..100: 84;
+) {
+    0..60:   randomChance(1, 3);
+    61..80:  randomChance(2, 3);
+    81..100: randomChance(5, 6);
 }
 
-switch(FEAT_INDUSTRIES, SELF, isProductionIncrease, [0]) {
-    return ((getRandomBits(8) * 100 / 256) < getIncreaseChance()) ? 1 : 0;
-}
-
-// Integers returned from switch statements are only 15 bits so you can't
-// represent a negative number directly.
-// https://github.com/OpenTTD/nml/blob/0.7.5/nml/actions/action2var.py#L26
-switch(FEAT_INDUSTRIES, SELF, calcNewProduction, [0]) {
-    return min(PRODUCTION_MAX, max(PRODUCTION_MIN,
-        getProductionRate()
-        + (isProductionIncrease() ? 1 : -1)
-        * getProductionChange()));
-}
-
-switch(FEAT_INDUSTRIES, SELF, shouldProductionChange, [0]) {
-    return ((getRandomBits(8) * 100 / 256) < 25) ? 1 : 0;
-}
+/* calcNewProduction() */
+switch(FEAT_INDUSTRIES, SELF, calcNewProduction,
+    min(PRODUCTION_MAX, max(PRODUCTION_MIN,
+        getProductionChange() * (getIncreaseChance() ? 1 : -1) + getProductionRate()))
+) { return; }
 
 switch(FEAT_INDUSTRIES, SELF, doProductionChange,
-    shouldProductionChange()
+    randomChance(1, 4)
         ? [
             setProductionRate(calcNewProduction()),
             setProductionLevel()
@@ -121,7 +133,7 @@ switch(FEAT_INDUSTRIES, SELF, doProductionChange,
 ) { return; }
 
 switch(FEAT_INDUSTRIES, SELF, changeProduction, [
-    initRandomBits(),
+    initRandom(),
     isAbandoned()
 ]) {
     1: CB_RESULT_IND_PROD_CLOSE;
