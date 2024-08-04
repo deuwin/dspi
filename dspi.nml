@@ -13,10 +13,23 @@ cargotable {
 PRODUCTION_BASE = 16;
 PRODUCTION_MIN  = 5;
 PRODUCTION_MAX  = 255;
-STOCKPILE_LIMIT = 1000;
+STOCKPILE_LIMIT = 15000;
 
+/********************
+ * Utilities
+ ********************/
 
-
+/* maxSigned(a, b)
+ * Convenience wrapper around CMP(). Returns maximum value of a and b. Remember
+ * to use last_computed_result if you're using or expecting numbers lower than
+ * -128, as this will return values truncated to 15 bits. */
+switch(FEAT_INDUSTRIES, SELF, maxSigned, a, b,
+    CMP(a, b)
+) {
+    CMP_LESS:    b;
+    CMP_EQUAL:   a;
+    CMP_GREATER: a;
+}
 
 /********************
  * Production Changes
@@ -67,12 +80,12 @@ switch(FEAT_INDUSTRIES, SELF, randomRange, min, max,
 
 /* setProductionRate(), getProductionRate()
  * Convenience functions to get/set production rate. */
-switch(FEAT_INDUSTRIES, SELF, setProductionRate, rate, 0) {
-    return STORE_PERM(rate, 0);
-}
-switch(FEAT_INDUSTRIES, SELF, getProductionRate, 0) {
-    return LOAD_PERM(0);
-}
+switch(FEAT_INDUSTRIES, SELF, setProductionRate, rate,
+    min(PRODUCTION_MAX, max(PRODUCTION_MIN, STORE_PERM(rate, 0)))
+){ return; }
+switch(FEAT_INDUSTRIES, SELF, getProductionRate,
+    LOAD_PERM(0)
+) { return; }
 
 /* Industry Closure
  * If an industry has not produced anything in 60 consecutive months (5 years)
@@ -104,32 +117,49 @@ switch(FEAT_INDUSTRIES, SELF, getProductionChange,
     max(1, randomRange(10, 60) * getProductionRate() / 256)
 ) { return; }
 
-/* getIncreaseChance()
- * Returns chance of production increase based on transported cargo. Should
- * closely mirror the values used in a smooth economy */
-switch(FEAT_INDUSTRIES, SELF, getIncreaseChance,
-    transported_last_month_pct("STEL")
+/* chanceToIncrease(percent)
+ * Returns chance based on percent parameter. Should closely mirror the values
+ * used in a smooth economy */
+switch(FEAT_INDUSTRIES, SELF, chanceToIncrease, percent,
+    percent
 ) {
     0..60:   randomChance(1, 3);
     61..80:  randomChance(2, 3);
     81..100: randomChance(5, 6);
 }
 
-/* calcNewProduction() */
-switch(FEAT_INDUSTRIES, SELF, calcNewProduction,
-    min(PRODUCTION_MAX, max(PRODUCTION_MIN,
-        getProductionChange() * (getIncreaseChance() ? 1 : -1) + getProductionRate()))
-) { return; }
+/* Industries have 8 or 9 production cycles a month so we use (8.5 * 6) */
+PROD_CYCLE_SIX_MONTHS = 51;
 
-/* doProductionChange()
- * 25% chance of a change each month */
-switch(FEAT_INDUSTRIES, SELF, doProductionChange,
-    randomChance(1, 4)
+switch(FEAT_INDUSTRIES, SELF, updateProduction, [
+    // calculate impact of stockpile level on production rate
+    STORE_TEMP((incoming_cargo_waiting("IORE") / PROD_CYCLE_SIX_MONTHS) - getProductionRate(), 1),
+    STORE_TEMP(LOAD_TEMP(1) * 100 / getProductionRate(), 2),
+    (LOAD_TEMP(2) < 0) ? [
+        maxSigned(-20, LOAD_TEMP(2)),
+        STORE_TEMP(last_computed_result, 3),
+    ] : [
+        STORE_TEMP(min(20, LOAD_TEMP(2)), 3),
+    ],
+
+    // impact of transported cargo
+    STORE_TEMP(getProductionChange() * (chanceToIncrease(transported_last_month_pct("STEL")) ? 1 : -1), 4),
+
+    setProductionRate(
+        getProductionRate()
+            + LOAD_PERM(0) * LOAD_TEMP(3) / 100
+            + LOAD_TEMP(4)),
+
+    setProductionLevel()
+]) { return; }
+
+/* shouldProductionChange() */
+PRODUCTION_CHANGE_PROB = 3;
+switch(FEAT_INDUSTRIES, SELF, shouldProductionChange,
+    randomChance(1, PRODUCTION_CHANGE_PROB)
+        && (transported_last_month_pct("STEL") > 0)
 ) {
-    1: [
-        setProductionRate(calcNewProduction()),
-        setProductionLevel()
-    ];
+    1: updateProduction();
     CB_RESULT_IND_PROD_NO_CHANGE;
 }
 
@@ -139,7 +169,7 @@ switch(FEAT_INDUSTRIES, SELF, changeProduction, [
     isAbandoned()
 ]) {
     1: CB_RESULT_IND_PROD_CLOSE;
-    doProductionChange();
+    shouldProductionChange();
 }
 
 // genExtraText()
@@ -147,7 +177,11 @@ switch(FEAT_INDUSTRIES, SELF, changeProduction, [
 switch(FEAT_INDUSTRIES, SELF, genExtraText, [
     STORE_TEMP(getProductionRate(), 256),
     STORE_TEMP(production_level, 257),
-    STORE_TEMP(LOAD_PERM(2), 258),
+
+    STORE_TEMP(LOAD_PERM(52), 258),
+    STORE_TEMP(LOAD_PERM(53), 259),
+    STORE_TEMP(LOAD_PERM(54), 260),
+    STORE_TEMP(LOAD_PERM(55), 261),
 ]) {
     return string(STR_INDUSTRY_EXTRA_TEXT);
 }
