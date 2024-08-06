@@ -1,0 +1,25 @@
+##grflangid 0x01
+
+STR_GRF_NAME:{NAME} v{VERSION}
+
+#define DESCRIPTION\
+    STR_GRF_DESCRIPTION:\
+        A vanilla industry stockpiling GRF.{}\
+        {COPYRIGHT} deuwin 2024{}\
+        Licensed under GPLv2
+
+DESCRIPTION
+#undef DESCRIPTION
+
+#define EXTRA_TEXT\
+    STR_INDUSTRY_EXTRA_TEXT:\
+        Prod. Rate: {COMMA}{}\
+        Prod. Level: {COMMA}{}\
+        {}\
+        Debug52: {COMMA}{}\
+        Debug53: {COMMA}{}\
+        Debug54: {COMMA}{}\
+        Debug55: {COMMA}
+
+EXTRA_TEXT
+#undef EXTRA_TEXT

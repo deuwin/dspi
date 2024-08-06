@@ -1,0 +1,13 @@
+grf {
+    grfid: "de\01\01";
+    name: string(STR_GRF_NAME);
+    desc: string(STR_GRF_DESCRIPTION);
+    version: 0;
+    min_compatible_version: 0;
+}
+
+#include "cargo_types.pnml"
+#include "maths.pnml"
+#include "random.pnml"
+#include "production.pnml"
+#include "industry.pnml"

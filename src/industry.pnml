@@ -1,0 +1,107 @@
+/********************
+ * Industry
+ ********************/
+
+/* Closure
+ * If an industry has not produced anything in 60 consecutive months (5 years)
+ * it is considered abandoned and has a chance of closing. */
+#define ABANDONMENT_PERIOD 60
+#define CLOSURE_CHANCE     180
+
+switch(FEAT_INDUSTRIES, SELF, isAbandoned, [
+    (last_month_production("STEL") == 0)
+        ? STORE_PERM(LOAD_PERM(1) + 1, 1)
+        : STORE_PERM(0, 1),
+    LOAD_PERM(1) > ABANDONMENT_PERIOD
+]) {
+    1: randomChance(1, CLOSURE_CHANCE);
+    0;
+}
+
+// Cargo acceptance
+switch(FEAT_INDUSTRIES, SELF, isStockpileFull, 0) {
+    return STOCKPILE_LIMIT > incoming_cargo_waiting("IORE");
+}
+
+// Cargo production
+produce(produceCargo,
+    [
+        IORE: LOAD_TEMP(0);
+    ],
+    [
+        STEL: LOAD_TEMP(0);
+    ],
+    0
+)
+
+/* evalProductionCycle()
+ * A production cycle is 256 ticks long */
+switch(FEAT_INDUSTRIES, SELF, evalProductionCycle,
+    STORE_TEMP(min(getProductionRate(), incoming_cargo_waiting("IORE")), 0)
+) {
+    return produceCargo;
+}
+
+produce(noProduction, [], [])
+
+/* shouldProductionChange() */
+PRODUCTION_CHANGE_PROB = 3;
+switch(FEAT_INDUSTRIES, SELF, shouldProductionChange,
+    randomChance(1, PRODUCTION_CHANGE_PROB)
+        && (transported_last_month_pct("STEL") > 0)
+) {
+    1: updateProduction();
+    CB_RESULT_IND_PROD_NO_CHANGE;
+}
+
+/* changeProduction() */
+switch(FEAT_INDUSTRIES, SELF, changeProduction, [
+    initRandom(),
+    isAbandoned()
+]) {
+    1: CB_RESULT_IND_PROD_CLOSE;
+    shouldProductionChange();
+}
+
+/* initPermanentStorage()
+ * Registers:
+ *      0x00: Production Rate
+ *      0x01: Months Abandoned */
+switch(FEAT_INDUSTRIES, SELF, initPermanentStorage,
+    STORE_PERM(PRODUCTION_BASE, 0)
+) { return; }
+
+// genExtraText()
+// Debugging for now, should display useful information in future!
+switch(FEAT_INDUSTRIES, SELF, genExtraText, [
+    STORE_TEMP(getProductionRate(), 256),
+    STORE_TEMP(production_level, 257),
+
+    STORE_TEMP(LOAD_PERM(52), 258),
+    STORE_TEMP(LOAD_PERM(53), 259),
+    STORE_TEMP(LOAD_PERM(54), 260),
+    STORE_TEMP(LOAD_PERM(55), 261),
+]) {
+    return string(STR_INDUSTRY_EXTRA_TEXT);
+}
+
+item(FEAT_INDUSTRIES, steel_mill) {
+    property {
+        substitute: INDUSTRYTYPE_STEEL_MILL;
+        override:   INDUSTRYTYPE_STEEL_MILL;
+        cargo_types: [
+            accept_cargo("IORE"),
+            produce_cargo("STEL", 0),
+        ];
+    }
+    graphics {
+        extra_text_industry:   genExtraText;
+        produce_256_ticks:     evalProductionCycle;
+        produce_cargo_arrival: noProduction;
+        monthly_prod_change:   changeProduction;
+        random_prod_change:    CB_RESULT_IND_PROD_NO_CHANGE;
+        stop_accept_cargo:     isStockpileFull;
+        build_prod_change:     initPermanentStorage;
+    }
+}
+

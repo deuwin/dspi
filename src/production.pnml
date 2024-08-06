@@ -1,0 +1,67 @@
+/********************
+ * Production Changes
+ ********************/
+
+#define PRODUCTION_BASE 16
+#define PRODUCTION_MIN  5
+#define PRODUCTION_MAX  255
+#define STOCKPILE_LIMIT 15000
+
+/* setProductionRate(), getProductionRate()
+ * Convenience functions to get/set production rate. */
+switch(FEAT_INDUSTRIES, SELF, setProductionRate, rate,
+    min(PRODUCTION_MAX, max(PRODUCTION_MIN, STORE_PERM(rate, 0)))
+){ return; }
+switch(FEAT_INDUSTRIES, SELF, getProductionRate,
+    LOAD_PERM(0)
+) { return; }
+
+switch(FEAT_INDUSTRIES, SELF, setProductionLevel, [
+    // naively half the rate to get the level, for now anyway
+    STORE_TEMP((getProductionRate() / 2) << 16, 0x100)
+]) {
+    return CB_RESULT_IND_PROD_SET_BY_0x100;
+}
+
+/* getProductionChange()
+ * should give a change in the range 3-23%, just like the smooth economy option */
+switch(FEAT_INDUSTRIES, SELF, getProductionChange,
+    max(1, randomRange(10, 60) * getProductionRate() / 256)
+) { return; }
+
+/* chanceToIncrease(percent)
+ * Returns chance based on percent parameter. Should closely mirror the values
+ * used in a smooth economy */
+switch(FEAT_INDUSTRIES, SELF, chanceToIncrease, percent,
+    percent
+) {
+    0..60:   randomChance(1, 3);
+    61..80:  randomChance(2, 3);
+    81..100: randomChance(5, 6);
+}
+
+/* Industries have 8 or 9 production cycles a month so we use (8.5 * 6) */
+#define PROD_CYCLE_SIX_MONTHS 51
+
+switch(FEAT_INDUSTRIES, SELF, updateProduction, [
+    // calculate impact of stockpile level on production rate
+    STORE_TEMP((incoming_cargo_waiting("IORE") / PROD_CYCLE_SIX_MONTHS) - getProductionRate(), 1),
+    STORE_TEMP(LOAD_TEMP(1) * 100 / getProductionRate(), 2),
+    (LOAD_TEMP(2) < 0) ? [
+        maxSigned(-20, LOAD_TEMP(2)),
+        STORE_TEMP(last_computed_result, 3),
+    ] : [
+        STORE_TEMP(min(20, LOAD_TEMP(2)), 3),
+    ],
+
+    // impact of transported cargo
+    STORE_TEMP(getProductionChange() * (chanceToIncrease(transported_last_month_pct("STEL")) ? 1 : -1), 4),
+
+    setProductionRate(
+        getProductionRate()
+            + LOAD_PERM(0) * LOAD_TEMP(3) / 100
+            + LOAD_TEMP(4)),
+
+    setProductionLevel()
+]) { return; }
+

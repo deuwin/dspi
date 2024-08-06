@@ -1,0 +1,46 @@
+/********************
+ * Random
+ ********************/
+
+/* A couple of functions to get range and chance. Downside is that RANDOM_CALLS
+ * needs to be manually tracked...
+ *
+ * I could really do with more random numbers, but this is a GRF not an
+ * encryption algorithm. So hopefully it'll do? */
+
+//
+// WARN: You must keep track of RANDOM_CALLS manually! It will need updated if
+// you use more random functions in the monthly_prod_change callback chain.
+//
+
+RANDOM_CALLS      = 4;
+BIT_LEN           = 32 / RANDOM_CALLS;  // extra_callback_info2 is 32 bits long
+RAND_MAX_PLUS_ONE = bitmask(BIT_LEN);
+
+/* initRandom()
+ * Not sure if temporary storage is initialised to zero, so let's make sure */
+switch(FEAT_INDUSTRIES, SELF, initRandom,
+    STORE_TEMP(0, 0)
+) { return; }
+
+/* getRandomBits()
+ * Convenience function to get random bits, so one does not need to remember to
+ * bit shift extra_callback_info2. */
+switch(FEAT_INDUSTRIES, SELF, getRandomBits, [
+    STORE_TEMP(getbits(extra_callback_info2, LOAD_TEMP(0), BIT_LEN), 1),
+    STORE_TEMP(LOAD_TEMP(0) + BIT_LEN, 0)
+]) { return LOAD_TEMP(1); }
+
+/* randomChance(n, d)
+ * n - numerator
+ * d - denominator
+ * Returns 2 with a probability of n/d. */
+switch(FEAT_INDUSTRIES, SELF, randomChance, n, d,
+    getRandomBits() < (RAND_MAX_PLUS_ONE * n / d)
+) { return; }
+
+/* randomRange(min, max)
+ * Returns a random number in the range [min, max - 1] */
+switch(FEAT_INDUSTRIES, SELF, randomRange, min, max,
+    getRandomBits() * (max - min) / RAND_MAX_PLUS_ONE + min
+) { return; }
