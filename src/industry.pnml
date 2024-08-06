@@ -2,6 +2,8 @@
  * Industry
  ********************/
 
+#include "industry_registers.pnml"
+
 /* Closure
  * If an industry has not produced anything in 60 consecutive months (5 years)
  * it is considered abandoned and has a chance of closing. */
@@ -37,7 +39,7 @@ produce(produceCargo,
 /* evalProductionCycle()
  * A production cycle is 256 ticks long */
 switch(FEAT_INDUSTRIES, SELF, evalProductionCycle,
-    STORE_TEMP(min(getProductionRate(), incoming_cargo_waiting("IORE")), 0)
+    STORE_TEMP(min(PRODUCTION_RATE, incoming_cargo_waiting("IORE")), 0)
 ) {
     return produceCargo;
 }
@@ -74,7 +76,7 @@ switch(FEAT_INDUSTRIES, SELF, initPermanentStorage,
 // genExtraText()
 // Debugging for now, should display useful information in future!
 switch(FEAT_INDUSTRIES, SELF, genExtraText, [
-    STORE_TEMP(getProductionRate(), 256),
+    STORE_TEMP(PRODUCTION_RATE, 256),
     STORE_TEMP(production_level, 257),
 
     STORE_TEMP(LOAD_PERM(52), 258),
