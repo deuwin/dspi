@@ -1,3 +1,6 @@
+#ifndef RANDOM_PNML
+#define RANDOM_PNML
+
 /********************
  * Random
  ********************/
@@ -44,3 +47,5 @@ switch(FEAT_INDUSTRIES, SELF, randomChance, n, d,
 switch(FEAT_INDUSTRIES, SELF, randomRange, min, max,
     getRandomBits() * (max - min) / RAND_MAX_PLUS_ONE + min
 ) { return; }
+
+#endif // RANDOM_PNML

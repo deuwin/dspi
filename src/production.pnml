@@ -1,13 +1,48 @@
+#include "industry_registers.pnml"
+#include "random.pnml"
+
+/********************
+ * Closure
+ ********************/
+
+/* If an industry has not produced anything in 60 consecutive months (5 years)
+ * it is considered abandoned and has a chance of closing. */
+#define ABANDONMENT_THRESHOLD 60
+#define CLOSURE_CHANCE        180
+
+#define INC_ABANDONMENT_PERIOD() \
+    SET_PERM(ABANDONMENT_PERIOD, GET_PERM(ABANDONMENT_PERIOD) + 1)
+#define RESET_ABANDONMENT_PERIOD() SET_PERM(ABANDONMENT_PERIOD, 0)
+
+switch(FEAT_INDUSTRIES, SELF, isAbandoned, cargo_produced, [
+    (cargo_produced == 0)
+        ? INC_ABANDONMENT_PERIOD()
+        : RESET_ABANDONMENT_PERIOD(),
+    GET_PERM(ABANDONMENT_PERIOD) > ABANDONMENT_THRESHOLD
+]) {
+    1: randomChance(1, CLOSURE_CHANCE);
+    0;
+}
+
+
+/********************
+ * Stockpile
+ ********************/
+
+#define STOCKPILE_LIMIT 15000
+
+switch(FEAT_INDUSTRIES, SELF, isStockpileFull, cargo_waiting,
+    STOCKPILE_LIMIT > cargo_waiting
+) { return; }
+
+
 /********************
  * Production Changes
  ********************/
 
-#include "industry_registers.pnml"
-
 #define PRODUCTION_BASE 16
 #define PRODUCTION_MIN  5
 #define PRODUCTION_MAX  255
-#define STOCKPILE_LIMIT 15000
 
 /* setProductionRate()
  * Convenience function to set production rate. */
@@ -39,12 +74,15 @@ switch(FEAT_INDUSTRIES, SELF, chanceToIncrease, percent,
     81..100: randomChance(5, 6);
 }
 
-/* Industries have 8 or 9 production cycles a month so we use (8.5 * 6) */
+/* updateProduction(cargo_waiting, cargo_transported)
+ * Industries have 8 or 9 production cycles a month so we use (8.5 * 6) */
 #define PROD_CYCLE_SIX_MONTHS 51
-
-switch(FEAT_INDUSTRIES, SELF, updateProduction, [
+switch(FEAT_INDUSTRIES, SELF, updateProduction,
+    cargo_waiting,
+    cargo_transported,
+[
     // calculate impact of stockpile level on production rate
-    STORE_TEMP((incoming_cargo_waiting("IORE") / PROD_CYCLE_SIX_MONTHS) - GET_PERM(PRODUCTION_RATE), 1),
+    STORE_TEMP((cargo_waiting / PROD_CYCLE_SIX_MONTHS) - GET_PERM(PRODUCTION_RATE), 1),
     STORE_TEMP(LOAD_TEMP(1) * 100 / GET_PERM(PRODUCTION_RATE), 2),
     (LOAD_TEMP(2) < 0) ? [
         maxSigned(-20, LOAD_TEMP(2)),
@@ -54,7 +92,7 @@ switch(FEAT_INDUSTRIES, SELF, updateProduction, [
     ],
 
     // impact of transported cargo
-    STORE_TEMP(getProductionChange() * (chanceToIncrease(transported_last_month_pct("STEL")) ? 1 : -1), 4),
+    STORE_TEMP(getProductionChange() * (chanceToIncrease(cargo_transported) ? 1 : -1), 4),
 
     setProductionRate(
         GET_PERM(PRODUCTION_RATE)
@@ -64,3 +102,56 @@ switch(FEAT_INDUSTRIES, SELF, updateProduction, [
     setProductionLevel()
 ]) { return; }
 
+/* shouldProductionChange(cargo_waiting, cargo_transported) */
+#define PRODUCTION_CHANGE_PROB 3
+switch(FEAT_INDUSTRIES, SELF, shouldProductionChange,
+    cargo_waiting,
+    cargo_transported,
+[
+    randomChance(1, PRODUCTION_CHANGE_PROB)
+        && (cargo_transported > 0)
+]) {
+    1: updateProduction(cargo_waiting, cargo_transported);
+    CB_RESULT_IND_PROD_NO_CHANGE;
+}
+
+switch(FEAT_INDUSTRIES, SELF, changeProduction,
+    cargo_waiting,
+    cargo_produced,
+    cargo_transported,
+[
+    initRandom(),
+    isAbandoned(cargo_produced)
+]) {
+    1: CB_RESULT_IND_PROD_CLOSE;
+    shouldProductionChange(cargo_waiting, cargo_transported);
+}
+
+
+/********************
+ * Initialisation
+ ********************/
+
+/* initPermanentStorage() */
+switch(FEAT_INDUSTRIES, SELF, initPermanentStorage,
+    SET_PERM(PRODUCTION_RATE, PRODUCTION_BASE)
+) { return; }
+
+
+/********************
+ * Extra Text
+ ********************/
+
+// genExtraText()
+// Debugging for now, should display useful information in future!
+switch(FEAT_INDUSTRIES, SELF, genExtraText, [
+    STORE_TEMP(GET_PERM(PRODUCTION_RATE), 256),
+    STORE_TEMP(production_level, 257),
+
+    STORE_TEMP(LOAD_PERM(52), 258),
+    STORE_TEMP(LOAD_PERM(53), 259),
+    STORE_TEMP(LOAD_PERM(54), 260),
+    STORE_TEMP(LOAD_PERM(55), 261),
+]) {
+    return string(STR_INDUSTRY_EXTRA_TEXT);
+}

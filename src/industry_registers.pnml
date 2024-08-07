@@ -1,5 +1,5 @@
-#ifndef INDUSTRY_REGISTERS
-#define INDUSTRY_REGISTERS
+#ifndef INDUSTRY_REGISTERS_PNML
+#define INDUSTRY_REGISTERS_PNML
 
 // Permanent registers
 #define REG_PRODUCTION_RATE    0x00
@@ -9,3 +9,5 @@
 #define REG_NAME(name)        REG_##name
 #define GET_PERM(name)        LOAD_PERM(REG_NAME(name))
 #define SET_PERM(name, value) STORE_PERM(value, REG_NAME(name))
+
+#endif // INDUSTRY_REGISTERS_PNML
