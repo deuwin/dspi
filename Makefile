@@ -32,9 +32,11 @@ lang: $(LNG_FILES)
 $(LNG_DIR)/%.lng: $(PLNG_DIR)/%.plng
 	@gcc $(GCC_FLAGS) -o $@ $^
 
-%.nml: $(SRC_DIR)/%.pnml
+nml: $(NML_FILE)
+
+$(BUILD_DIR)/%.nml: $(SRC_DIR)/%.pnml
 	@echo -- Process NML file
-	@gcc $(GCC_FLAGS) -o $(BUILD_DIR)/$@ $^
+	@gcc $(GCC_FLAGS) -o $@ $^
 
 grf: $(PROJECT).grf
 
