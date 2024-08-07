@@ -17,7 +17,7 @@ switch(FEAT_INDUSTRIES, SELF, setProductionRate, rate,
 
 switch(FEAT_INDUSTRIES, SELF, setProductionLevel, [
     // naively half the rate to get the level, for now anyway
-    STORE_TEMP((PRODUCTION_RATE / 2) << 16, 0x100)
+    STORE_TEMP((GET_PERM(PRODUCTION_RATE) / 2) << 16, 0x100)
 ]) {
     return CB_RESULT_IND_PROD_SET_BY_0x100;
 }
@@ -25,7 +25,7 @@ switch(FEAT_INDUSTRIES, SELF, setProductionLevel, [
 /* getProductionChange()
  * should give a change in the range 3-23%, just like the smooth economy option */
 switch(FEAT_INDUSTRIES, SELF, getProductionChange,
-    max(1, randomRange(10, 60) * PRODUCTION_RATE / 256)
+    max(1, randomRange(10, 60) * GET_PERM(PRODUCTION_RATE) / 256)
 ) { return; }
 
 /* chanceToIncrease(percent)
@@ -44,8 +44,8 @@ switch(FEAT_INDUSTRIES, SELF, chanceToIncrease, percent,
 
 switch(FEAT_INDUSTRIES, SELF, updateProduction, [
     // calculate impact of stockpile level on production rate
-    STORE_TEMP((incoming_cargo_waiting("IORE") / PROD_CYCLE_SIX_MONTHS) - PRODUCTION_RATE, 1),
-    STORE_TEMP(LOAD_TEMP(1) * 100 / PRODUCTION_RATE, 2),
+    STORE_TEMP((incoming_cargo_waiting("IORE") / PROD_CYCLE_SIX_MONTHS) - GET_PERM(PRODUCTION_RATE), 1),
+    STORE_TEMP(LOAD_TEMP(1) * 100 / GET_PERM(PRODUCTION_RATE), 2),
     (LOAD_TEMP(2) < 0) ? [
         maxSigned(-20, LOAD_TEMP(2)),
         STORE_TEMP(last_computed_result, 3),
@@ -57,8 +57,8 @@ switch(FEAT_INDUSTRIES, SELF, updateProduction, [
     STORE_TEMP(getProductionChange() * (chanceToIncrease(transported_last_month_pct("STEL")) ? 1 : -1), 4),
 
     setProductionRate(
-        PRODUCTION_RATE
-            + PRODUCTION_RATE * LOAD_TEMP(3) / 100
+        GET_PERM(PRODUCTION_RATE)
+            + GET_PERM(PRODUCTION_RATE) * LOAD_TEMP(3) / 100
             + LOAD_TEMP(4)),
 
     setProductionLevel()

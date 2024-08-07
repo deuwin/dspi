@@ -7,14 +7,18 @@
 /* Closure
  * If an industry has not produced anything in 60 consecutive months (5 years)
  * it is considered abandoned and has a chance of closing. */
-#define ABANDONMENT_PERIOD 60
-#define CLOSURE_CHANCE     180
+#define ABANDONMENT_THRESHOLD 60
+#define CLOSURE_CHANCE        180
+
+#define INC_ABANDONMENT_PERIOD() \
+    SET_PERM(ABANDONMENT_PERIOD, GET_PERM(ABANDONMENT_PERIOD) + 1)
+#define RESET_ABANDONMENT_PERIOD() SET_PERM(ABANDONMENT_PERIOD, 0)
 
 switch(FEAT_INDUSTRIES, SELF, isAbandoned, [
     (last_month_production("STEL") == 0)
-        ? STORE_PERM(LOAD_PERM(1) + 1, 1)
-        : STORE_PERM(0, 1),
-    LOAD_PERM(1) > ABANDONMENT_PERIOD
+        ? INC_ABANDONMENT_PERIOD()
+        : RESET_ABANDONMENT_PERIOD(),
+    GET_PERM(ABANDONMENT_PERIOD) > ABANDONMENT_THRESHOLD
 ]) {
     1: randomChance(1, CLOSURE_CHANCE);
     0;
@@ -39,7 +43,7 @@ produce(produceCargo,
 /* evalProductionCycle()
  * A production cycle is 256 ticks long */
 switch(FEAT_INDUSTRIES, SELF, evalProductionCycle,
-    STORE_TEMP(min(PRODUCTION_RATE, incoming_cargo_waiting("IORE")), 0)
+    STORE_TEMP(min(GET_PERM(PRODUCTION_RATE), incoming_cargo_waiting("IORE")), 0)
 ) {
     return produceCargo;
 }
@@ -65,18 +69,15 @@ switch(FEAT_INDUSTRIES, SELF, changeProduction, [
     shouldProductionChange();
 }
 
-/* initPermanentStorage()
- * Registers:
- *      0x00: Production Rate
- *      0x01: Months Abandoned */
+/* initPermanentStorage() */
 switch(FEAT_INDUSTRIES, SELF, initPermanentStorage,
-    STORE_PERM(PRODUCTION_BASE, 0)
+    SET_PERM(PRODUCTION_RATE, PRODUCTION_BASE)
 ) { return; }
 
 // genExtraText()
 // Debugging for now, should display useful information in future!
 switch(FEAT_INDUSTRIES, SELF, genExtraText, [
-    STORE_TEMP(PRODUCTION_RATE, 256),
+    STORE_TEMP(GET_PERM(PRODUCTION_RATE), 256),
     STORE_TEMP(production_level, 257),
 
     STORE_TEMP(LOAD_PERM(52), 258),

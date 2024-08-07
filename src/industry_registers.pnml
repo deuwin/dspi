@@ -1,5 +1,11 @@
-#pragma once
+#ifndef INDUSTRY_REGISTERS
+#define INDUSTRY_REGISTERS
 
-#define REG_PRODUCTION_RATE 0x00
+// Permanent registers
+#define REG_PRODUCTION_RATE    0x00
+#define REG_ABANDONMENT_PERIOD 0x01
 
-#define PRODUCTION_RATE LOAD_PERM(REG_PRODUCTION_RATE)
+// Register access
+#define REG_NAME(name)        REG_##name
+#define GET_PERM(name)        LOAD_PERM(REG_NAME(name))
+#define SET_PERM(name, value) STORE_PERM(value, REG_NAME(name))
