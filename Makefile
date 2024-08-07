@@ -56,4 +56,7 @@ grf: $(PROJECT_GRF)
 	$(V)nmlc $(NMLC_FLAGS) --grf=$@ $^
 
 clean:
-	@rm -f $(GRF_FILE) $(NML_FILE) $(LNG_FILES) $(BUILD_DIR)/custom_tags.txt
+	@rm -f \
+		$(BUILD_DIR)/$(PROJECT).* \
+		$(BUILD_DIR)/custom_tags.txt \
+		$(LNG_FILES)
