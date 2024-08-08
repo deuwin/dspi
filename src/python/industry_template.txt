@@ -1,0 +1,38 @@
+produce(${name}_produceCargo,
+    [
+        $cycle_consume
+    ],
+    [
+        $cycle_produce
+    ],
+    0
+)
+
+switch(FEAT_INDUSTRIES, SELF, ${name}_calcProduction, [
+    STORE_TEMP(GET_PERM(PRODUCTION_RATE), 0),
+    $production_limit
+]) { return ${name}_produceCargo; }
+
+item(FEAT_INDUSTRIES, $name) {
+    property {
+        substitute: $id;
+        override:   $id;
+        cargo_types {
+            $accept_cargo
+            $produce_cargo
+        };
+    }
+    graphics {
+        build_prod_change:     initPermanentStorage;
+        extra_text_industry:   genExtraText;
+
+        produce_cargo_arrival: noProduction;
+        produce_256_ticks:     ${name}_calcProduction();
+
+        stop_accept_cargo:     $stop_accept_cargo;
+
+        random_prod_change:    CB_RESULT_IND_PROD_NO_CHANGE;
+        monthly_prod_change:   $monthly_prod_change
+    }
+}
+

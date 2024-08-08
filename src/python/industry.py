@@ -1,6 +1,7 @@
 import sys
 from dataclasses import dataclass
 from string import Template
+from pathlib import Path
 
 from cargo import Cargo
 
@@ -48,46 +49,6 @@ INDUSTRIES = [
 
 @dataclass(frozen=True)
 class IndTemplate:
-    item: Template = Template(
-        """produce(${name}_produceCargo,
-    [
-        $cycle_consume
-    ],
-    [
-        $cycle_produce
-    ],
-    0
-)
-
-switch(FEAT_INDUSTRIES, SELF, ${name}_calcProduction, [
-    STORE_TEMP(GET_PERM(PRODUCTION_RATE), 0),
-    $production_limit
-]) { return ${name}_produceCargo; }
-
-item(FEAT_INDUSTRIES, $name) {
-    property {
-        substitute: $id;
-        override:   $id;
-        cargo_types {
-            $accept_cargo
-            $produce_cargo
-        };
-    }
-    graphics {
-        build_prod_change:     initPermanentStorage;
-        extra_text_industry:   genExtraText;
-
-        produce_cargo_arrival: noProduction;
-        produce_256_ticks:     ${name}_calcProduction();
-
-        stop_accept_cargo:     $stop_accept_cargo;
-
-        random_prod_change:    CB_RESULT_IND_PROD_NO_CHANGE;
-        monthly_prod_change:   $monthly_prod_change
-    }
-}
-"""
-    )
     stop_accept_cargo: Template = Template(
         'stopAccept(incoming_cargo_waiting("$input"))'
     )
@@ -108,20 +69,24 @@ item(FEAT_INDUSTRIES, $name) {
 
 
 # fmt: off
-def generateIndustryNml(industry):
-    template_values = {
-        "id":                  industry.id,
-        "name":                industry.name,
-        "cycle_consume":       genCycleConsume(industry),
-        "cycle_produce":       genCycleProduce(industry),
-        "production_limit":    genProductionLimit(industry),
-        "accept_cargo":        genCargoTypeAccept(industry),
-        "produce_cargo":       genCargoTypeProduce(industry),
-        "stop_accept_cargo":   genStopAccept(industry),
-        "monthly_prod_change": genProdChange(industry),
-    }
+def generateIndustryNml(template_file):
+    template = Template(Path(template_file).read_text())
 
-    return IndTemplate.item.substitute(template_values)
+    nml = ""
+    for industry in INDUSTRIES:
+        template_values = {
+            "id":                  industry.id,
+            "name":                industry.name,
+            "cycle_consume":       genCycleConsume(industry),
+            "cycle_produce":       genCycleProduce(industry),
+            "production_limit":    genProductionLimit(industry),
+            "accept_cargo":        genCargoTypeAccept(industry),
+            "produce_cargo":       genCargoTypeProduce(industry),
+            "stop_accept_cargo":   genStopAccept(industry),
+            "monthly_prod_change": genProdChange(industry),
+        }
+        nml += template.substitute(template_values)
+    return nml
 # fmt: on
 
 
@@ -189,11 +154,7 @@ def genProdChange(ind):
 
 
 def main(argv):
-    if len(argv) == 1:
-        for ind in INDUSTRIES:
-            print(generateIndustryNml(ind))
-    else:
-        print(generateIndustryNml(argv[1]))
+    print(generateIndustryNml(argv[1]))
 
 
 if __name__ == "__main__":
