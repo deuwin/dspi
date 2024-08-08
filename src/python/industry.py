@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from string import Template
 
 from cargo import Cargo
-from util.file import writeText
 
 
 # fmt: off
@@ -12,6 +11,10 @@ class Industry:
     id:     str
     input:  str | list[str]
     output: str
+
+    @property
+    def name(self):
+        return self.id[13:].lower()
 
 # temperate secondary industries
 INDUSTRIES = [
@@ -25,16 +28,15 @@ INDUSTRIES = [
         Cargo.Wood,
         Cargo.Goods,
     ),
-    # TODO: Implement NML functions to deal with multiple inputs
-    # Industry(
-    #     "INDUSTRYTYPE_FACTORY",
-    #     [
-    #         Cargo.Livestock,
-    #         Cargo.Grain,
-    #         Cargo.Steel,
-    #     ],
-    #     Cargo.Goods,
-    # ),
+    Industry(
+        "INDUSTRYTYPE_FACTORY",
+        [
+            Cargo.Livestock,
+            Cargo.Grain,
+            Cargo.Steel,
+        ],
+        Cargo.Goods,
+    ),
     Industry(
         "INDUSTRYTYPE_OIL_REFINERY",
         Cargo.Oil,
@@ -47,7 +49,22 @@ INDUSTRIES = [
 @dataclass(frozen=True)
 class IndTemplate:
     item: Template = Template(
-        """item(FEAT_INDUSTRIES, $name) {
+        """produce(${name}_produceCargo,
+    [
+        $cycle_consume
+    ],
+    [
+        $cycle_produce
+    ],
+    0
+)
+
+switch(FEAT_INDUSTRIES, SELF, ${name}_calcProduction, [
+    STORE_TEMP(GET_PERM(PRODUCTION_RATE), 0),
+    $production_limit
+]) { return ${name}_produceCargo; }
+
+item(FEAT_INDUSTRIES, $name) {
     property {
         substitute: $id;
         override:   $id;
@@ -61,19 +78,15 @@ class IndTemplate:
         extra_text_industry:   genExtraText;
 
         produce_cargo_arrival: noProduction;
-        produce_256_ticks:     $produce_256_ticks;
+        produce_256_ticks:     ${name}_calcProduction();
 
         stop_accept_cargo:     $stop_accept_cargo;
 
         random_prod_change:    CB_RESULT_IND_PROD_NO_CHANGE;
         monthly_prod_change:   $monthly_prod_change
     }
-}"""
-    )
-    accept_cargo: Template = Template('accept_cargo("$input"),')
-    produce_cargo: Template = Template('produce_cargo("$output", 0),')
-    produce_256_ticks: Template = Template(
-        'calcProduction(incoming_cargo_waiting("$input"))'
+}
+"""
     )
     stop_accept_cargo: Template = Template(
         'stopAccept(incoming_cargo_waiting("$input"))'
@@ -89,49 +102,77 @@ class IndTemplate:
         + " " * 31
         + ");"
     )
+    production_limit: Template = Template(
+        'STORE_TEMP(min(LOAD_TEMP(0), incoming_cargo_waiting("$input"), $temp_reg),'
+    )
 
 
-def generateIndustryNml():
-    industry_items = ""
-    for ind in INDUSTRIES:
-        template_values = {
-            "id":                  ind.id,
-            "name":                ind.id[13:].lower(),
-            "accept_cargo":        genAcceptCargo(ind),
-            "produce_cargo":       genProduceCargo(ind),
-            "produce_256_ticks":   genProduceCycle(ind),
-            "stop_accept_cargo":   genStopAccept(ind),
-            "monthly_prod_change": genProdChange(ind),
-        }
-        industry_items = (
-            industry_items + IndTemplate.item.substitute(template_values) + "\n\n"
+# fmt: off
+def generateIndustryNml(industry):
+    template_values = {
+        "id":                  industry.id,
+        "name":                industry.name,
+        "cycle_consume":       genCycleConsume(industry),
+        "cycle_produce":       genCycleProduce(industry),
+        "production_limit":    genProductionLimit(industry),
+        "accept_cargo":        genCargoTypeAccept(industry),
+        "produce_cargo":       genCargoTypeProduce(industry),
+        "stop_accept_cargo":   genStopAccept(industry),
+        "monthly_prod_change": genProdChange(industry),
+    }
+
+    return IndTemplate.item.substitute(template_values)
+# fmt: on
+
+
+def genProductionLimit(industry):
+    if type(industry.input) == list:
+        limit = ""
+        for temp_reg, input in enumerate(industry.input):
+            limit += (
+                IndTemplate.production_limit.substitute(input=input, temp_reg=temp_reg)
+                + "\n    "
+            )
+        return limit[:-5]
+    else:
+        temp_reg = 0
+        return IndTemplate.production_limit.substitute(
+            input=industry.input, temp_reg=temp_reg
         )
 
-    return industry_items
+
+def genCycleConsume(industry):
+    if type(industry.input) == list:
+        consume = ""
+        for temp_reg, input in enumerate(industry.input):
+            consume += f"{input}: LOAD_TEMP({temp_reg});\n        "
+        return consume[:-9]
+    else:
+        return f"{industry.input}: LOAD_TEMP(0);"
 
 
-def genAcceptCargo(ind):
-    template = IndTemplate.accept_cargo
+def genCycleProduce(industry):
+    if type(industry.input) == list:
+        produce = f"{industry.output}: "
+        for temp_reg, input in enumerate(industry.input):
+            produce += f"LOAD_TEMP({temp_reg}) + "
+        return produce[:-3] + ";"
+    else:
+        return f"{industry.output}: LOAD_TEMP(0);"
+
+
+def genCargoTypeAccept(ind):
     if type(ind.input) == list:
         accept_cargo = ""
         for input in ind.input:
-            accept_cargo = (
-                accept_cargo + template.substitute(input=input) + "\n" + " " * 12
-            )
+            accept_cargo += f'accept_cargo("{input}"),\n' + " " * 12
         return accept_cargo[:-13]
     else:
-        return template.substitute(input=ind.input)
+        return f'accept_cargo("{ind.input}"),'
 
 
-def genProduceCargo(ind):
-    return IndTemplate.produce_cargo.substitute(output=ind.output)
-
-
-def genProduceCycle(ind):
-    if ind.id == "INDUSTRYTYPE_FACTORY":
-        return "calcProductionFactory()"
-    else:
-        return IndTemplate.produce_256_ticks.substitute(input=ind.output)
+def genCargoTypeProduce(ind):
+    return f'produce_cargo("{ind.output}", 0),'
 
 
 def genStopAccept(ind):
@@ -149,14 +190,10 @@ def genProdChange(ind):
 
 def main(argv):
     if len(argv) == 1:
-        file_out = None
+        for ind in INDUSTRIES:
+            print(generateIndustryNml(ind))
     else:
-        file_out = argv[1]
-
-    if file_out:
-        writeText(file_out, industry_items)
-    else:
-        print(industry_items)
+        print(generateIndustryNml(argv[1]))
 
 
 if __name__ == "__main__":
