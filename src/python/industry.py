@@ -1,4 +1,3 @@
-import sys
 from dataclasses import dataclass
 from string import Template
 from pathlib import Path
@@ -49,9 +48,6 @@ INDUSTRIES = [
 
 @dataclass(frozen=True)
 class IndTemplate:
-    stop_accept_cargo: Template = Template(
-        'stopAccept(incoming_cargo_waiting("$input"))'
-    )
     monthly_prod_change: Template = Template(
         "changeProduction(\n"
         + " " * 36
@@ -82,7 +78,6 @@ def generateIndustryNml(template_file):
             "production_limit":    genProductionLimit(industry),
             "accept_cargo":        genCargoTypeAccept(industry),
             "produce_cargo":       genCargoTypeProduce(industry),
-            "stop_accept_cargo":   genStopAccept(industry),
             "monthly_prod_change": genProdChange(industry),
         }
         nml += template.substitute(template_values)
@@ -140,13 +135,6 @@ def genCargoTypeProduce(ind):
     return f'produce_cargo("{ind.output}", 0),'
 
 
-def genStopAccept(ind):
-    if ind.id == "INDUSTRYTYPE_FACTORY":
-        return "stopAcceptFactory()"
-    else:
-        return IndTemplate.stop_accept_cargo.substitute(input=ind.input)
-
-
 def genProdChange(ind):
     return IndTemplate.monthly_prod_change.substitute(
         input=ind.input, output=ind.output
@@ -158,4 +146,5 @@ def main(argv):
 
 
 if __name__ == "__main__":
+    import sys
     sys.exit(main(sys.argv))

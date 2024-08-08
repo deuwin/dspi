@@ -29,7 +29,7 @@ item(FEAT_INDUSTRIES, $name) {
         produce_cargo_arrival: noProduction;
         produce_256_ticks:     ${name}_calcProduction();
 
-        stop_accept_cargo:     $stop_accept_cargo;
+        stop_accept_cargo:     isStockpileFull;
 
         random_prod_change:    CB_RESULT_IND_PROD_NO_CHANGE;
         monthly_prod_change:   $monthly_prod_change
