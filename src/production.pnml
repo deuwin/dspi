@@ -31,9 +31,12 @@ switch(FEAT_INDUSTRIES, SELF, isAbandoned, cargo_produced, [
 
 #define STOCKPILE_LIMIT 15000
 
-switch(FEAT_INDUSTRIES, SELF, isStockpileFull, cargo_waiting,
-    STOCKPILE_LIMIT > cargo_waiting
-) { return; }
+
+/********************
+ * Production
+ ********************/
+
+produce(noProduction, [], [])
 
 
 /********************
@@ -110,7 +113,7 @@ switch(FEAT_INDUSTRIES, SELF, shouldProductionChange,
     CB_RESULT_IND_PROD_NO_CHANGE;
 }
 
-switch(FEAT_INDUSTRIES, SELF, changeProduction,
+switch(FEAT_INDUSTRIES, SELF, evalProduction,
     cargo_waiting,
     cargo_produced,
     cargo_transported,

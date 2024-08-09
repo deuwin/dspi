@@ -6,7 +6,7 @@ grf {
     min_compatible_version: 0;
 }
 
-#include "cargo_types.pnml"
+#include "cargotable.pnml"
 #include "maths.pnml"
 #include "random.pnml"
 #include "production.pnml"
