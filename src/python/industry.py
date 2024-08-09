@@ -29,7 +29,7 @@ INDUSTRIES = [
         Cargo.Goods,
     ),
     Industry(
-        "INDUSTRYTYPE_FACTORY",
+        "INDUSTRYTYPE_TEMPERATE_FACTORY",
         [
             Cargo.Livestock,
             Cargo.Grain,
