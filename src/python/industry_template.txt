@@ -9,7 +9,6 @@ produce(${name}_produceCargo,
 )
 
 switch(FEAT_INDUSTRIES, SELF, ${name}_calcProduction, [
-    STORE_TEMP(GET_PERM(PRODUCTION_RATE), 0),
     $production_limit
 ]) { return ${name}_produceCargo; }
 

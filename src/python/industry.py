@@ -60,7 +60,8 @@ class IndTemplate:
         + ");"
     )
     production_limit: Template = Template(
-        'STORE_TEMP(min(LOAD_TEMP(0), incoming_cargo_waiting("$input")), $temp_reg),'
+        'STORE_TEMP(min(GET_PERM(PRODUCTION_RATE), incoming_cargo_waiting("$input")), $temp_reg),'
+
     )
 
 
