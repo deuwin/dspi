@@ -47,7 +47,7 @@ switch(FEAT_INDUSTRIES, SELF, isStockpileFull, cargo_waiting,
 /* setProductionRate()
  * Convenience function to set production rate. */
 switch(FEAT_INDUSTRIES, SELF, setProductionRate, rate,
-    SET_PERM(PRODUCTION_RATE, min(PRODUCTION_MAX, max(PRODUCTION_MIN, rate)))
+    SET_PERM(PRODUCTION_RATE, clamp(rate, PRODUCTION_MIN, PRODUCTION_MAX))
 ){ return; }
 
 switch(FEAT_INDUSTRIES, SELF, setProductionLevel, [
@@ -84,12 +84,7 @@ switch(FEAT_INDUSTRIES, SELF, updateProduction,
     // calculate impact of stockpile level on production rate
     STORE_TEMP((cargo_waiting / PROD_CYCLE_SIX_MONTHS) - GET_PERM(PRODUCTION_RATE), 1),
     STORE_TEMP(LOAD_TEMP(1) * 100 / GET_PERM(PRODUCTION_RATE), 2),
-    (LOAD_TEMP(2) < 0) ? [
-        maxSigned(-20, LOAD_TEMP(2)),
-        STORE_TEMP(last_computed_result, 3),
-    ] : [
-        STORE_TEMP(min(20, LOAD_TEMP(2)), 3),
-    ],
+    STORE_TEMP(clamp(LOAD_TEMP(2), -20, 20), 3),
 
     // impact of transported cargo
     STORE_TEMP(getProductionChange() * (chanceToIncrease(cargo_transported) ? 1 : -1), 4),

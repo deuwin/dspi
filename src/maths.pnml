@@ -2,14 +2,7 @@
  * Maths
  ********************/
 
-/* maxSigned(a, b)
- * Convenience wrapper around CMP(). Returns maximum value of a and b. Remember
- * to use last_computed_result if you're using or expecting numbers lower than
- * -128, as this will return values truncated to 15 bits. */
-switch(FEAT_INDUSTRIES, SELF, maxSigned, a, b,
-    CMP(a, b)
-) {
-    CMP_LESS:    b;
-    CMP_EQUAL:   a;
-    CMP_GREATER: a;
-}
+/* clamp(value, lower_limit, upper_limit) */
+switch(FEAT_INDUSTRIES, SELF, clamp, value, lower_limit, upper_limit,
+    min(upper_limit, max(lower_limit, value))
+) { return; }
