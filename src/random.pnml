@@ -12,13 +12,14 @@
  * encryption algorithm. So hopefully it'll do? */
 
 //
-// WARN: You must keep track of RANDOM_CALLS manually! It will need updated if
-// you use more random functions in the monthly_prod_change callback chain.
+// WARN: You must keep track of RAND_MAX_PLUS_ONE manually! It will need updated
+// if you use more random functions in the monthly_prod_change callback chain.
 //
 
-RANDOM_CALLS      = 4;
-BIT_LEN           = 32 / RANDOM_CALLS;  // extra_callback_info2 is 32 bits long
-RAND_MAX_PLUS_ONE = bitmask(BIT_LEN);
+// RANDOM_CALLS = 4, and extra_callback_info2 is 32 bits
+// 2 ^ (32 / 4)
+#define BIT_LEN           4
+#define RAND_MAX_PLUS_ONE 256
 
 /* initRandom()
  * Not sure if temporary storage is initialised to zero, so let's make sure */
@@ -37,7 +38,7 @@ switch(FEAT_INDUSTRIES, SELF, getRandomBits, [
 /* randomChance(n, d)
  * n - numerator
  * d - denominator
- * Returns 2 with a probability of n/d. */
+ * Returns 1 with a probability of n/d. */
 switch(FEAT_INDUSTRIES, SELF, randomChance, n, d,
     getRandomBits() < (RAND_MAX_PLUS_ONE * n / d)
 ) { return; }

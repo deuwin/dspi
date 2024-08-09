@@ -127,7 +127,6 @@ switch(FEAT_INDUSTRIES, SELF, changeProduction,
  * Initialisation
  ********************/
 
-/* initPermanentStorage() */
 switch(FEAT_INDUSTRIES, SELF, initPermanentStorage,
     SET_PERM(PRODUCTION_RATE, PRODUCTION_BASE)
 ) { return; }
@@ -137,7 +136,6 @@ switch(FEAT_INDUSTRIES, SELF, initPermanentStorage,
  * Extra Text
  ********************/
 
-// genExtraText()
 // Debugging for now, should display useful information in future!
 switch(FEAT_INDUSTRIES, SELF, genExtraText, [
     STORE_TEMP(GET_PERM(PRODUCTION_RATE), 256),
