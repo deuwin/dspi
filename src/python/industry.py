@@ -48,17 +48,6 @@ INDUSTRIES = [
 
 @dataclass(frozen=True)
 class IndTemplate:
-    monthly_prod_change: Template = Template(
-        "changeProduction(\n"
-        + " " * 36
-        + 'incoming_cargo_waiting("$input"),\n'
-        + " " * 36
-        + 'last_month_production("$output"),\n'
-        + " " * 36
-        + 'transported_last_month_pct("$output")\n'
-        + " " * 31
-        + ");"
-    )
     production_limit: Template = Template(
         'STORE_TEMP(min(GET_PERM(PRODUCTION_RATE), incoming_cargo_waiting("$input")), $temp_reg),'
 
@@ -73,14 +62,15 @@ def generateIndustryNml():
     nml = ""
     for industry in INDUSTRIES:
         template_values = {
-            "id":                  industry.id,
-            "name":                industry.name,
-            "cycle_consume":       genCycleConsume(industry),
-            "cycle_produce":       genCycleProduce(industry),
-            "production_limit":    genProductionLimit(industry),
-            "accept_cargo":        genCargoTypeAccept(industry),
-            "produce_cargo":       genCargoTypeProduce(industry),
-            "monthly_prod_change": genProdChange(industry),
+            "id":               industry.id,
+            "name":             industry.name,
+            "cycle_consume":    genCycleConsume(industry),
+            "cycle_produce":    genCycleProduce(industry),
+            "production_limit": genProductionLimit(industry),
+            "stockpile_level":  genRelevantLevel(industry),
+            "output":           industry.output,
+            "accept_cargo":     genCargoTypeAccept(industry),
+            "produce_cargo":    genCargoTypeProduce(industry),
         }
         nml += template.substitute(template_values)
     return nml
@@ -137,10 +127,15 @@ def genCargoTypeProduce(ind):
     return f'produce_cargo("{ind.output}", 0),'
 
 
-def genProdChange(ind):
-    return IndTemplate.monthly_prod_change.substitute(
-        input=ind.input, output=ind.output
-    )
+def genRelevantLevel(ind):
+    if type(ind.input) is str:
+        return f'incoming_cargo_waiting("{ind.input}")'
+
+    relevant_level = f'incoming_cargo_waiting("{ind.input[0]}")'
+    for input in ind.input[1:]:
+        relevant_level = f'max(incoming_cargo_waiting("{input}"), ' + relevant_level + ")"
+
+    return relevant_level
 
 
 def main(argv):
