@@ -17,10 +17,10 @@ item(FEAT_INDUSTRIES, $name) {
     property {
         substitute: $id;
         override:   $id;
-        cargo_types {
+        cargo_types: [
             $accept_cargo
             $produce_cargo
-        };
+        ];
     }
     graphics {
         build_prod_change:     initPermanentStorage;

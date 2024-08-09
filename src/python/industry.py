@@ -60,7 +60,7 @@ class IndTemplate:
         + ");"
     )
     production_limit: Template = Template(
-        'STORE_TEMP(min(LOAD_TEMP(0), incoming_cargo_waiting("$input"), $temp_reg),'
+        'STORE_TEMP(min(LOAD_TEMP(0), incoming_cargo_waiting("$input")), $temp_reg),'
     )
 
 
@@ -143,7 +143,7 @@ def genProdChange(ind):
 
 
 def main(argv):
-    print(generateIndustryNml(argv[1]))
+    print(generateIndustryNml())
 
 
 if __name__ == "__main__":
