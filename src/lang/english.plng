@@ -16,10 +16,10 @@ DESCRIPTION
         Prod. Rate: {COMMA}{}\
         Prod. Level: {COMMA}{}\
         {}\
-        Debug52: {COMMA}{}\
-        Debug53: {COMMA}{}\
-        Debug54: {COMMA}{}\
-        Debug55: {COMMA}
+        DEBUG_0: {COMMA}{}\
+        DEBUG_1: {COMMA}{}\
+        DEBUG_2: {COMMA}{}\
+        DEBUG_3: {COMMA}
 
 EXTRA_TEXT
 #undef EXTRA_TEXT
