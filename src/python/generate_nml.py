@@ -3,7 +3,7 @@ import sys
 import os
 
 from industry import generateIndustryNml
-
+from industry_functions import genIsStockpileFull
 
 def errorExit(error):
     print(f"\033[91mError\033[0m {str(error)}", file=sys.stderr)
@@ -18,9 +18,14 @@ def main(argv):
     if not output_directory.is_dir():
         errorExit(f'Specified path "{output_directory}" is not a directory!')
 
-    industry_file = output_directory / "industry.pnml"
+    output_files = {
+        "industry.pnml": genIsStockpileFull,
+        "industry_functions.pnml": generateIndustryNml
+    }
     try:
-        industry_file.write_text(generateIndustryNml())
+        for file, generator in output_files.items():
+            file_out = output_directory / file
+            file_out.write_text(generator())
     except OSError as err:
         errorExit(err)
 

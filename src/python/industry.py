@@ -65,8 +65,9 @@ class IndTemplate:
 
 
 # fmt: off
-def generateIndustryNml(template_file):
-    template = Template(Path(template_file).read_text())
+def generateIndustryNml():
+    template_file = Path(__file__).parent / "industry_template.txt"
+    template = Template(template_file.read_text())
 
     nml = ""
     for industry in INDUSTRIES:
