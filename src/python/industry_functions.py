@@ -1,6 +1,6 @@
 from string import Template
 
-from cargo import Cargo
+from cargotable import CargoTable as Cargo
 
 
 def genIsStockpileFull():

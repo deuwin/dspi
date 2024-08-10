@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from string import Template
 from pathlib import Path
 
-from cargo import Cargo
+from cargotable import CargoTable as Cargo
 
 
 # fmt: off
@@ -15,6 +15,7 @@ class Industry:
     @property
     def name(self):
         return self.id[13:].lower()
+
 
 # temperate secondary industries
 INDUSTRIES = [
@@ -43,23 +44,13 @@ INDUSTRIES = [
         Cargo.Goods
     ),
 ]
-# fmt: on
 
 
-@dataclass(frozen=True)
-class IndTemplate:
-    production_limit: Template = Template(
-        'STORE_TEMP(min(GET_PERM(PRODUCTION_RATE), incoming_cargo_waiting("$input")), $temp_reg),'
-
-    )
-
-
-# fmt: off
-def generateIndustryNml():
+def generateIndustryPnml():
     template_file = Path(__file__).parent / "industry_template.txt"
     template = Template(template_file.read_text())
 
-    nml = ""
+    pnml = ""
     for industry in INDUSTRIES:
         template_values = {
             "id":               industry.id,
@@ -72,59 +63,41 @@ def generateIndustryNml():
             "accept_cargo":     genCargoTypeAccept(industry),
             "produce_cargo":    genCargoTypeProduce(industry),
         }
-        nml += template.substitute(template_values)
-    return nml
+        pnml += template.substitute(template_values)
+    return pnml
 # fmt: on
 
 
-def genProductionLimit(industry):
-    if type(industry.input) == list:
-        limit = ""
-        for temp_reg, input in enumerate(industry.input):
-            limit += (
-                IndTemplate.production_limit.substitute(input=input, temp_reg=temp_reg)
-                + "\n    "
-            )
-        return limit[:-5]
-    else:
-        temp_reg = 0
-        return IndTemplate.production_limit.substitute(
-            input=industry.input, temp_reg=temp_reg
-        )
-
-
 def genCycleConsume(industry):
-    if type(industry.input) == list:
-        consume = ""
-        for temp_reg, input in enumerate(industry.input):
-            consume += f"{input}: LOAD_TEMP({temp_reg});\n        "
-        return consume[:-9]
-    else:
+    if type(industry.input) == str:
         return f"{industry.input}: LOAD_TEMP(0);"
+
+    consume = ""
+    for temp_reg, input in enumerate(industry.input):
+        consume += f"{input}: LOAD_TEMP({temp_reg});\n        "
+    return consume[:-9]
 
 
 def genCycleProduce(industry):
-    if type(industry.input) == list:
-        produce = f"{industry.output}: "
-        for temp_reg, input in enumerate(industry.input):
-            produce += f"LOAD_TEMP({temp_reg}) + "
-        return produce[:-3] + ";"
-    else:
+    if type(industry.input) == str:
         return f"{industry.output}: LOAD_TEMP(0);"
 
-
-def genCargoTypeAccept(ind):
-    if type(ind.input) == list:
-        accept_cargo = ""
-        for input in ind.input:
-            accept_cargo += f'accept_cargo("{input}"),\n' + " " * 12
-        return accept_cargo[:-13]
-    else:
-        return f'accept_cargo("{ind.input}"),'
+    produce = f"{industry.output}: "
+    for temp_reg, input in enumerate(industry.input):
+        produce += f"LOAD_TEMP({temp_reg}) + "
+    return produce[:-3] + ";"
 
 
-def genCargoTypeProduce(ind):
-    return f'produce_cargo("{ind.output}", 0),'
+def genProductionLimit(industry):
+    prefix = "STORE_TEMP(min(GET_PERM(PRODUCTION_RATE), incoming_cargo_waiting("
+
+    if type(industry.input) == str:
+        return prefix + f'"{industry.input}")), 0),'
+
+    limit = ""
+    for temp_reg, input in enumerate(industry.input):
+        limit += prefix + f'"{input}")), {temp_reg}),\n    '
+    return limit[:-5]
 
 
 def genRelevantLevel(ind):
@@ -133,13 +106,28 @@ def genRelevantLevel(ind):
 
     relevant_level = f'incoming_cargo_waiting("{ind.input[0]}")'
     for input in ind.input[1:]:
-        relevant_level = f'max(incoming_cargo_waiting("{input}"), ' + relevant_level + ")"
-
+        relevant_level = (
+            f'max(incoming_cargo_waiting("{input}"), ' + relevant_level + ")"
+        )
     return relevant_level
 
 
+def genCargoTypeAccept(ind):
+    if type(ind.input) == str:
+        return f'accept_cargo("{ind.input}"),'
+
+    accept_cargo = ""
+    for input in ind.input:
+        accept_cargo += f'accept_cargo("{input}"),\n' + " " * 12
+    return accept_cargo[:-13]
+
+
+def genCargoTypeProduce(ind):
+    return f'produce_cargo("{ind.output}", 0),'
+
+
 def main(argv):
-    print(generateIndustryNml())
+    print(generateIndustryPnml())
 
 
 if __name__ == "__main__":

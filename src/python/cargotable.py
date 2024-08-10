@@ -1,9 +1,8 @@
 from types import SimpleNamespace
 from string import Template
-import sys
 
 # fmt: off
-Cargo = SimpleNamespace(
+CargoTable = SimpleNamespace(
     Passengers = "PASS",
     Coal       = "COAL",
     Mail       = "MAIL",
@@ -21,8 +20,8 @@ Cargo = SimpleNamespace(
 def generateCargoTable():
     cargoes = ""
     line = ""
-    for cargo in Cargo.__dict__.values():
-        line += f'{cargo}, '
+    for cargo in CargoTable.__dict__.values():
+        line += f"{cargo}, "
         if len(line) > 70:
             cargoes += line[:-1] + "\n    "
             line = ""

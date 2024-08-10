@@ -3,9 +3,9 @@ import sys
 import os
 import argparse
 
-from industry import generateIndustryNml
+from industry import generateIndustryPnml
 from industry_functions import genIsStockpileFull
-from cargo import generateCargoTable
+from cargotable import generateCargoTable
 
 
 def errorExit(error):
@@ -37,15 +37,20 @@ def parseArguments():
 
     return args
 
-def generateIndustry():
-    nml = genIsStockpileFull()
-    nml += generateIndustryNml()
-    return nml
+
+def generateIndustryFile():
+    # functions shared by all industries
+    pnml = genIsStockpileFull()
+    # item blocks and functions particular to each industry
+    pnml += generateIndustryPnml()
+    return pnml
+
 
 _OUTPUT_FILES = {
     "cargotable.pnml": generateCargoTable,
-    "industry.pnml": generateIndustry,
+    "industry.pnml": generateIndustryFile,
 }
+
 
 def main():
     args = parseArguments()
