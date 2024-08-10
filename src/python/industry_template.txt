@@ -13,10 +13,8 @@ switch(FEAT_INDUSTRIES, SELF, ${name}_calcProduction, [
 ]) { return ${name}_produceCargo; }
 
 switch(FEAT_INDUSTRIES, SELF, ${name}_productionChange, [
-    $stockpile_level,
-    STORE_TEMP(last_computed_result, 42),
     evalProduction(
-        LOAD_TEMP(42),
+        $stockpile_level,
         last_month_production("$output"),
         transported_last_month_pct("$output")
     )
