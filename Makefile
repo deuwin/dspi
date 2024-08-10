@@ -27,6 +27,8 @@ NMLC_FLAGS := \
 	--lang-dir="$(LNG_DIR)" \
 	--custom-tags="$(NML_DIR)/custom_tags.txt"
 
+PLATFORM := $(shell uname -s)
+
 # verbose toggle
 V = @
 
@@ -46,22 +48,30 @@ clean:
 		$(PNML_GENERATED) \
 		$(LNG_FILES)
 
+install: grf
+ifneq ($(PLATFORM),Linux)
+	@echo "Installation directory not specified for $(PLATFORM)"
+	@false
+else
+	@echo "-- Installing GRF..."
+	$(V)install -m664 $(PROJECT_GRF) $(HOME)/.local/share/openttd/newgrf
+endif
+
 $(BUILD_DIR):
 	$(V)mkdir -p $(LNG_DIR)
 
 $(LNG_DIR)/%.lng: $(PLNG_DIR)/%.plng
-	@echo -- Processing $<...
+	@echo "-- Processing $<..."
 	$(V)gcc $(GCC_FLAGS) -o $@ $<
 
 $(PROJECT_NML): $(PNML_FILES)
-	@echo -- Processing $<...
+	@echo "-- Processing $<..."
 	$(V)gcc $(GCC_FLAGS) -o $@ $<
 
 $(PNML_GENERATED) &: $(TEMPLATE_FILES)
-	@echo -- Generating PNML...
+	@echo "-- Generating PNML..."
 	$(V)$(GENERATOR_CMD)
 
 $(PROJECT_GRF): $(PROJECT_NML)
-	@echo -- Compile GRF...
+	@echo "-- Compile GRF..."
 	$(V)nmlc $(NMLC_FLAGS) --grf=$@ $^
-
