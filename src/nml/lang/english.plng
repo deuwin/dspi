@@ -1,17 +1,18 @@
 ##grflangid 0x01
 
+# // this macro is for readability's sake, {} is still needed to make newlines
+# // in the displayed text
+#define JOIN_LINES(str) str
+
 STR_GRF_NAME:{NAME} v{VERSION}
 
-#define DESCRIPTION\
+JOIN_LINES(
     STR_GRF_DESCRIPTION:\
         A vanilla industry stockpiling GRF.{}\
         {COPYRIGHT} deuwin 2024{}\
-        Licensed under GPLv2
+        Licensed under GPLv2)
 
-DESCRIPTION
-#undef DESCRIPTION
-
-#define EXTRA_TEXT\
+JOIN_LINES(
     STR_INDUSTRY_EXTRA_TEXT:\
         Prod. Rate: {COMMA}{}\
         Prod. Level: {COMMA}{}\
@@ -19,7 +20,5 @@ DESCRIPTION
         DEBUG_0: {COMMA}{}\
         DEBUG_1: {COMMA}{}\
         DEBUG_2: {COMMA}{}\
-        DEBUG_3: {COMMA}
+        DEBUG_3: {COMMA})
 
-EXTRA_TEXT
-#undef EXTRA_TEXT

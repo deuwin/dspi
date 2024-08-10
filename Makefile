@@ -60,11 +60,11 @@ endif
 $(BUILD_DIR):
 	$(V)mkdir -p $(LNG_DIR)
 
-$(LNG_DIR)/%.lng: $(PLNG_DIR)/%.plng
+$(LNG_FILES): $(PLNG_FILES)
 	@echo "-- Processing $<..."
 	$(V)gcc $(GCC_FLAGS) -o $@ $<
 
-$(PROJECT_NML): $(PNML_FILES)
+$(PROJECT_NML): $(PNML_FILES) $(LNG_FILES)
 	@echo "-- Processing $<..."
 	$(V)gcc $(GCC_FLAGS) -o $@ $<
 
