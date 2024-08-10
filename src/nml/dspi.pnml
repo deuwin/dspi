@@ -9,5 +9,5 @@ grf {
 #include "cargotable.pnml"
 #include "maths.pnml"
 #include "random.pnml"
-#include "production.pnml"
+#include "industry_functions.pnml"
 #include "industry.pnml"
