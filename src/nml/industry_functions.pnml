@@ -1,4 +1,4 @@
-#include "industry_registers.pnml"
+#include "registers.pnml"
 #include "random.pnml"
 
 
@@ -84,12 +84,6 @@ switch(FEAT_INDUSTRIES, SELF, setProductionLevel, [
     return CB_RESULT_IND_PROD_SET_BY_0x100;
 }
 
-/* getProductionChange()
- * Should give a change in the range 3-23%, just like the smooth economy option */
-switch(FEAT_INDUSTRIES, SELF, getProductionChange,
-    max(1, randomRange(10, 60) * GET_PERM(PRODUCTION_RATE) / 256)
-) { return; }
-
 /* chanceToIncrease(percent)
  * Returns chance based on percent parameter. Should closely mirror the values
  * used in a smooth economy */
@@ -107,23 +101,46 @@ switch(FEAT_INDUSTRIES, SELF, chanceToIncrease, percent,
 
 // Industries have 8 or 9 production cycles a month so we use (8.5 * 6)
 #define PROD_CYCLE_SIX_MONTHS 51
+// Maximum change allowed by assessment of stockpile level
+#define MAX_CHANGE_STOCKPILE_PCT 20
 
 switch(FEAT_INDUSTRIES, SELF, updateProduction,
     cargo_waiting,
     cargo_transported,
 [
-    // calculate impact of stockpile level on production rate
-    STORE_TEMP((cargo_waiting / PROD_CYCLE_SIX_MONTHS) - GET_PERM(PRODUCTION_RATE), 1),
-    STORE_TEMP(LOAD_TEMP(1) * 100 / GET_PERM(PRODUCTION_RATE), 2),
-    STORE_TEMP(clamp(LOAD_TEMP(2), -20, 20), 3),
+    // calculate impact of stockpile level
+    SET_TEMP(DIFFERENCE,
+        (cargo_waiting / PROD_CYCLE_SIX_MONTHS) - GET_PERM(PRODUCTION_RATE)
+    ),
+    SET_TEMP(LIMIT,
+        GET_PERM(PRODUCTION_RATE) * MAX_CHANGE_STOCKPILE_PCT / 100
+    ),
+    SET_TEMP(STOCKPILE_CHANGE,
+        clamp(
+            GET_TEMP(DIFFERENCE),
+            GET_TEMP(LIMIT) * -1,
+            GET_TEMP(LIMIT))
+    ),
 
-    // impact of transported cargo
-    STORE_TEMP(getProductionChange() * (chanceToIncrease(cargo_transported) ? 1 : -1), 4),
+
+    // calculate impact of transported cargo
+    // the random range should give a change in the range 3-23%, just like the
+    // smooth economy option
+    SET_TEMP(RANDOM_CHANGE,
+        max(1, randomRange(10, 60) * GET_PERM(PRODUCTION_RATE) / PRODUCTION_MAX)
+    ),
+    SET_TEMP(CHANGE_DIRECTION,
+        chanceToIncrease(cargo_transported) ? 2 : -1
+    ),
+    SET_TEMP(TRANSPORTED_CHANGE,
+        GET_TEMP(RANDOM_CHANGE) * GET_TEMP(CHANGE_DIRECTION)
+    ),
 
     setProductionRate(
         GET_PERM(PRODUCTION_RATE)
-            + GET_PERM(PRODUCTION_RATE) * LOAD_TEMP(3) / 100
-            + LOAD_TEMP(4)),
+            + GET_TEMP(STOCKPILE_CHANGE)
+            + GET_TEMP(TRANSPORTED_CHANGE)
+    ),
 
     setProductionLevel()
 ]) { return; }

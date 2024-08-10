@@ -1,6 +1,8 @@
 #ifndef RANDOM_PNML
 #define RANDOM_PNML
 
+#include "registers.pnml"
+
 /********************
  * Random
  ********************/
@@ -24,16 +26,20 @@
 /* initRandom()
  * Not sure if temporary storage is initialised to zero, so let's make sure */
 switch(FEAT_INDUSTRIES, SELF, initRandom,
-    STORE_TEMP(0, 0)
+    SET_TEMP(FIRST_BIT, 0)
 ) { return; }
 
 /* getRandomBits()
  * Convenience function to get random bits, so one does not need to remember to
  * bit shift extra_callback_info2. */
 switch(FEAT_INDUSTRIES, SELF, getRandomBits, [
-    STORE_TEMP(getbits(extra_callback_info2, LOAD_TEMP(0), BIT_LEN), 1),
-    STORE_TEMP(LOAD_TEMP(0) + BIT_LEN, 0)
-]) { return LOAD_TEMP(1); }
+    SET_TEMP(RANDOM_NUMBER,
+        getbits(extra_callback_info2, GET_TEMP(FIRST_BIT), BIT_LEN)
+    ),
+    SET_TEMP(FIRST_BIT,
+        GET_TEMP(FIRST_BIT) + BIT_LEN),
+    GET_TEMP(RANDOM_NUMBER)
+]) { return; }
 
 /* randomChance(n, d)
  * n - numerator
