@@ -17,8 +17,8 @@ class Industry:
         return self.id[13:].lower()
 
 
-# temperate secondary industries
-INDUSTRIES = [
+# temperate industries
+SECONDARY_INDUSTRIES = [
     Industry(
         "INDUSTRYTYPE_STEEL_MILL",
         Cargo.IronOre,
@@ -45,13 +45,21 @@ INDUSTRIES = [
     ),
 ]
 
+TERTIARY_INDUSTRIES = [
+    Industry(
+        "INDUSTRYTYPE_POWER_PLANT",
+        Cargo.Coal,
+        None
+    ),
+]
+
 
 def generateIndustryPnml():
-    template_file = Path(__file__).parent / "industry_template.txt"
-    template = Template(template_file.read_text())
-
     pnml = ""
-    for industry in INDUSTRIES:
+
+    template_file = Path(__file__).parent / "templates" / "secondary.txt"
+    template = Template(template_file.read_text())
+    for industry in SECONDARY_INDUSTRIES:
         template_values = {
             "id":               industry.id,
             "name":             industry.name,
@@ -64,7 +72,22 @@ def generateIndustryPnml():
             "produce_cargo":    genCargoTypeProduce(industry),
         }
         pnml += template.substitute(template_values)
+
+    template_file = template_file.with_stem("tertiary")
+    template = Template(template_file.read_text())
+    for industry in TERTIARY_INDUSTRIES:
+        template_values = {
+            "id":               industry.id,
+            "name":             industry.name,
+            "cycle_consume":    genCycleConsume(industry),
+            "production_limit": genProductionLimit(industry),
+            "stockpile_level":  genRelevantLevel(industry),
+            "accept_cargo":     genCargoTypeAccept(industry),
+        }
+        pnml += template.substitute(template_values)
+
     return pnml
+
 # fmt: on
 
 

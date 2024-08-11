@@ -1,0 +1,43 @@
+produce(${name}_produceCargo,
+    [
+        $cycle_consume
+    ],
+    [],
+    0
+)
+
+switch(FEAT_INDUSTRIES, SELF, ${name}_calcProduction, [
+    $production_limit
+]) { return ${name}_produceCargo; }
+
+switch(FEAT_INDUSTRIES, SELF, ${name}_productionChange, [
+    // tertiary industries don't close down so skip the abandonment check
+    updateProduction(
+        IND_TERTIARY,
+        $stockpile_level,
+        0
+    )
+]) { return; }
+
+item(FEAT_INDUSTRIES, $name) {
+    property {
+        substitute: $id;
+        override:   $id;
+        cargo_types: [
+            $accept_cargo
+        ];
+    }
+    graphics {
+        build_prod_change:     initPermanentStorage;
+        extra_text_industry:   genExtraText;
+
+        produce_cargo_arrival: noProduction;
+        produce_256_ticks:     ${name}_calcProduction();
+
+        stop_accept_cargo:     isStockpileFull;
+
+        random_prod_change:    CB_RESULT_IND_PROD_NO_CHANGE;
+        monthly_prod_change:   ${name}_productionChange();
+    }
+}
+
