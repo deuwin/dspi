@@ -17,6 +17,18 @@ produce(noProduction, [], [])
 
 
 /********************
+ * Industry Type
+ ********************/
+
+#define IND_PRIMARY   0x01
+#define IND_SECONDARY 0x03
+#define IND_TERTIARY  0x02
+
+#define IND_PRODUCES  0x01
+#define IND_CONSUMES  0x02
+
+
+/********************
  * Initialisation
  ********************/
 
@@ -96,8 +108,8 @@ switch(FEAT_INDUSTRIES, SELF, chanceToIncrease, percent,
 }
 
 /* updateProduction(cargo_waiting, cargo_transported)
- * Calculate production change based on current production rate, waiting cargo,
- * and cargo transported. */
+ * Calculate production change based on industy type, current production rate,
+ * waiting cargo, and cargo transported. */
 
 // Industries have 8 or 9 production cycles a month so we use (8.5 * 6)
 #define PROD_CYCLE_SIX_MONTHS 51
@@ -105,36 +117,46 @@ switch(FEAT_INDUSTRIES, SELF, chanceToIncrease, percent,
 #define MAX_CHANGE_STOCKPILE_PCT 20
 
 switch(FEAT_INDUSTRIES, SELF, updateProduction,
+    industry_type,
     cargo_waiting,
     cargo_transported,
 [
     // calculate impact of stockpile level
-    SET_TEMP(DIFFERENCE,
-        (cargo_waiting / PROD_CYCLE_SIX_MONTHS) - GET_PERM(PRODUCTION_RATE)
-    ),
-    SET_TEMP(LIMIT,
-        GET_PERM(PRODUCTION_RATE) * MAX_CHANGE_STOCKPILE_PCT / 100
-    ),
-    SET_TEMP(STOCKPILE_CHANGE,
-        clamp(
-            GET_TEMP(DIFFERENCE),
-            GET_TEMP(LIMIT) * -1,
-            GET_TEMP(LIMIT))
-    ),
+    (industry_type & IND_CONSUMES) ? [
+        SET_TEMP(DIFFERENCE,
+            (cargo_waiting / PROD_CYCLE_SIX_MONTHS) - GET_PERM(PRODUCTION_RATE)
+        ),
+        SET_TEMP(LIMIT,
+            GET_PERM(PRODUCTION_RATE) * MAX_CHANGE_STOCKPILE_PCT / 100
+        ),
+        SET_TEMP(STOCKPILE_CHANGE,
+            clamp(
+                GET_TEMP(DIFFERENCE),
+                GET_TEMP(LIMIT) * -1,
+                GET_TEMP(LIMIT))
+        ),
+    ] : [
+        SET_TEMP(STOCKPILE_CHANGE, 0)
+    ],
 
 
     // calculate impact of transported cargo
-    // the random range should give a change in the range 3-23%, just like the
-    // smooth economy option
-    SET_TEMP(RANDOM_CHANGE,
-        max(1, randomRange(10, 60) * GET_PERM(PRODUCTION_RATE) / PRODUCTION_MAX)
-    ),
-    SET_TEMP(CHANGE_DIRECTION,
-        chanceToIncrease(cargo_transported) ? 2 : -1
-    ),
-    SET_TEMP(TRANSPORTED_CHANGE,
-        GET_TEMP(RANDOM_CHANGE) * GET_TEMP(CHANGE_DIRECTION)
-    ),
+    (industry_type & IND_PRODUCES) ? [
+        // this gives a change in the range 3-23%, just like the smooth economy
+        // option
+        // FIX: calc range values from PRODUCTION_RATE
+        SET_TEMP(RANDOM_CHANGE,
+            max(1, randomRange(10, 60) * GET_PERM(PRODUCTION_RATE) / PRODUCTION_MAX)
+        ),
+        SET_TEMP(CHANGE_DIRECTION,
+            chanceToIncrease(cargo_transported) ? 1 : -1
+        ),
+        SET_TEMP(TRANSPORTED_CHANGE,
+            GET_TEMP(RANDOM_CHANGE) * GET_TEMP(CHANGE_DIRECTION)
+        ),
+    ] : [
+        SET_TEMP(TRANSPORTED_CHANGE, 0)
+    ],
 
     setProductionRate(
         GET_PERM(PRODUCTION_RATE)
@@ -155,7 +177,7 @@ switch(FEAT_INDUSTRIES, SELF, shouldProductionChange,
     randomChance(1, PRODUCTION_CHANGE_PROB)
         && (cargo_transported > 0)
 ]) {
-    1: updateProduction(cargo_waiting, cargo_transported);
+    1: updateProduction(IND_SECONDARY, cargo_waiting, cargo_transported);
     CB_RESULT_IND_PROD_NO_CHANGE;
 }
 
