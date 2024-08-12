@@ -31,7 +31,7 @@ item(FEAT_INDUSTRIES, $name) {
         ];
     }
     graphics {
-        build_prod_change:     initPermanentStorage;
+        build_prod_change:     initPermanentStorage(IND_SECONDARY);
         extra_text_industry:   genExtraText;
 
         produce_cargo_arrival: noProduction;

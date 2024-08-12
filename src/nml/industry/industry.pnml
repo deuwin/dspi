@@ -1,5 +1,5 @@
 /********************
- * Industry Type
+ * Industry Sector
  ********************/
 
 #define IND_PRIMARY   0x01
@@ -28,9 +28,10 @@ produce(noProduction, [], [])
  * Initialisation
  ********************/
 
-switch(FEAT_INDUSTRIES, SELF, initPermanentStorage,
+switch(FEAT_INDUSTRIES, SELF, initPermanentStorage, industry_sector, [
+    SET_PERM(SECTOR, industry_sector),
     SET_PERM(PRODUCTION_RATE, PRODUCTION_BASE)
-) { return; }
+]) { return; }
 
 
 #include "extra_text.pnml"

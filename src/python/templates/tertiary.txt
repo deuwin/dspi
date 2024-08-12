@@ -14,7 +14,6 @@ switch(FEAT_INDUSTRIES, SELF, ${name}_calcProduction, [
 switch(FEAT_INDUSTRIES, SELF, ${name}_productionChange, [
     // tertiary industries don't close down so skip the abandonment check
     updateProduction(
-        IND_TERTIARY,
         GET_PERM(STOCKPILE_AVERAGE),
         0
     )
@@ -29,7 +28,7 @@ item(FEAT_INDUSTRIES, $name) {
         ];
     }
     graphics {
-        build_prod_change:     initPermanentStorage;
+        build_prod_change:     initPermanentStorage(IND_TERTIARY);
         extra_text_industry:   genExtraText;
 
         produce_cargo_arrival: noProduction;

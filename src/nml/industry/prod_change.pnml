@@ -55,8 +55,8 @@ switch(FEAT_INDUSTRIES, SELF, chanceToIncrease, percent,
 }
 
 /* updateProduction(cargo_waiting, cargo_transported)
- * Calculate production change based on industry type, current production rate,
- * waiting cargo, and cargo transported. */
+ * Calculate production change based on current production rate, waiting cargo,
+ * and cargo transported. */
 
 // Industries have 8 or 9 production cycles a month so we use (8.5 * 6)
 #define PROD_CYCLE_SIX_MONTHS 51
@@ -64,12 +64,11 @@ switch(FEAT_INDUSTRIES, SELF, chanceToIncrease, percent,
 #define MAX_CHANGE_STOCKPILE_PCT 20
 
 switch(FEAT_INDUSTRIES, SELF, updateProduction,
-    industry_sector,
     cargo_waiting,
     cargo_transported,
 [
     // calculate impact of stockpile level
-    (industry_sector & IND_CONSUMES) ? [
+    (GET_PERM(SECTOR) & IND_CONSUMES) ? [
         SET_TEMP(DIFFERENCE,
             (cargo_waiting / PROD_CYCLE_SIX_MONTHS) - GET_PERM(PRODUCTION_RATE)
         ),
@@ -87,7 +86,7 @@ switch(FEAT_INDUSTRIES, SELF, updateProduction,
     ],
 
     // calculate impact of transported cargo
-    (industry_sector & IND_PRODUCES) ? [
+    (GET_PERM(SECTOR) & IND_PRODUCES) ? [
         // this should give a change in the range 3-23%, just like the smooth
         // economy option
         // FIXME: calc range values from PRODUCTION_MAX
@@ -122,7 +121,7 @@ switch(FEAT_INDUSTRIES, SELF, shouldProductionChange,
     randomChance(1, PRODUCTION_CHANGE_PROB)
         && (cargo_transported > 0)
 ]) {
-    1: updateProduction(IND_SECONDARY, cargo_waiting, cargo_transported);
+    1: updateProduction(cargo_waiting, cargo_transported);
     CB_RESULT_IND_PROD_NO_CHANGE;
 }
 
