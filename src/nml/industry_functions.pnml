@@ -2,17 +2,42 @@
 #include "random.pnml"
 
 
-/***********************************
- * Stockpile and Production Defines
- ***********************************/
+/********************
+ * Stockpile
+ ********************/
 
 #define STOCKPILE_LIMIT 15000
+
+/* setStockpileAverage(current)
+ * Calculates average stockpile level using a simple moving average (SMA) */
+
+// approximately 3 months of production ticks
+#define SAMPLE_SIZE 27
+
+switch(FEAT_INDUSTRIES, SELF, setStockpileAverage, current,
+    // check for valid samples (i.e. if there has been a previous delivery of
+    // cargo)
+    (GET_PERM(VALID_AVERAGE)) ? [
+        SET_PERM(STOCKPILE_AVERAGE,
+            GET_PERM(STOCKPILE_AVERAGE) + (current - GET_PERM(STOCKPILE_AVERAGE)) / SAMPLE_SIZE
+        )
+    ] : [
+        (current > 0) ? [
+            SET_PERM(VALID_AVERAGE, 1),
+            SET_PERM(STOCKPILE_AVERAGE, current)
+        ] : [0]
+    ]
+) { return; }
+
+
+/********************
+ * Production
+ ********************/
 
 #define PRODUCTION_BASE 16
 #define PRODUCTION_MIN  5
 #define PRODUCTION_MAX  255
 
-// This could be with the template but only needs defined once
 produce(noProduction, [], [])
 
 

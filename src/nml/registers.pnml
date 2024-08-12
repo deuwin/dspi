@@ -8,6 +8,9 @@
 // Permanent Registers
 #define PERM_PRODUCTION_RATE    0x00
 #define PERM_ABANDONMENT_PERIOD 0x01
+#define PERM_STOCKPILE_AVERAGE  0x02
+#define PERM_VALID_AVERAGE      0x03
+
 
 #define PERM_DEBUG_0            0xFC
 #define PERM_DEBUG_1            0xFD

@@ -9,12 +9,13 @@ produce(${name}_produceCargo,
 )
 
 switch(FEAT_INDUSTRIES, SELF, ${name}_calcProduction, [
+    setStockpileAverage($stockpile_level),
     $production_limit
 ]) { return ${name}_produceCargo; }
 
 switch(FEAT_INDUSTRIES, SELF, ${name}_productionChange, [
     evalProduction(
-        $stockpile_level,
+        GET_PERM(STOCKPILE_AVERAGE),
         last_month_production("$output"),
         transported_last_month_pct("$output")
     )
