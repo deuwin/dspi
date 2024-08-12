@@ -68,13 +68,15 @@ switch(FEAT_INDUSTRIES, SELF, initPermanentStorage,
 
 // Debugging for now, should display useful information in future!
 switch(FEAT_INDUSTRIES, SELF, genExtraText, [
-    STORE_TEMP(GET_PERM(PRODUCTION_RATE), 256),
-    STORE_TEMP(production_level, 257),
-
-    STORE_TEMP(GET_PERM(DEBUG_0), 258),
-    STORE_TEMP(GET_PERM(DEBUG_1), 259),
-    STORE_TEMP(GET_PERM(DEBUG_2), 260),
-    STORE_TEMP(GET_PERM(DEBUG_3), 261),
+    STORE_TEMP(
+        string(STR_PROD_RATE_PCT)
+        | (GET_PERM(PRODUCTION_RATE) * 100 / PRODUCTION_MAX) << 16
+    , 256),
+    STORE_TEMP(GET_PERM(DEBUG_0), 257),
+    STORE_TEMP(GET_PERM(DEBUG_1), 258),
+    STORE_TEMP(GET_PERM(DEBUG_2), 259),
+    STORE_TEMP(GET_PERM(DEBUG_3), 260),
+),
 ]) {
     return string(STR_INDUSTRY_EXTRA_TEXT);
 }

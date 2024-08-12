@@ -14,11 +14,11 @@ JOIN_LINES(
 
 JOIN_LINES(
     STR_INDUSTRY_EXTRA_TEXT:\
-        Prod. Rate: {COMMA}{}\
-        Prod. Level: {COMMA}{}\
-        {}\
-        DEBUG_0: {COMMA}{}\
-        DEBUG_1: {COMMA}{}\
-        DEBUG_2: {COMMA}{}\
-        DEBUG_3: {COMMA})
+    Production rate: {WHITE}{STRING}{BLACK}\
+    {}\
+    DEBUG_0: {COMMA}{}\
+    DEBUG_1: {COMMA}{}\
+    DEBUG_2: {COMMA}{}\
+    DEBUG_3: {COMMA})
 
+STR_PROD_RATE_PCT: {UNSIGNED_WORD}%
