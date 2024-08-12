@@ -1,3 +1,6 @@
+#ifndef MATHS_PNML
+#define MATHS_PNML
+
 /********************
  * Maths
  ********************/
@@ -6,3 +9,5 @@
 switch(FEAT_INDUSTRIES, SELF, clamp, value, lower_limit, upper_limit,
     min(upper_limit, max(lower_limit, value))
 ) { return; }
+
+#endif // MATHS_PNML

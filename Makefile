@@ -11,7 +11,8 @@ PLNG_FILES := $(shell find $(PLNG_DIR) -name "*.plng")
 LNG_FILES  := $(subst $(PLNG_DIR),$(LNG_DIR),$(PLNG_FILES:.plng=.lng))
 
 PYTHON         := /usr/bin/env python3
-GENERATOR_CMD  := $(PYTHON) $(PYTHON_DIR)/generate_pnml.py --output-directory $(BUILD_DIR)
+GENERATED_DIR  := $(BUILD_DIR)
+GENERATOR_CMD  := $(PYTHON) $(PYTHON_DIR)/generate_pnml.py --output-directory $(GENERATED_DIR)
 TEMPLATE_FILES := $(shell find $(PYTHON_DIR) -name "*.py") \
 				  $(shell find $(PYTHON_DIR)/templates)
 
@@ -23,7 +24,12 @@ PNML_FILES	   := $(NML_DIR)/$(PROJECT).pnml \
 PROJECT_NML := $(BUILD_DIR)/$(PROJECT).nml
 PROJECT_GRF := $(BUILD_DIR)/$(PROJECT).grf
 
-GCC_FLAGS  := -E -C -nostdinc -x c-header -I $(BUILD_DIR)
+INC_DIRS := \
+	-I $(NML_DIR) \
+	-I $(NML_DIR)/industry \
+	-I $(GENERATED_DIR)
+
+GCC_FLAGS  := -E -C -nostdinc -x c-header $(INC_DIRS)
 NMLC_FLAGS := \
 	--lang-dir="$(LNG_DIR)" \
 	--custom-tags="$(NML_DIR)/custom_tags.txt"

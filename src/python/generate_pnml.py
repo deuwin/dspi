@@ -48,7 +48,7 @@ def generateIndustryFile():
 
 _OUTPUT_FILES = {
     "cargotable.pnml": generateCargoTable,
-    "industry.pnml": generateIndustryFile,
+    "industry_items.pnml": generateIndustryFile,
 }
 
 

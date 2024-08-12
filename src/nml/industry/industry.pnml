@@ -1,0 +1,38 @@
+/********************
+ * Industry Type
+ ********************/
+
+#define IND_PRIMARY   0x01
+#define IND_SECONDARY 0x03
+#define IND_TERTIARY  0x02
+
+#define IND_PRODUCES  0x01
+#define IND_CONSUMES  0x02
+
+
+/********************
+ * Produce
+ *
+ * This block contains common definitions, individual produce blocks are
+ * generated.
+ ********************/
+
+#define PRODUCTION_BASE 16
+#define PRODUCTION_MIN  5
+#define PRODUCTION_MAX  255
+
+produce(noProduction, [], [])
+
+
+/********************
+ * Initialisation
+ ********************/
+
+switch(FEAT_INDUSTRIES, SELF, initPermanentStorage,
+    SET_PERM(PRODUCTION_RATE, PRODUCTION_BASE)
+) { return; }
+
+
+#include "extra_text.pnml"
+#include "prod_change.pnml"
+#include "stockpile.pnml"

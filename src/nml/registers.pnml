@@ -1,37 +1,44 @@
 #ifndef REGISTERS_PNML
 #define REGISTERS_PNML
 
-/********************
- * Registers
- ********************/
+/***********************
+ * Permanent Registers
+ ***********************/
 
-// Permanent Registers
+// industry
 #define PERM_PRODUCTION_RATE    0x00
 #define PERM_ABANDONMENT_PERIOD 0x01
 #define PERM_STOCKPILE_AVERAGE  0x02
 #define PERM_VALID_AVERAGE      0x03
 
+// debug
+#define PERM_DEBUG_0 0xFC
+#define PERM_DEBUG_1 0xFD
+#define PERM_DEBUG_2 0xFE
+#define PERM_DEBUG_3 0xFF
 
-#define PERM_DEBUG_0            0xFC
-#define PERM_DEBUG_1            0xFD
-#define PERM_DEBUG_2            0xFE
-#define PERM_DEBUG_3            0xFF
 
+/***********************
+ * Temporary Registers
+ ***********************/
 
-// Temporary Registers
+// random
 #define TEMP_FIRST_BIT          0x01
 #define TEMP_RANDOM_NUMBER      0x02
 
+// prod_change
 #define TEMP_DIFFERENCE         0x03
 #define TEMP_LIMIT              0x04
 #define TEMP_STOCKPILE_CHANGE   0x05
-
 #define TEMP_RANDOM_CHANGE      0x06
 #define TEMP_CHANGE_DIRECTION   0x07
 #define TEMP_TRANSPORTED_CHANGE 0x08
 
 
-// Register Access
+/***********************
+ * Register Access
+ ***********************/
+
 #define PERM_NAME(name)       PERM_##name
 #define GET_PERM(name)        LOAD_PERM(PERM_NAME(name))
 #define SET_PERM(name, value) STORE_PERM(value, PERM_NAME(name))

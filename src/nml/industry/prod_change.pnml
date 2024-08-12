@@ -1,86 +1,6 @@
 #include "registers.pnml"
+#include "maths.pnml"
 #include "random.pnml"
-
-
-/********************
- * Stockpile
- ********************/
-
-#define STOCKPILE_LIMIT 15000
-
-/* setStockpileAverage(current)
- * Calculates average stockpile level using a simple moving average (SMA) */
-
-// approximately 3 months of production ticks
-#define SAMPLE_SIZE 27
-
-switch(FEAT_INDUSTRIES, SELF, setStockpileAverage, current,
-    // check for valid samples (i.e. if there has been a previous delivery of
-    // cargo)
-    (GET_PERM(VALID_AVERAGE)) ? [
-        SET_PERM(STOCKPILE_AVERAGE,
-            GET_PERM(STOCKPILE_AVERAGE) + (current - GET_PERM(STOCKPILE_AVERAGE)) / SAMPLE_SIZE
-        )
-    ] : [
-        (current > 0) ? [
-            SET_PERM(VALID_AVERAGE, 1),
-            SET_PERM(STOCKPILE_AVERAGE, current)
-        ] : [0]
-    ]
-) { return; }
-
-
-/********************
- * Production
- ********************/
-
-#define PRODUCTION_BASE 16
-#define PRODUCTION_MIN  5
-#define PRODUCTION_MAX  255
-
-produce(noProduction, [], [])
-
-
-/********************
- * Industry Type
- ********************/
-
-#define IND_PRIMARY   0x01
-#define IND_SECONDARY 0x03
-#define IND_TERTIARY  0x02
-
-#define IND_PRODUCES  0x01
-#define IND_CONSUMES  0x02
-
-
-/********************
- * Initialisation
- ********************/
-
-switch(FEAT_INDUSTRIES, SELF, initPermanentStorage,
-    SET_PERM(PRODUCTION_RATE, PRODUCTION_BASE)
-) { return; }
-
-
-/********************
- * Extra Text
- ********************/
-
-// Debugging for now, should display useful information in future!
-switch(FEAT_INDUSTRIES, SELF, genExtraText, [
-    STORE_TEMP(
-        string(STR_PROD_RATE_PCT)
-        | (GET_PERM(PRODUCTION_RATE) * 100 / PRODUCTION_MAX) << 16
-    , 256),
-    STORE_TEMP(GET_PERM(DEBUG_0), 257),
-    STORE_TEMP(GET_PERM(DEBUG_1), 258),
-    STORE_TEMP(GET_PERM(DEBUG_2), 259),
-    STORE_TEMP(GET_PERM(DEBUG_3), 260),
-),
-]) {
-    return string(STR_INDUSTRY_EXTRA_TEXT);
-}
-
 
 /********************
  * Closure
@@ -135,7 +55,7 @@ switch(FEAT_INDUSTRIES, SELF, chanceToIncrease, percent,
 }
 
 /* updateProduction(cargo_waiting, cargo_transported)
- * Calculate production change based on industy type, current production rate,
+ * Calculate production change based on industry type, current production rate,
  * waiting cargo, and cargo transported. */
 
 // Industries have 8 or 9 production cycles a month so we use (8.5 * 6)
@@ -166,12 +86,11 @@ switch(FEAT_INDUSTRIES, SELF, updateProduction,
         SET_TEMP(STOCKPILE_CHANGE, 0)
     ],
 
-
     // calculate impact of transported cargo
     (industry_type & IND_PRODUCES) ? [
-        // this gives a change in the range 3-23%, just like the smooth economy
-        // option
-        // FIX: calc range values from PRODUCTION_RATE
+        // this should give a change in the range 3-23%, just like the smooth
+        // economy option
+        // FIXME: calc range values from PRODUCTION_MAX
         SET_TEMP(RANDOM_CHANGE,
             max(1, randomRange(10, 60) * GET_PERM(PRODUCTION_RATE) / PRODUCTION_MAX)
         ),
@@ -190,7 +109,6 @@ switch(FEAT_INDUSTRIES, SELF, updateProduction,
             + GET_TEMP(STOCKPILE_CHANGE)
             + GET_TEMP(TRANSPORTED_CHANGE)
     ),
-
     setProductionLevel()
 ]) { return; }
 
