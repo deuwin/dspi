@@ -4,7 +4,19 @@ grf {
     desc: string(STR_GRF_DESCRIPTION);
     version: 0;
     min_compatible_version: 0;
+
+    param 0 {
+        prod_breakdown {
+            name:      string(STR_PARAM_PROD_BREAKDOWN_NAME);
+            desc:      string(STR_PARAM_PROD_BREAKDOWN_DESC);
+            type:      bool;
+            def_value: 0;
+            bit:       0;
+        }
+    }
 }
+
+show_prod_breakdown = param[0];
 
 #include "cargotable.pnml"
 #include "maths.pnml"

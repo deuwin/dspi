@@ -18,8 +18,10 @@ JOIN_LINES(
         {STRING}
 )
 
+STR_PARAM_PROD_BREAKDOWN_NAME: Show change breakdown?
+STR_PARAM_PROD_BREAKDOWN_DESC: Display detailed information on the factors affecting production change.
 JOIN_LINES(\
-    STR_DETAILED_INFO:\
+    STR_PROD_BREAKDOWN:\
         {}{}\
         Production change breakdown:{}\
             Stockpile:{}\
