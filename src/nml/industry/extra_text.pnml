@@ -5,13 +5,18 @@
 // Debugging for now, should display useful information in future!
 switch(FEAT_INDUSTRIES, SELF, genExtraText, [
     STORE_TEMP(
-        string(STR_PROD_RATE_PCT)
-        | (GET_PERM(PRODUCTION_RATE) * 100 / PRODUCTION_MAX) << 16
+        (GET_PERM(PRODUCTION_RATE) * 100 / PRODUCTION_MAX)
+            | (string(STR_DETAILED_INFO) << 16)
     , 256),
-    STORE_TEMP(GET_PERM(DEBUG_0), 257),
-    STORE_TEMP(GET_PERM(DEBUG_1), 258),
-    STORE_TEMP(GET_PERM(DEBUG_2), 259),
-    STORE_TEMP(GET_PERM(DEBUG_3), 260),
+    STORE_TEMP(
+        GET_PERM(STOCKPILE_SAMPLE) | (GET_PERM(STOCKPILE_IMPACT) << 16)
+    , 257),
+    STORE_TEMP(
+        GET_PERM(TRANSPORTED_IMPACT) | (GET_PERM(PRODUCTION_RATE_PREV) << 16)
+    , 258),
+    STORE_TEMP(
+        GET_PERM(PRODUCTION_RATE)
+    , 259),
 ]) {
     return string(STR_INDUSTRY_EXTRA_TEXT);
 }

@@ -14,11 +14,20 @@ JOIN_LINES(
 
 JOIN_LINES(
     STR_INDUSTRY_EXTRA_TEXT:\
-    Production rate: {WHITE}{STRING}{BLACK}\
-    {}\
-    DEBUG_0: {COMMA}{}\
-    DEBUG_1: {COMMA}{}\
-    DEBUG_2: {COMMA}{}\
-    DEBUG_3: {COMMA})
+        Production rate: {WHITE}{UNSIGNED_WORD}%{BLACK}\
+        {STRING}
+)
 
-STR_PROD_RATE_PCT: {UNSIGNED_WORD}%
+JOIN_LINES(\
+    STR_DETAILED_INFO:\
+        {}{}\
+        Production change breakdown:{}\
+            Stockpile:{}\
+            Average: {UNSIGNED_WORD}{}\
+            Impact: {SIGNED_WORD}{}\
+        Transported:{}\
+            Impact: {SIGNED_WORD}{}\
+        Production rate:{}\
+            Previous: {UNSIGNED_WORD}{}\
+            Current: {UNSIGNED_WORD}
+)
