@@ -18,10 +18,10 @@
 // if you use more random functions in the monthly_prod_change callback chain.
 //
 
-// RANDOM_CALLS = 4, and extra_callback_info2 is 32 bits
-// 2 ^ (32 / 4)
-#define BIT_LEN           4
-#define RAND_MAX_PLUS_ONE 256
+// RANDOM_CALLS = 3, and extra_callback_info2 is 32 bits
+// 2 ^ (32 / 3)
+#define BIT_LEN           10
+#define RAND_MAX_PLUS_ONE 1024
 
 /* initRandom()
  * Not sure if temporary storage is initialised to zero, so let's make sure */
@@ -36,8 +36,7 @@ switch(FEAT_INDUSTRIES, SELF, getRandomBits, [
     SET_TEMP(RANDOM_NUMBER,
         getbits(extra_callback_info2, GET_TEMP(FIRST_BIT), BIT_LEN)
     ),
-    SET_TEMP(FIRST_BIT,
-        GET_TEMP(FIRST_BIT) + BIT_LEN),
+    SET_TEMP(FIRST_BIT, GET_TEMP(FIRST_BIT) + BIT_LEN),
     GET_TEMP(RANDOM_NUMBER)
 ]) { return; }
 

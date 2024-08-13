@@ -3,8 +3,6 @@ Things to do, ordered roughly by importance. Nothing here is set in stone and
 this list will be subject to many changes.
 
 * Implement and test production rate changes
-* Investigate random functions
-    * I'm sure there's distribution or fencepost issues in there
 * Extra cargo inputs for:
     * Steel Mill: Iron Ore and Coal
         * Apparently the real life ratio of Ore:Coal is 2:1 [^1][^2]
