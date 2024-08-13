@@ -126,8 +126,11 @@ switch(FEAT_INDUSTRIES, SELF, shouldProductionChange,
     cargo_waiting,
     cargo_transported,
 [
-    randomChance(1, PRODUCTION_CHANGE_PROB)
-        && (cargo_transported > 0)
+    (GET_PERM(SECTOR) & IND_PRODUCES) ? [
+        randomChance(1, PRODUCTION_CHANGE_PROB) && (cargo_transported > 0)
+    ] : [
+        randomChance(1, PRODUCTION_CHANGE_PROB)
+    ]
 ]) {
     1: updateProduction(cargo_waiting, cargo_transported);
     CB_RESULT_IND_PROD_NO_CHANGE;
@@ -143,7 +146,9 @@ switch(FEAT_INDUSTRIES, SELF, evalProduction,
     cargo_transported,
 [
     initRandom(),
-    isAbandoned(cargo_produced)
+    (GET_PERM(SECTOR) & IND_PRODUCES)
+        ? isAbandoned(cargo_produced)
+        : 0
 ]) {
     1: CB_RESULT_IND_PROD_CLOSE;
     shouldProductionChange(cargo_waiting, cargo_transported);

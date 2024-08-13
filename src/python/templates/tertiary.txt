@@ -12,11 +12,7 @@ switch(FEAT_INDUSTRIES, SELF, ${name}_calcProduction, [
 ]) { return ${name}_produceCargo; }
 
 switch(FEAT_INDUSTRIES, SELF, ${name}_productionChange, [
-    // tertiary industries don't close down so skip the abandonment check
-    updateProduction(
-        GET_PERM(STOCKPILE_AVERAGE),
-        0
-    )
+    evalProduction(GET_PERM(STOCKPILE_AVERAGE), 0, 0)
 ]) { return; }
 
 item(FEAT_INDUSTRIES, $name) {
