@@ -68,7 +68,7 @@ switch(FEAT_INDUSTRIES, SELF, updateProduction,
     cargo_transported,
 [
     // calculate impact of stockpile level
-    (GET_PERM(SECTOR) & IND_CONSUMES) ? [
+    (IND_CONSUMES) ? [
         SET_TEMP(DIFFERENCE,
             (cargo_waiting / PROD_CYCLE_SIX_MONTHS) - GET_PERM(PRODUCTION_RATE)
         ),
@@ -90,7 +90,7 @@ switch(FEAT_INDUSTRIES, SELF, updateProduction,
     // smooth economy option
     #define PROD_3_PCT  10
     #define PROD_23_PCT 60
-    (GET_PERM(SECTOR) & IND_PRODUCES) ? [
+    (IND_PRODUCES) ? [
         SET_TEMP(RANDOM_CHANGE,
             max(1, randomRange(PROD_3_PCT, PROD_23_PCT) * GET_PERM(PRODUCTION_RATE) / PRODUCTION_MAX)
         ),
@@ -126,7 +126,7 @@ switch(FEAT_INDUSTRIES, SELF, shouldProductionChange,
     cargo_waiting,
     cargo_transported,
 [
-    (GET_PERM(SECTOR) & IND_PRODUCES) ? [
+    (IND_PRODUCES) ? [
         randomChance(1, PRODUCTION_CHANGE_PROB) && (cargo_transported > 0)
     ] : [
         randomChance(1, PRODUCTION_CHANGE_PROB)
@@ -146,7 +146,7 @@ switch(FEAT_INDUSTRIES, SELF, evalProduction,
     cargo_transported,
 [
     initRandom(),
-    (GET_PERM(SECTOR) & IND_PRODUCES)
+    (IND_PRODUCES)
         ? isAbandoned(cargo_produced)
         : 0
 ]) {
