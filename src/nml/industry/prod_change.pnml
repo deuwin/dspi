@@ -86,12 +86,13 @@ switch(FEAT_INDUSTRIES, SELF, updateProduction,
     ],
 
     // calculate impact of transported cargo
+    // The random range gives a change of approximately 3-23%, just like the
+    // smooth economy option
+    #define PROD_3_PCT  10
+    #define PROD_23_PCT 60
     (GET_PERM(SECTOR) & IND_PRODUCES) ? [
-        // this should give a change in the range 3-23%, just like the smooth
-        // economy option
-        // FIXME: calc range values from PRODUCTION_MAX
         SET_TEMP(RANDOM_CHANGE,
-            max(1, randomRange(10, 60) * GET_PERM(PRODUCTION_RATE) / PRODUCTION_MAX)
+            max(1, randomRange(PROD_3_PCT, PROD_23_PCT) * GET_PERM(PRODUCTION_RATE) / PRODUCTION_MAX)
         ),
         SET_TEMP(CHANGE_DIRECTION,
             chanceToIncrease(cargo_transported) ? 1 : -1
