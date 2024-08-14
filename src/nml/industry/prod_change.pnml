@@ -58,8 +58,8 @@ switch(FEAT_INDUSTRIES, SELF, chanceToIncrease, percent,
  * Calculate production change based on current production rate, waiting cargo,
  * and cargo transported. */
 
-// Industries have 8 or 9 production cycles a month so we use (8.5 * 6)
-#define PROD_CYCLE_SIX_MONTHS 51
+// Industries have 8 or 9 production ticks a month giving, (8.5 * 3) ~= 26
+#define THREE_MONTH_PROD_TICKS 26
 // Maximum change allowed by assessment of stockpile level
 #define MAX_CHANGE_STOCKPILE_PCT 20
 
@@ -70,7 +70,7 @@ switch(FEAT_INDUSTRIES, SELF, updateProduction,
     // calculate impact of stockpile level
     (IND_CONSUMES) ? [
         SET_TEMP(DIFFERENCE,
-            (cargo_waiting / PROD_CYCLE_SIX_MONTHS) - GET_PERM(PRODUCTION_RATE)
+            (cargo_waiting / THREE_MONTH_PROD_TICKS) - GET_PERM(PRODUCTION_RATE)
         ),
         SET_TEMP(LIMIT,
             GET_PERM(PRODUCTION_RATE) * MAX_CHANGE_STOCKPILE_PCT / 100
@@ -121,7 +121,7 @@ switch(FEAT_INDUSTRIES, SELF, updateProduction,
 
 /* shouldProductionChange(cargo_waiting, cargo_transported)
  * Random probability of change as long as output cargo has been transported */
-#define PRODUCTION_CHANGE_PROB 3
+#define PRODUCTION_CHANGE_PROB 22
 switch(FEAT_INDUSTRIES, SELF, shouldProductionChange,
     cargo_waiting,
     cargo_transported,
