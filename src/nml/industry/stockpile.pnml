@@ -5,7 +5,7 @@
 #define STOCKPILE_LIMIT 15000
 
 /* setStockpileAverage(current)
- * Calculates average stockpile level using a simple moving average (SMA) */
+ * Calculates average stockpile level using simple exponential smoothing */
 
 // approximately 3 months of production ticks
 #define SAMPLE_SIZE 27
