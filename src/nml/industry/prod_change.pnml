@@ -58,8 +58,6 @@ switch(FEAT_INDUSTRIES, SELF, chanceToIncrease, percent,
  * Calculate production change based on current production rate, waiting cargo,
  * and cargo transported. */
 
-// Industries have 8 or 9 production ticks a month giving, (8.5 * 3) ~= 26
-#define THREE_MONTH_PROD_TICKS 26
 // Maximum change allowed by assessment of stockpile level
 #define MAX_CHANGE_STOCKPILE_PCT 20
 
@@ -107,7 +105,6 @@ switch(FEAT_INDUSTRIES, SELF, updateProduction,
     // store variables for detailed info
     // TODO: maybe these should be stored as percentages?
     SET_PERM(PRODUCTION_RATE_PREV, GET_PERM(PRODUCTION_RATE)),
-    SET_PERM(STOCKPILE_SAMPLE,     GET_PERM(STOCKPILE_AVERAGE)),
     SET_PERM(STOCKPILE_IMPACT,     GET_TEMP(STOCKPILE_CHANGE)),
     SET_PERM(TRANSPORTED_IMPACT,   GET_TEMP(TRANSPORTED_CHANGE)),
 

@@ -14,7 +14,7 @@ JOIN_LINES(
 
 JOIN_LINES(
     STR_INDUSTRY_EXTRA_TEXT:\
-        Production rate: {WHITE}{UNSIGNED_WORD}%{BLACK}\
+        Production capacity: {WHITE}{UNSIGNED_WORD}%{BLACK}\
         {STRING}
 )
 
@@ -23,13 +23,16 @@ STR_PARAM_PROD_BREAKDOWN_DESC: Display detailed information on the factors affec
 JOIN_LINES(\
     STR_PROD_BREAKDOWN:\
         {}{}\
+        Stockpile:{}\
+            Current average: {UNSIGNED_WORD}{}\
+            Base required: {UNSIGNED_WORD}{}\
+        {}\
         Production change breakdown:{}\
-            Stockpile:{}\
-            Average: {UNSIGNED_WORD}{}\
-            Impact: {SIGNED_WORD}{}\
-        Transported:{}\
-            Impact: {SIGNED_WORD}{}\
+            Impact:{}\
+            Stockpile: {SIGNED_WORD}{}\
+            Transported: {SIGNED_WORD}{}\
         Production rate:{}\
             Previous: {UNSIGNED_WORD}{}\
             Current: {UNSIGNED_WORD}
 )
+
