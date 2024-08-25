@@ -4,19 +4,14 @@
 
 // Debugging for now, should display useful information in future!
 switch(FEAT_INDUSTRIES, SELF, genExtraText, [
-    (show_prod_breakdown == 0) ? [
-        STORE_TEMP(
-            (GET_PERM(PRODUCTION_RATE) * 8) |
-                (GET_PERM(PRODUCTION_RATE) * 9) << 16
-        , 256),
-        STORE_TEMP(
-            (GET_PERM(PRODUCTION_RATE) * 100 / PRODUCTION_MAX)
-        , 257),
-    ] : [
-        STORE_TEMP(
-            (GET_PERM(PRODUCTION_RATE) * 8) |
-                (GET_PERM(PRODUCTION_RATE) * 9) << 16
-        , 256),
+    STORE_TEMP(
+        (GET_PERM(PRODUCTION_RATE) * 8) |
+            (GET_PERM(PRODUCTION_RATE) * 9) << 16
+    , 256),
+    STORE_TEMP(
+        (GET_PERM(PRODUCTION_RATE) * 100 / PRODUCTION_MAX)
+    , 257),
+    (show_prod_breakdown == 1) ? [
         STORE_TEMP(
             (GET_PERM(PRODUCTION_RATE) * 100 / PRODUCTION_MAX) |
                 string(STR_PROD_BREAKDOWN) << 16
@@ -33,7 +28,7 @@ switch(FEAT_INDUSTRIES, SELF, genExtraText, [
         STORE_TEMP(
             GET_PERM(PRODUCTION_RATE_PREV) | (GET_PERM(PRODUCTION_RATE) << 16)
         , 260),
-    ]
+    ] : [0]
 ]) {
     return string(STR_INDUSTRY_EXTRA_TEXT);
 }
