@@ -4,6 +4,8 @@
 # // in the displayed text
 #define JOIN_LINES(str) str
 
+#define _TAB_ {NBSP}{NBSP}{NBSP}{NBSP}
+
 STR_GRF_NAME:{NAME} v{VERSION}
 
 JOIN_LINES(
@@ -14,7 +16,9 @@ JOIN_LINES(
 
 JOIN_LINES(
     STR_INDUSTRY_EXTRA_TEXT:\
-        Production capacity: {WHITE}{UNSIGNED_WORD}%{BLACK}\
+        Production capacity:{}\
+        _TAB_ {YELLOW}{UNSIGNED_WORD} - {UNSIGNED_WORD}{BLACK} units {}\
+        _TAB_ {UNSIGNED_WORD}%{BLACK} of maximum\
         {STRING}
 )
 
@@ -24,15 +28,15 @@ JOIN_LINES(\
     STR_PROD_BREAKDOWN:\
         {}{}\
         Stockpile:{}\
-            Current average: {UNSIGNED_WORD}{}\
-            Base required: {UNSIGNED_WORD}{}\
+            _TAB_ Current average: {UNSIGNED_WORD}{}\
+            _TAB_ Base required: {UNSIGNED_WORD}{}\
         {}\
         Production change breakdown:{}\
             Impact:{}\
-            Stockpile: {SIGNED_WORD}{}\
-            Transported: {SIGNED_WORD}{}\
+            _TAB_ Stockpile: {SIGNED_WORD}{}\
+            _TAB_ Transported: {SIGNED_WORD}{}\
         Production rate:{}\
-            Previous: {UNSIGNED_WORD}{}\
-            Current: {UNSIGNED_WORD}
+            _TAB_ Previous: {UNSIGNED_WORD}{}\
+            _TAB_ Current: {UNSIGNED_WORD}
 )
 
