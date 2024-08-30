@@ -4,9 +4,15 @@
 
 // Debugging for now, should display useful information in future!
 switch(FEAT_INDUSTRIES, SELF, genExtraText, [
+    (GET_PERM(INDUSTRY_TYPE) == INDUSTRYTYPE_TEMPERATE_FACTORY) ? [
+        SET_TEMP(MULTIPLIER, 3)
+    ] : [
+        SET_TEMP(MULTIPLIER, 1)
+    ],
+
     STORE_TEMP(
-        (GET_PERM(PRODUCTION_RATE) * 8) |
-            (GET_PERM(PRODUCTION_RATE) * 9) << 16
+        (GET_PERM(PRODUCTION_RATE) * 8 * GET_TEMP(MULTIPLIER)) |
+            (GET_PERM(PRODUCTION_RATE) * 9 * GET_TEMP(MULTIPLIER)) << 16
     , 256),
     STORE_TEMP(
         (GET_PERM(PRODUCTION_RATE) * 100 / PRODUCTION_MAX)

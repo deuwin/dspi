@@ -40,6 +40,9 @@
 #define TEMP_CHANGE_DIRECTION   0x07
 #define TEMP_TRANSPORTED_CHANGE 0x08
 
+// extra_text
+#define TEMP_MULTIPLIER         0x09
+
 
 /***********************
  * Register Access
