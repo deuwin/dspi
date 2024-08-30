@@ -34,8 +34,12 @@ produce(noProduction, [], [])
  * Initialisation
  ********************/
 
-switch(FEAT_INDUSTRIES, SELF, initPermanentStorage, industry_sector, [
+switch(FEAT_INDUSTRIES, SELF, initPermanentStorage,
+    industry_sector,
+    industry_type,
+[
     SET_PERM(SECTOR, industry_sector),
+    SET_PERM(INDUSTRY_TYPE, industry_type),
     SET_PERM(PRODUCTION_RATE, PRODUCTION_BASE)
 ]) { return; }
 
