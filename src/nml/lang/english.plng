@@ -17,20 +17,20 @@ JOIN_LINES(
 JOIN_LINES(
     STR_INDUSTRY_EXTRA_TEXT:\
         Production capacity:{}\
-        _TAB_ {YELLOW}{UNSIGNED_WORD} - {UNSIGNED_WORD}{BLACK} units {}\
-        _TAB_ {UNSIGNED_WORD}%{BLACK} of maximum\
+            _TAB_ {YELLOW}{UNSIGNED_WORD} - {UNSIGNED_WORD}{BLACK} units{}\
+            _TAB_ {UNSIGNED_WORD}% of maximum{}\
+        {}\
+        Stockpile:{}\
+            _TAB_ Average: {UNSIGNED_WORD}{}\
+            _TAB_ Required: {UNSIGNED_WORD}\
         {STRING}
 )
 
-STR_PARAM_PROD_BREAKDOWN_NAME: Show change breakdown?
+STR_PARAM_PROD_BREAKDOWN_NAME: Show production change breakdown?
 STR_PARAM_PROD_BREAKDOWN_DESC: Display detailed information on the factors affecting production change.
 JOIN_LINES(\
     STR_PROD_BREAKDOWN:\
         {}{}\
-        Stockpile:{}\
-            _TAB_ Current average: {UNSIGNED_WORD}{}\
-            _TAB_ Base required: {UNSIGNED_WORD}{}\
-        {}\
         Production change breakdown:{}\
             Impact:{}\
             _TAB_ Stockpile: {SIGNED_WORD}{}\
