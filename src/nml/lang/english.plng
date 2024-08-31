@@ -32,11 +32,7 @@ JOIN_LINES(\
     STR_PROD_BREAKDOWN:\
         {}{}\
         Production change breakdown:{}\
-            Impact:{}\
-            _TAB_ Stockpile: {SIGNED_WORD}{}\
-            _TAB_ Transported: {SIGNED_WORD}{}\
-        Production rate:{}\
-            _TAB_ Previous: {UNSIGNED_WORD}{}\
-            _TAB_ Current: {UNSIGNED_WORD}
+            _TAB_ Stockpile impact: {SIGNED_WORD}%{}\
+            _TAB_ Transported impact: {SIGNED_WORD}%{}\
 )
 
