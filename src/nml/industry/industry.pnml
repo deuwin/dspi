@@ -1,3 +1,5 @@
+#include "power.pnml"
+
 /********************
  * Industry Sector
  ********************/
@@ -40,7 +42,13 @@ switch(FEAT_INDUSTRIES, SELF, initPermanentStorage,
 [
     SET_PERM(SECTOR, industry_sector),
     SET_PERM(INDUSTRY_TYPE, industry_type),
-    SET_PERM(PRODUCTION_RATE, PRODUCTION_BASE)
+    SET_PERM(PRODUCTION_RATE, PRODUCTION_BASE),
+    (industry_sector == IND_SECONDARY) ? [
+        SET_PERM(POWER_SLOT, getPowerSlot()),
+        setPowerDemand()
+    ] : [0],
+    // must not return 0
+    PRODUCTION_BASE
 ]) { return; }
 
 

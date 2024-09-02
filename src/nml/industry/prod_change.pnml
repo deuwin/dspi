@@ -1,6 +1,8 @@
 #include "registers.pnml"
 #include "maths.pnml"
 #include "random.pnml"
+#include "power.pnml"
+
 
 /********************
  * Closure
@@ -112,6 +114,11 @@ switch(FEAT_INDUSTRIES, SELF, updateProduction,
             + GET_TEMP(STOCKPILE_CHANGE)
             + GET_TEMP(TRANSPORTED_CHANGE)
     ),
+    (GET_PERM(SECTOR) == IND_SECONDARY) ? [
+        setPowerDemand()
+    ] : [0],
+    // setProductionLevel() must be last as 0x100 is trashed when setting power
+    // demand
     setProductionLevel()
 ]) { return; }
 
