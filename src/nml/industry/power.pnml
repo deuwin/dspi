@@ -62,7 +62,7 @@ switch(FEAT_INDUSTRIES, PARENT, getPowerSlot, [
     toIdx(GET_TEMP(NEW_SLOT))
 ]) { return; }
 
-/* setPowerDemandTown(demand_slot)
+/* _setPowerDemand(demand_slot)
  * Split from setPowerDemand() to store demand in the town's permanent
  * storage.
  *
@@ -77,8 +77,14 @@ switch(FEAT_INDUSTRIES, PARENT, setPowerDemandTown, demand_slot, [
 ]) { return; }
 
 /* setPowerDemand() */
+// power demand per unit of cargo produced
+#define DEMAND_PER_UNIT 250
+
 switch(FEAT_INDUSTRIES, SELF, setPowerDemand, [
-    setPowerDemandTown((GET_PERM(PRODUCTION_RATE) << 16) | GET_PERM(POWER_SLOT)),
+    _setPowerDemand(
+        ((GET_PERM(PRODUCTION_RATE) * DEMAND_PER_UNIT) << 16)
+            | GET_PERM(POWER_SLOT)
+    ),
 ]) { return; }
 
 #endif // POWER_PNML
