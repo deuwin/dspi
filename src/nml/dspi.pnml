@@ -14,9 +14,20 @@ grf {
             bit:       0;
         }
     }
+
+    param 1 {
+        power_required {
+            name:      string(STR_PARAM_POWER_REQUIRED_NAME);
+            desc:      string(STR_PARAM_POWER_REQUIRED_DESC);
+            type:      bool;
+            def_value: 0;
+            bit:       0;
+        }
+    }
 }
 
 show_prod_breakdown = param[0];
+power_required = param[1];
 
 #include "cargotable.pnml"
 #include "maths.pnml"

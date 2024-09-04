@@ -36,3 +36,5 @@ JOIN_LINES(\
             _TAB_ Transported impact: {SIGNED_WORD}%{}\
 )
 
+STR_PARAM_POWER_REQUIRED_NAME: Secondary industries require power
+STR_PARAM_POWER_REQUIRED_DESC: If enabled secondary industries require power to produce cargo.
