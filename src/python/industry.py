@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, InitVar
 from string import Template
 from pathlib import Path
 from typing import Optional
@@ -27,10 +27,16 @@ class Industry:
     """
 
     id:     str
-    input:  str | list[str]
+    input:  InitVar[str | list[str]]
     output: str | None
     tiles:  Optional[list[int]] = None
     ratio:  Optional[list[int]] = None
+
+    def __post_init__(self, input):
+        if type(input) == str:
+            object.__setattr__(self, "input", [input])
+        else:
+            object.__setattr__(self, "input", input)
 
     @property
     def name(self):
@@ -83,8 +89,8 @@ def generateIndustryPnml():
         template_values = {
             "id":               industry.id,
             "name":             industry.name,
-            "cycle_consume":    genCycleConsume(industry),
-            "cycle_produce":    genCycleProduce(industry),
+            "prodtick_consume": genProdTickConsume(industry),
+            "prodtick_produce": genProdTickProduce(industry),
             "production_limit": genProductionLimit(industry),
             "produced_cargo":   genProducedCargo(industry),
             "stockpile_level":  genRelevantLevel(industry),
@@ -100,7 +106,7 @@ def generateIndustryPnml():
         template_values = {
             "id":               industry.id,
             "name":             industry.name,
-            "cycle_consume":    genCycleConsume(industry),
+            "prodtick_consume": genProdTickConsume(industry),
             "production_limit": genProductionLimit(industry),
             "stockpile_level":  genRelevantLevel(industry),
             "accept_cargo":     genCargoTypeAccept(industry),
@@ -108,51 +114,38 @@ def generateIndustryPnml():
         pnml += template.substitute(template_values)
 
     return pnml
-
 # fmt: on
 
 
-def genCycleConsume(industry):
-    if type(industry.input) == str:
-        return f"{industry.input}: GET_TEMP(CONSUMED_0);"
+def indent(text, indent_level):
+    for idx, line in enumerate(text[1:], start=1):
+        text[idx] = "    " * indent_level + line
+    return "\n".join(text)
 
-    consume = ""
+
+def genProdTickConsume(industry):
+    consume = []
     for reg_idx, input in enumerate(industry.input):
-        consume += f"{input}: GET_TEMP(CONSUMED_{reg_idx});\n        "
-    return consume[:-9]
+        consume.append(f"{input}: GET_TEMP(CONSUMED_{reg_idx});")
+    return indent(consume, 2)
 
 
-def genCycleProduce(industry):
+def genProdTickProduce(industry):
     return f"{industry.output}: GET_TEMP(PRODUCED);"
 
 
 def genProductionLimit(industry):
-    prefix = "SET_TEMP(CONSUMED_"
-    suffix = ", GET_PERM(PRODUCTION_RATE))),"
-    produced = "SET_TEMP(PRODUCED, "
-
-    if type(industry.input) == str:
-        return (
-            prefix
-            + f'0, min(incoming_cargo_waiting("{industry.input}")'
-            + suffix
-        )
-
-    limit = ""
+    limit = []
     for reg_idx, input in enumerate(industry.input):
-        limit += (
-            prefix
-            + f'{reg_idx}, min(incoming_cargo_waiting("{input}")'
-            + suffix
-            + "\n    "
+        limit.append(
+            f"SET_TEMP(CONSUMED_{reg_idx}, "
+                f'min(incoming_cargo_waiting("{input}"), GET_PERM(PRODUCTION_RATE))'
+            "),"
         )
-    return limit[:-5]
+    return indent(limit, 1)
 
 
 def genProducedCargo(industry):
-    if type(industry.input) == str:
-        return "SET_TEMP(PRODUCED, GET_TEMP(CONSUMED_0)),"
-
     produced = "SET_TEMP(PRODUCED, "
     for reg_idx, input in enumerate(industry.input):
         produced += f"GET_TEMP(CONSUMED_{reg_idx}) + "
@@ -160,9 +153,6 @@ def genProducedCargo(industry):
 
 
 def genRelevantLevel(ind):
-    if type(ind.input) is str:
-        return f'incoming_cargo_waiting("{ind.input}")'
-
     relevant_level = f'incoming_cargo_waiting("{ind.input[0]}")'
     for input in ind.input[1:]:
         relevant_level = (
@@ -172,13 +162,10 @@ def genRelevantLevel(ind):
 
 
 def genCargoTypeAccept(ind):
-    if type(ind.input) == str:
-        return f'accept_cargo("{ind.input}"),'
-
-    accept_cargo = ""
+    accept_cargo = []
     for input in ind.input:
-        accept_cargo += f'accept_cargo("{input}"),\n' + " " * 12
-    return accept_cargo[:-13]
+        accept_cargo.append(f'accept_cargo("{input}"),')
+    return indent(accept_cargo, 3)
 
 
 def genCargoTypeProduce(ind):

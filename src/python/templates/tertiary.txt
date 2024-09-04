@@ -1,6 +1,6 @@
 produce(${name}_produceCargo,
     [
-        $cycle_consume
+        $prodtick_consume
     ],
     [],
     0

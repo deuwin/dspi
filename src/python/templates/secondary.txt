@@ -1,9 +1,9 @@
 produce(${name}_produceCargo,
     [
-        $cycle_consume
+        $prodtick_consume
     ],
     [
-        $cycle_produce
+        $prodtick_produce
     ],
     0
 )

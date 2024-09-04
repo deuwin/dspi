@@ -54,6 +54,12 @@
 #define TEMP_DEMAND_PRODUCED    0x0B
 #define TEMP_DEMAND_IDLE        0x0C
 
+// industry.py
+#define TEMP_CONSUMED_0         0x0D
+#define TEMP_CONSUMED_1         0x0E
+#define TEMP_CONSUMED_2         0x0F
+#define TEMP_PRODUCED           0x10
+
 
 /***********************
  * Register Access
