@@ -1,21 +1,6 @@
 #include "power.pnml"
 
 /********************
- * Industry Sector
- ********************/
-
-#define IND_PRIMARY   0x01
-#define IND_SECONDARY 0x03
-#define IND_TERTIARY  0x02
-
-#define PRODUCES_BIT  0x01
-#define CONSUMES_BIT  0x02
-
-#define IND_PRODUCES  (GET_PERM(SECTOR) & PRODUCES_BIT)
-#define IND_CONSUMES  (GET_PERM(SECTOR) & CONSUMES_BIT)
-
-
-/********************
  * Produce
  *
  * This block contains common definitions, individual produce blocks are
@@ -55,8 +40,3 @@ switch(FEAT_INDUSTRIES, SELF, initPermanentStorage,
     // must not return 0
     PRODUCTION_BASE
 ]) { return; }
-
-
-#include "extra_text.pnml"
-#include "prod_change.pnml"
-#include "stockpile.pnml"

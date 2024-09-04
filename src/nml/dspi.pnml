@@ -21,5 +21,5 @@ show_prod_breakdown = param[0];
 #include "cargotable.pnml"
 #include "maths.pnml"
 #include "random.pnml"
-#include "industry/industry.pnml"
+#include "industry/industry_header.pnml"
 #include "industry_items.pnml"

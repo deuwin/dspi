@@ -1,0 +1,32 @@
+/********************
+ * Industry Sector
+ ********************/
+
+#define IND_PRIMARY   0x01
+#define IND_SECONDARY 0x03
+#define IND_TERTIARY  0x02
+
+#define PRODUCES_BIT  0x01
+#define CONSUMES_BIT  0x02
+
+#define IND_PRODUCES  (GET_PERM(SECTOR) & PRODUCES_BIT)
+#define IND_CONSUMES  (GET_PERM(SECTOR) & CONSUMES_BIT)
+
+
+/********************
+ * Defines
+ ********************/
+
+// Maximum production rate when considering all cargo inputs. Only really
+// relevant for factories.
+#define PROD_RATE_ALL (GET_PERM(PRODUCTION_RATE) * GET_PERM(PROD_MULTIPLIER))
+
+
+/********************
+ * Includes
+ ********************/
+
+#include "industry.pnml"
+#include "extra_text.pnml"
+#include "prod_change.pnml"
+#include "stockpile.pnml"

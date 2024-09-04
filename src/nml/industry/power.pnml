@@ -86,8 +86,7 @@ switch(FEAT_INDUSTRIES, SELF, setPowerDemand, produced, [
     ),
     // 10% of max for idling machines
     SET_TEMP(DEMAND_IDLE,
-        (GET_PERM(PRODUCTION_RATE) * GET_PERM(PROD_MULTIPLIER) - produced)
-            * DEMAND_PER_CARGO_UNIT / 10
+        (PROD_RATE_ALL - produced) * DEMAND_PER_CARGO_UNIT / 10
     ),
     _setPowerDemand(
         ((GET_TEMP(DEMAND_IDLE) + GET_TEMP(DEMAND_PRODUCED)) << 16)
