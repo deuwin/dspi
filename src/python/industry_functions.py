@@ -1,24 +1,22 @@
-from string import Template
-
 from cargotable import CargoTable as Cargo
 
 
 def genIsStockpileFull():
-    cargo_cases = ""
-    for index, cargo in enumerate(Cargo.__dict__.values()):
-        cargo_cases += (
-            f'    {index}: incoming_cargo_waiting("{cargo}") < STOCKPILE_LIMIT;\n'
+    cargo_cases = []
+    for index, cargo in enumerate(Cargo):
+        cargo_cases.append(
+            f'    {index}: incoming_cargo_waiting("{cargo}") < STOCKPILE_LIMIT;'
         )
+    cargo_cases = "\n".join(cargo_cases)
 
-    template = """
-switch(FEAT_INDUSTRIES, SELF, isStockpileFull,
-    getbits(extra_callback_info2, 0, 8)
-) {
-$cargo_cases
-}
-"""
-
-    return Template(template).substitute(cargo_cases=cargo_cases)
+    # it feels like there should be a neater way to do this...
+    return (
+        "switch(FEAT_INDUSTRIES, SELF, isStockpileFull,\n"
+        "    getbits(extra_callback_info2, 0, 8)\n"
+        ") {\n"
+        f"{cargo_cases}\n"
+        "}\n\n"
+    )
 
 
 def main():

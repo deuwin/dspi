@@ -33,10 +33,10 @@ class Industry:
     ratio:  Optional[list[int]] = None
 
     def __post_init__(self, input):
-        if type(input) == str:
-            object.__setattr__(self, "input", [input])
-        else:
+        if type(input) == list:
             object.__setattr__(self, "input", input)
+        else:
+            object.__setattr__(self, "input", [input])
 
     @property
     def name(self):
