@@ -66,6 +66,7 @@ def generateIndustryPnml():
             "cycle_consume":    genCycleConsume(industry),
             "cycle_produce":    genCycleProduce(industry),
             "production_limit": genProductionLimit(industry),
+            "produced_cargo":   genProducedCargo(industry),
             "stockpile_level":  genRelevantLevel(industry),
             "output":           industry.output,
             "accept_cargo":     genCargoTypeAccept(industry),
@@ -93,34 +94,49 @@ def generateIndustryPnml():
 
 def genCycleConsume(industry):
     if type(industry.input) == str:
-        return f"{industry.input}: LOAD_TEMP(0);"
+        return f"{industry.input}: GET_TEMP(CONSUMED_0);"
 
     consume = ""
-    for temp_reg, input in enumerate(industry.input):
-        consume += f"{input}: LOAD_TEMP({temp_reg});\n        "
+    for reg_idx, input in enumerate(industry.input):
+        consume += f"{input}: GET_TEMP(CONSUMED_{reg_idx});\n        "
     return consume[:-9]
 
 
 def genCycleProduce(industry):
-    if type(industry.input) == str:
-        return f"{industry.output}: LOAD_TEMP(0);"
-
-    produce = f"{industry.output}: "
-    for temp_reg, input in enumerate(industry.input):
-        produce += f"LOAD_TEMP({temp_reg}) + "
-    return produce[:-3] + ";"
+    return f"{industry.output}: GET_TEMP(PRODUCED);"
 
 
 def genProductionLimit(industry):
-    prefix = "STORE_TEMP(min(GET_PERM(PRODUCTION_RATE), incoming_cargo_waiting("
+    prefix = "SET_TEMP(CONSUMED_"
+    suffix = ", GET_PERM(PRODUCTION_RATE))),"
+    produced = "SET_TEMP(PRODUCED, "
 
     if type(industry.input) == str:
-        return prefix + f'"{industry.input}")), 0),'
+        return (
+            prefix
+            + f'0, min(incoming_cargo_waiting("{industry.input}")'
+            + suffix
+        )
 
     limit = ""
-    for temp_reg, input in enumerate(industry.input):
-        limit += prefix + f'"{input}")), {temp_reg}),\n    '
+    for reg_idx, input in enumerate(industry.input):
+        limit += (
+            prefix
+            + f'{reg_idx}, min(incoming_cargo_waiting("{input}")'
+            + suffix
+            + "\n    "
+        )
     return limit[:-5]
+
+
+def genProducedCargo(industry):
+    if type(industry.input) == str:
+        return "SET_TEMP(PRODUCED, GET_TEMP(CONSUMED_0)),"
+
+    produced = "SET_TEMP(PRODUCED, "
+    for reg_idx, input in enumerate(industry.input):
+        produced += f"GET_TEMP(CONSUMED_{reg_idx}) + "
+    return produced[:-3] + "),"
 
 
 def genRelevantLevel(ind):
