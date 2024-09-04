@@ -69,20 +69,28 @@ switch(FEAT_INDUSTRIES, PARENT, getPowerSlot, [
  * NOTE: STORE_PERM() doesn't appear to work when passed two parameters from
  * a switch procedure. So slot and demand are packed into one variable and
  * unpacked inside. */
-switch(FEAT_INDUSTRIES, PARENT, setPowerDemandTown, demand_slot, [
+switch(FEAT_INDUSTRIES, PARENT, _setPowerDemand, demand_slot, [
     STORE_PERM(
         demand_slot >> 16,
         PERM_POWER_DEMAND + (demand_slot & 0xFF)
     ),
 ]) { return; }
 
-/* setPowerDemand() */
+/* setPowerDemand(produced) */
 // power demand per unit of cargo produced
-#define DEMAND_PER_UNIT 250
+#define DEMAND_PER_CARGO_UNIT 250
 
-switch(FEAT_INDUSTRIES, SELF, setPowerDemand, [
+switch(FEAT_INDUSTRIES, SELF, setPowerDemand, produced, [
+    SET_TEMP(DEMAND_PRODUCED,
+        produced * DEMAND_PER_CARGO_UNIT
+    ),
+    // 10% of max for idling machines
+    SET_TEMP(DEMAND_IDLE,
+        (GET_PERM(PRODUCTION_RATE) * GET_PERM(PROD_MULTIPLIER) - produced)
+            * DEMAND_PER_CARGO_UNIT / 10
+    ),
     _setPowerDemand(
-        ((GET_PERM(PRODUCTION_RATE) * DEMAND_PER_UNIT) << 16)
+        ((GET_TEMP(DEMAND_IDLE) + GET_TEMP(DEMAND_PRODUCED)) << 16)
             | GET_PERM(POWER_SLOT)
     ),
 ]) { return; }

@@ -43,9 +43,14 @@ switch(FEAT_INDUSTRIES, SELF, initPermanentStorage,
     SET_PERM(SECTOR, industry_sector),
     SET_PERM(INDUSTRY_TYPE, industry_type),
     SET_PERM(PRODUCTION_RATE, PRODUCTION_BASE),
+    (industry_type == INDUSTRYTYPE_TEMPERATE_FACTORY) ? [
+        SET_PERM(PROD_MULTIPLIER, 3)
+    ] : [
+        SET_PERM(PROD_MULTIPLIER, 1)
+    ],
     (industry_sector == IND_SECONDARY) ? [
         SET_PERM(POWER_SLOT, getPowerSlot()),
-        setPowerDemand()
+        setPowerDemand(0)
     ] : [0],
     // must not return 0
     PRODUCTION_BASE

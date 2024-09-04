@@ -11,6 +11,7 @@ produce(${name}_produceCargo,
 switch(FEAT_INDUSTRIES, SELF, ${name}_calcProduction, [
     setStockpileAverage($stockpile_level),
     $production_limit
+    setPowerDemand(LOAD_TEMP(0))
 ]) { return ${name}_produceCargo; }
 
 switch(FEAT_INDUSTRIES, SELF, ${name}_productionChange, [
@@ -32,7 +33,7 @@ item(FEAT_INDUSTRIES, $name) {
     }
     graphics {
         build_prod_change:     initPermanentStorage(IND_SECONDARY, $id);
-        extra_text_industry:   genExtraText;
+        extra_text_industry:   genExtraText();
 
         produce_cargo_arrival: noProduction;
         produce_256_ticks:     ${name}_calcProduction();
