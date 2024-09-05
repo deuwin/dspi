@@ -20,7 +20,7 @@
 #define PERM_TRANSPORTED_IMPACT   0x09
 
 #define PERM_POWER_SLOT           0x0A
-#define PERM_POWER_DEMAND         0x0B
+#define PERM_POWER_DEMAND_PREV    0x0B
 
 
 // town
@@ -55,12 +55,13 @@
 #define TEMP_NEW_SLOT           0x0A
 #define TEMP_DEMAND_PRODUCED    0x0B
 #define TEMP_DEMAND_IDLE        0x0C
+#define TEMP_DEMAND_CHANGE      0x0D
 
 // industry.py
-#define TEMP_CONSUMED_0         0x0D
-#define TEMP_CONSUMED_1         0x0E
-#define TEMP_CONSUMED_2         0x0F
-#define TEMP_PRODUCED           0x10
+#define TEMP_CONSUMED_0         0x0E
+#define TEMP_CONSUMED_1         0x0F
+#define TEMP_CONSUMED_2         0x10
+#define TEMP_PRODUCED           0x11
 
 
 /***********************

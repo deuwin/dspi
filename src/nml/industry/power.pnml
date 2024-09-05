@@ -3,75 +3,39 @@
 
 #include "registers.pnml"
 
-/* assignPowerSlot()
- * Reserve a power slot and return its value. A slight tweak on the method to
- * find the lowest set bit so we're finding the lowest bit not set.
- * https://stackoverflow.com/a/12250963
- * https://catonmat.net/low-level-bit-hacks#bithack7
- */
-// Hopefully no one will need/want more than 32 industries per town...
-switch(FEAT_INDUSTRIES, PARENT, getPowerSlot, [
-    SET_TEMP(NEW_SLOT,
-        (GET_PERM(POWER_SLOTS) ^ 0xFFFFFFFF) & (GET_PERM(POWER_SLOTS) + 0x00000001)
-    ),
-    SET_PERM(POWER_SLOTS, GET_PERM(POWER_SLOTS) | GET_TEMP(NEW_SLOT)),
-    GET_TEMP(NEW_SLOT)
+/* adjustPowerDemand(demand_change) */
+switch(FEAT_INDUSTRIES, PARENT, adjustPowerDemand, demand_change, [
+    SET_PERM(POWER_DEMAND_TOTAL, GET_PERM(POWER_DEMAND_TOTAL) + demand_change)
 ]) { return; }
 
 
-/* isLowestSlot(slot_id)
- * Returns 1 if slot_id the lowest assigned slot.
- * https://stackoverflow.com/a/12250963
- * https://catonmat.net/low-level-bit-hacks#bithack7
- */
-switch(FEAT_INDUSTRIES, PARENT, isLowestSlot, slot_idx, [
-    (GET_PERM(POWER_SLOTS) & -GET_PERM(POWER_SLOTS)) == slot_idx
-]) { return; }
-
-
-/* setPowerDemandParent(slot_id, demand)
- * Split from setPowerDemand() to store demand in the town's permanent
- * storage.
- */
-switch(FEAT_INDUSTRIES, PARENT, setPowerDemandParent,
-    slot_id,
-    demand,
-[
-    (isLowestSlot(slot_id) == 1) ? [
-        SET_PERM(POWER_DEMAND_TOTAL, demand)
-    ] : [
-        SET_PERM(POWER_DEMAND_TOTAL, GET_PERM(POWER_DEMAND_TOTAL) + demand)
-    ],
-]) { return; }
-
-
-// power demand per unit of cargo produced
+// power required per unit of cargo produced
 #define DEMAND_PER_CARGO_UNIT 250
 
-/* setPowerDemand(output_current) */
-switch(FEAT_INDUSTRIES, SELF, setPowerDemand, output_current, [
-    // calculate power requirements for produced cargo
+/* setPowerDemand(cargo_produced) */
+switch(FEAT_INDUSTRIES, SELF, setPowerDemand, cargo_produced, [
     SET_TEMP(DEMAND_PRODUCED,
-        output_current * DEMAND_PER_CARGO_UNIT
+        cargo_produced * DEMAND_PER_CARGO_UNIT
     ),
     // idling capacity demands 10% of active production power
     SET_TEMP(DEMAND_IDLE,
-        (OUTPUT_RATE_MAX - output_current) * DEMAND_PER_CARGO_UNIT / 10
+        (OUTPUT_RATE_MAX - cargo_produced) * DEMAND_PER_CARGO_UNIT / 10
     ),
 
-    // Keeping individual power demand in permanent storage isn't needed for the
-    // logic here. However for reasons probably best known to NFO wizards,
-    // setPowerDemandParent() doesn't work correctly without it. Specifically
-    // when a factory attempts to set its power demand the total demand figure
-    // isn't updated if there isn't some sort of STORE_PERM() command prior to
-    // calling setPowerDemandParent(). So we may as well store something
-    // possibly useful.
-    SET_PERM(POWER_DEMAND, GET_TEMP(DEMAND_PRODUCED) + GET_TEMP(DEMAND_IDLE)),
+    SET_TEMP(DEMAND_CHANGE,
+        GET_TEMP(DEMAND_PRODUCED)
+        + GET_TEMP(DEMAND_IDLE)
+        - GET_PERM(POWER_DEMAND_PREV)
+    ),
 
-    setPowerDemandParent(
-        GET_PERM(POWER_SLOT),
+    // WARNING: For reasons probably best known to NFO wizards,
+    // adjustPowerDemand() won't work if there isn't some sort of
+    // STORE_PERM() command prior to it.
+    SET_PERM(POWER_DEMAND_PREV,
         GET_TEMP(DEMAND_PRODUCED) + GET_TEMP(DEMAND_IDLE)
-    )
+    ),
+
+    adjustPowerDemand(GET_TEMP(DEMAND_CHANGE))
 ]) { return; }
 
 #endif // POWER_PNML

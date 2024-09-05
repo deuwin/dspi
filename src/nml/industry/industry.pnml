@@ -34,7 +34,6 @@ switch(FEAT_INDUSTRIES, SELF, initPermanentStorage,
         SET_PERM(PROD_MULTIPLIER, 1)
     ],
     (industry_sector == IND_SECONDARY) ? [
-        SET_PERM(POWER_SLOT, getPowerSlot()),
         setPowerDemand(0)
     ] : [0],
     // must not return 0
