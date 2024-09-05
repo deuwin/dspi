@@ -24,7 +24,8 @@
 #define RAND_MAX_PLUS_ONE 1024
 
 /* initRandom()
- * Not sure if temporary storage is initialised to zero, so let's make sure */
+ * Temporary storage is uninitialised, must be set before use.
+ * https://newgrf-specs.tt-wiki.net/wiki/Storages#Temporary_storage */
 switch(FEAT_INDUSTRIES, SELF, initRandom,
     SET_TEMP(FIRST_BIT, 0)
 ) { return; }
