@@ -4,8 +4,9 @@
 
 
 switch(FEAT_INDUSTRIES, SELF, genExtraText, [
+    // there's 8 or 9 production ticks a month, so we'll give a range
     STORE_TEMP(
-        (PROD_RATE_ALL * 8) | ((PROD_RATE_ALL * 9) << 16)
+        (OUTPUT_RATE_MAX * 8) | ((OUTPUT_RATE_MAX * 9) << 16)
     , 256),
     STORE_TEMP(
         (GET_PERM(PRODUCTION_RATE) * 100 / PRODUCTION_MAX)

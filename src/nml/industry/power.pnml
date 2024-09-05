@@ -3,53 +3,9 @@
 
 #include "registers.pnml"
 
-/* toIdx(value)
- * Takes a power of 2 number and returns the index of the set bit. There are
- * more clever ways to do this [1], but I'd need a switch statement to implement
- * the lookup table in any case.
- *
- * [1] https://graphics.stanford.edu/~seander/bithacks.html#IntegerLogDeBruijn) */
-switch(FEAT_INDUSTRIES, SELF, toIdx, slot_number, [
-    slot_number
-]) {
-    0x00000001: 0;
-    0x00000002: 1;
-    0x00000004: 2;
-    0x00000008: 3;
-    0x00000010: 4;
-    0x00000020: 5;
-    0x00000040: 6;
-    0x00000080: 7;
-    0x00000100: 8;
-    0x00000200: 9;
-    0x00000400: 10;
-    0x00000800: 11;
-    0x00001000: 12;
-    0x00002000: 13;
-    0x00004000: 14;
-    0x00008000: 15;
-    0x00010000: 16;
-    0x00020000: 17;
-    0x00040000: 18;
-    0x00080000: 19;
-    0x00100000: 20;
-    0x00200000: 21;
-    0x00400000: 22;
-    0x00800000: 23;
-    0x01000000: 24;
-    0x02000000: 25;
-    0x04000000: 26;
-    0x08000000: 27;
-    0x10000000: 28;
-    0x20000000: 29;
-    0x40000000: 30;
-    0x80000000: 31;
-}
-
 /* assignPowerSlot()
- * Reserve a power slot and return the index of the reserved slot. A slight
- * tweak on the method to find the lowest set bit so we're finding the lowest
- * bit not set.
+ * Reserve a power slot and return its value. A slight tweak on the method to
+ * find the lowest set bit so we're finding the lowest bit not set.
  * https://stackoverflow.com/a/12250963
  * https://catonmat.net/low-level-bit-hacks#bithack7
  */
@@ -59,39 +15,63 @@ switch(FEAT_INDUSTRIES, PARENT, getPowerSlot, [
         (GET_PERM(POWER_SLOTS) ^ 0xFFFFFFFF) & (GET_PERM(POWER_SLOTS) + 0x00000001)
     ),
     SET_PERM(POWER_SLOTS, GET_PERM(POWER_SLOTS) | GET_TEMP(NEW_SLOT)),
-    toIdx(GET_TEMP(NEW_SLOT))
+    GET_TEMP(NEW_SLOT)
 ]) { return; }
 
-/* _setPowerDemand(demand_slot)
+
+/* isLowestSlot(slot_id)
+ * Returns 1 if slot_id the lowest assigned slot.
+ * https://stackoverflow.com/a/12250963
+ * https://catonmat.net/low-level-bit-hacks#bithack7
+ */
+switch(FEAT_INDUSTRIES, PARENT, isLowestSlot, slot_idx, [
+    (GET_PERM(POWER_SLOTS) & -GET_PERM(POWER_SLOTS)) == slot_idx
+]) { return; }
+
+
+/* setPowerDemandParent(slot_id, demand)
  * Split from setPowerDemand() to store demand in the town's permanent
  * storage.
- *
- * NOTE: STORE_PERM() doesn't appear to work when passed two parameters from
- * a switch procedure. So slot and demand are packed into one variable and
- * unpacked inside. */
-switch(FEAT_INDUSTRIES, PARENT, _setPowerDemand, demand_slot, [
-    STORE_PERM(
-        demand_slot >> 16,
-        PERM_POWER_DEMAND + (demand_slot & 0xFF)
-    ),
+ */
+switch(FEAT_INDUSTRIES, PARENT, setPowerDemandParent,
+    slot_id,
+    demand,
+[
+    (isLowestSlot(slot_id) == 1) ? [
+        SET_PERM(POWER_DEMAND_TOTAL, demand)
+    ] : [
+        SET_PERM(POWER_DEMAND_TOTAL, GET_PERM(POWER_DEMAND_TOTAL) + demand)
+    ],
 ]) { return; }
 
-/* setPowerDemand(produced) */
+
 // power demand per unit of cargo produced
 #define DEMAND_PER_CARGO_UNIT 250
 
-switch(FEAT_INDUSTRIES, SELF, setPowerDemand, produced, [
+/* setPowerDemand(output_current) */
+switch(FEAT_INDUSTRIES, SELF, setPowerDemand, output_current, [
+    // calculate power requirements for produced cargo
     SET_TEMP(DEMAND_PRODUCED,
-        produced * DEMAND_PER_CARGO_UNIT
+        output_current * DEMAND_PER_CARGO_UNIT
     ),
-    // 10% of max for idling machines
+    // idling capacity demands 10% of active production power
     SET_TEMP(DEMAND_IDLE,
-        (PROD_RATE_ALL - produced) * DEMAND_PER_CARGO_UNIT / 10
+        (OUTPUT_RATE_MAX - output_current) * DEMAND_PER_CARGO_UNIT / 10
     ),
-    _setPowerDemand(
-        ((GET_TEMP(DEMAND_IDLE) + GET_TEMP(DEMAND_PRODUCED)) << 16)
-            | GET_PERM(POWER_SLOT)
-    ),
+
+    // Keeping individual power demand in permanent storage isn't needed for the
+    // logic here. However for reasons probably best known to NFO wizards,
+    // setPowerDemandParent() doesn't work correctly without it. Specifically
+    // when a factory attempts to set its power demand the total demand figure
+    // isn't updated if there isn't some sort of STORE_PERM() command prior to
+    // calling setPowerDemandParent(). So we may as well store something
+    // possibly useful.
+    SET_PERM(POWER_DEMAND, GET_TEMP(DEMAND_PRODUCED) + GET_TEMP(DEMAND_IDLE)),
+
+    setPowerDemandParent(
+        GET_PERM(POWER_SLOT),
+        GET_TEMP(DEMAND_PRODUCED) + GET_TEMP(DEMAND_IDLE)
+    )
 ]) { return; }
 
 #endif // POWER_PNML

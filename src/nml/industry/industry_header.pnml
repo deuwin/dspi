@@ -17,9 +17,9 @@
  * Defines
  ********************/
 
-// Maximum production rate when considering all cargo inputs. Only really
-// relevant for factories.
-#define PROD_RATE_ALL (GET_PERM(PRODUCTION_RATE) * GET_PERM(PROD_MULTIPLIER))
+// Maximum output at the current production rate when considering all inputs.
+// Only really relevant for factories.
+#define OUTPUT_RATE_MAX (GET_PERM(PRODUCTION_RATE) * GET_PERM(PROD_MULTIPLIER))
 
 
 /********************
