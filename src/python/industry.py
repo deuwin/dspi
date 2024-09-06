@@ -162,7 +162,9 @@ def genConsumeLimitTertiary(industry):
     for reg_idx, input in enumerate(industry.input):
        limit.append(
             f"SET_TEMP(CONSUMED_{reg_idx}, "
-                f'min(incoming_cargo_waiting("{input}"), GET_TEMP(FUEL_REQUIRED))'
+                f'min(incoming_cargo_waiting("{input}"), '
+                    "min(GET_TEMP(FUEL_REQUIRED), PRODUCTION_MAX)"
+                ")"
             "),"
        )
     return indent(limit, 1)
