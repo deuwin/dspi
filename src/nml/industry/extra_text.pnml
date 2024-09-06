@@ -2,51 +2,61 @@
  * Extra Text
  ********************/
 
+switch(FEAT_INDUSTRIES, SELF, setDword, low_bits, high_bits, register, [
+    STORE_TEMP(
+        (low_bits) | ((high_bits) << 16),
+        register
+    )
+]) { return; }
+
+
 switch(FEAT_INDUSTRIES, SELF, genExtraText, [
     // there's 8 or 9 production ticks a month, so we'll give a range
-    STORE_TEMP(
-        (OUTPUT_RATE_MAX * 8) | ((OUTPUT_RATE_MAX * 9) << 16)
-    , 256),
-    STORE_TEMP(
-        (GET_PERM(PRODUCTION_RATE) * 100 / PRODUCTION_MAX)
-            | (GET_PERM(STOCKPILE_AVERAGE) << 16)
-    , 257),
+    setDword(
+        OUTPUT_RATE_MAX * 8,
+        OUTPUT_RATE_MAX * 9,
+        256),
+    setDword(
+        GET_PERM(PRODUCTION_RATE) * 100 / PRODUCTION_MAX,
+        GET_PERM(STOCKPILE_AVERAGE),
+        257),
 
     (show_prod_breakdown == 0) ? [
         STORE_TEMP(
-            THREE_MONTH_PROD_TICKS * GET_PERM(PRODUCTION_RATE)
-        , 258),
+            THREE_MONTH_PROD_TICKS * GET_PERM(PRODUCTION_RATE),
+            258)
     ] : [
-        STORE_TEMP(
-            (THREE_MONTH_PROD_TICKS * GET_PERM(PRODUCTION_RATE))
-                | (string(STR_PROD_BREAKDOWN) << 16)
-        , 258),
-        STORE_TEMP(
-            (GET_PERM(STOCKPILE_IMPACT) * 100 / GET_PERM(PRODUCTION_RATE_PREV))
-                | (GET_PERM(TRANSPORTED_IMPACT) * 100 / GET_PERM(PRODUCTION_RATE_PREV)) << 16
-        , 259),
+        setDword(
+            THREE_MONTH_PROD_TICKS * GET_PERM(PRODUCTION_RATE),
+            string(STR_PROD_BREAKDOWN),
+            258),
+        setDword(
+            GET_PERM(STOCKPILE_IMPACT) * 100 / GET_PERM(PRODUCTION_RATE_PREV),
+            GET_PERM(TRANSPORTED_IMPACT) * 100 / GET_PERM(PRODUCTION_RATE_PREV),
+            259)
     ]
 ]) {
     return string(STR_INDUSTRY_EXTRA_TEXT);
 }
 
 
-switch(FEAT_INDUSTRIES, SELF, appendGridStatus, low_bits, [
+switch(FEAT_INDUSTRIES, SELF, getGridStatus, [
     getPowerSuppliedPct()
 ]) {
-    0:     (low_bits | (string(STR_NO_POWER) << 16));
-    1..99: (low_bits | (string(STR_OVERLOADED) << 16));
-           (low_bits | (string(STR_HEALTHY) << 16));
+    0:     SET_TEMP(GRID_STATUS, string(STR_NO_POWER));
+    1..99: SET_TEMP(GRID_STATUS, string(STR_OVERLOADED));
+           SET_TEMP(GRID_STATUS, string(STR_HEALTHY));
 }
 
 switch(FEAT_INDUSTRIES, SELF, genExtraTextPowerPlant, [
-    appendGridStatus((GET_PERM(PRODUCTION_RATE) * 100 / PRODUCTION_MAX)),
+    getGridStatus(),
+    setDword(
+        GET_PERM(PRODUCTION_RATE) * 100 / PRODUCTION_MAX,
+        GET_TEMP(GRID_STATUS),
+        256),
     STORE_TEMP(
-        last_computed_result
-    , 256),
-    STORE_TEMP(
-        GET_PERM(STOCKPILE_AVERAGE)
-    , 257),
+        GET_PERM(STOCKPILE_AVERAGE),
+        257),
 ]) {
     return string(STR_INDUSTRY_EXTRA_TEXT_POWER_PLANT);
 }

@@ -68,6 +68,9 @@
 #define TEMP_CONSUMED_TOTAL     0x12
 #define TEMP_FUEL_REQUIRED      0x13
 
+// extra_text
+#define TEMP_GRID_STATUS        0x14
+
 
 /***********************
  * Register Access
