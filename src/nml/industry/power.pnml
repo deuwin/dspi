@@ -51,8 +51,8 @@ switch(FEAT_INDUSTRIES, PARENT, getFuelRequired, [
 ]) { return; }
 
 
-/* adjustPowerAvailable(power_change) */
-switch(FEAT_INDUSTRIES, PARENT, adjustPowerAvailable, power_change, [
+/* adjustPowerSupplied(power_change) */
+switch(FEAT_INDUSTRIES, PARENT, adjustPowerSupplied, power_change, [
     SET_PERM(POWER_SUPPLY_TOTAL, GET_PERM(POWER_SUPPLY_TOTAL) + power_change),
     SET_PERM(POWER_SUPPLY_PCT,
         GET_PERM(POWER_SUPPLY_TOTAL) * 100 / GET_PERM(POWER_DEMAND_TOTAL)
@@ -60,8 +60,8 @@ switch(FEAT_INDUSTRIES, PARENT, adjustPowerAvailable, power_change, [
 ]) { return; }
 
 
-/* setPowerAvailable(fuel_consumed) */
-switch(FEAT_INDUSTRIES, SELF, setPowerAvailable, fuel_consumed, [
+/* setPowerSupplied(fuel_consumed) */
+switch(FEAT_INDUSTRIES, SELF, setPowerSupplied, fuel_consumed, [
     SET_TEMP(GENERATED_CHANGE,
         (fuel_consumed * SUPPLY_PER_FUEL) - GET_PERM(POWER_SUPPLY_PREV)
     ),
@@ -70,7 +70,7 @@ switch(FEAT_INDUSTRIES, SELF, setPowerAvailable, fuel_consumed, [
     // NOTE: Similarly to setPowerDemand() passing variables between SELF and
     // PARENT is very fussy. SET_TEMP() and SET_PERM() must be before this call
     // otherwise the change is not set correctly.
-    adjustPowerAvailable(GET_TEMP(GENERATED_CHANGE)),
+    adjustPowerSupplied(GET_TEMP(GENERATED_CHANGE)),
 ]) { return; }
 
 #endif // POWER_PNML

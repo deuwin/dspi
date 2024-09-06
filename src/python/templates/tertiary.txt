@@ -8,7 +8,7 @@ switch(FEAT_INDUSTRIES, SELF, ${name}_calcProduction, [
     SET_TEMP(FUEL_REQUIRED, getFuelRequired()),
     $consume_limit
     $consume_total
-    setPowerAvailable(GET_TEMP(CONSUMED_TOTAL)),
+    setPowerSupplied(GET_TEMP(CONSUMED_TOTAL)),
 ]) { return ${name}_produceBlock; }
 
 item(FEAT_INDUSTRIES, $name) {
