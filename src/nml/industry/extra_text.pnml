@@ -2,7 +2,6 @@
  * Extra Text
  ********************/
 
-
 switch(FEAT_INDUSTRIES, SELF, genExtraText, [
     // there's 8 or 9 production ticks a month, so we'll give a range
     STORE_TEMP(
@@ -29,4 +28,25 @@ switch(FEAT_INDUSTRIES, SELF, genExtraText, [
     ]
 ]) {
     return string(STR_INDUSTRY_EXTRA_TEXT);
+}
+
+
+switch(FEAT_INDUSTRIES, SELF, appendGridStatus, low_bits, [
+    getPowerSuppliedPct()
+]) {
+    0:     (low_bits | (string(STR_NO_POWER) << 16));
+    1..99: (low_bits | (string(STR_OVERLOADED) << 16));
+           (low_bits | (string(STR_HEALTHY) << 16));
+}
+
+switch(FEAT_INDUSTRIES, SELF, genExtraTextPowerPlant, [
+    appendGridStatus((GET_PERM(PRODUCTION_RATE) * 100 / PRODUCTION_MAX)),
+    STORE_TEMP(
+        last_computed_result
+    , 256),
+    STORE_TEMP(
+        GET_PERM(STOCKPILE_AVERAGE)
+    , 257),
+]) {
+    return string(STR_INDUSTRY_EXTRA_TEXT_POWER_PLANT);
 }
