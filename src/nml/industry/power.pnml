@@ -1,7 +1,6 @@
 #ifndef POWER_PNML
 #define POWER_PNML
 
-#include "registers.pnml"
 
 // Power required per unit of cargo produced
 #define DEMAND_PER_OUTPUT 250

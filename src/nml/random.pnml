@@ -1,8 +1,6 @@
 #ifndef RANDOM_PNML
 #define RANDOM_PNML
 
-#include "registers.pnml"
-
 /********************
  * Random
  ********************/

@@ -30,7 +30,9 @@ show_prod_breakdown = param[0];
 power_required = param[1];
 
 #include "cargotable.pnml"
+#include "registers.pnml"
 #include "maths.pnml"
 #include "random.pnml"
-#include "industry/industry_header.pnml"
+#include "industry/industry.pnml"
+#include "industry/init.pnml"
 #include "industry_items.pnml"

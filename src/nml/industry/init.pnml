@@ -1,0 +1,35 @@
+#ifndef INIT_PNML
+#define INIT_PNML
+
+/********************
+ * Initialisation
+ ********************/
+
+switch(FEAT_INDUSTRIES, SELF, initPermanentStorage,
+    industry_sector,
+    industry_type,
+[
+    SET_PERM(SECTOR, industry_sector),
+    SET_PERM(INDUSTRY_TYPE, industry_type),
+
+    (industry_type == INDUSTRYTYPE_POWER_PLANT) ? [
+        SET_PERM(PRODUCTION_RATE, 0),
+    ] : [
+        SET_PERM(PRODUCTION_RATE, PRODUCTION_BASE),
+    ],
+
+    (industry_type == INDUSTRYTYPE_TEMPERATE_FACTORY) ? [
+        SET_PERM(PROD_MULTIPLIER, 3)
+    ] : [
+        SET_PERM(PROD_MULTIPLIER, 1)
+    ],
+
+    (industry_sector == IND_SECONDARY) ? [
+        setPowerDemand(0)
+    ] : [0],
+
+    // must not return 0
+    PRODUCTION_BASE
+]) { return; }
+
+#endif // INIT_PNML

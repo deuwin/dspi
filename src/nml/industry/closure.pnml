@@ -1,0 +1,24 @@
+/********************
+ * Closure
+ ********************/
+
+/* If an industry has not produced anything in 60 consecutive months (5 years)
+ * it is considered abandoned and has a chance of closing. */
+#define ABANDONMENT_THRESHOLD 60
+#define CLOSURE_CHANCE        180
+
+#define INC_ABANDONMENT_PERIOD() \
+    SET_PERM(ABANDONMENT_PERIOD, GET_PERM(ABANDONMENT_PERIOD) + 1)
+#define RESET_ABANDONMENT_PERIOD() SET_PERM(ABANDONMENT_PERIOD, 0)
+
+switch(FEAT_INDUSTRIES, SELF, isAbandoned, cargo_produced, [
+    (cargo_produced == 0)
+        ? INC_ABANDONMENT_PERIOD()
+        : RESET_ABANDONMENT_PERIOD(),
+    GET_PERM(ABANDONMENT_PERIOD) > ABANDONMENT_THRESHOLD
+]) {
+    1: randomChance(1, CLOSURE_CHANCE);
+    0;
+}
+
+

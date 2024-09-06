@@ -1,31 +1,25 @@
-#include "power.pnml"
+/********************
+ * Industry Sector
+ ********************/
 
+#define IND_PRIMARY   0x01
+#define IND_SECONDARY 0x03
+#define IND_TERTIARY  0x02
 
+#define PRODUCES_BIT  0x01
+#define CONSUMES_BIT  0x02
+
+#define IND_PRODUCES  (GET_PERM(SECTOR) & PRODUCES_BIT)
+#define IND_CONSUMES  (GET_PERM(SECTOR) & CONSUMES_BIT)
 
 
 /********************
- * Initialisation
+ * Includes
  ********************/
 
-switch(FEAT_INDUSTRIES, SELF, initPermanentStorage,
-    industry_sector,
-    industry_type,
-[
-    SET_PERM(SECTOR, industry_sector),
-    SET_PERM(INDUSTRY_TYPE, industry_type),
-    (industry_type == INDUSTRYTYPE_POWER_PLANT) ? [
-        SET_PERM(PRODUCTION_RATE, 0),
-    ] : [
-        SET_PERM(PRODUCTION_RATE, PRODUCTION_BASE),
-    ],
-    (industry_type == INDUSTRYTYPE_TEMPERATE_FACTORY) ? [
-        SET_PERM(PROD_MULTIPLIER, 3)
-    ] : [
-        SET_PERM(PROD_MULTIPLIER, 1)
-    ],
-    (industry_sector == IND_SECONDARY) ? [
-        setPowerDemand(0)
-    ] : [0],
-    // must not return 0
-    PRODUCTION_BASE
-]) { return; }
+#include "production.pnml"
+#include "closure.pnml"
+#include "prod_change.pnml"
+#include "stockpile.pnml"
+#include "power.pnml"
+#include "extra_text.pnml"
