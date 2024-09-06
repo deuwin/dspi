@@ -1,19 +1,14 @@
-produce(${name}_produceCargo,
-    [
-        $prodtick_consume
-    ],
-    [
-        $prodtick_produce
-    ],
+produce(${name}_produceBlock,
+    $produceblock,
     0
 )
 
 switch(FEAT_INDUSTRIES, SELF, ${name}_calcProduction, [
     setStockpileAverage($stockpile_level),
-    $production_limit
-    $consumed_total
+    $consume_limit
+    $consume_total
     setPowerDemand(GET_TEMP(CONSUMED_TOTAL))
-]) { return ${name}_produceCargo; }
+]) { return ${name}_produceBlock; }
 
 switch(FEAT_INDUSTRIES, SELF, ${name}_productionChange, [
     evalProduction(
@@ -28,8 +23,7 @@ item(FEAT_INDUSTRIES, $name) {
         substitute: $id;
         override:   $id;
         cargo_types: [
-            $accept_cargo
-            $produce_cargo
+            $cargo_types
         ];
     }
     graphics {

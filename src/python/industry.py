@@ -2,6 +2,7 @@ from dataclasses import dataclass, InitVar
 from string import Template
 from pathlib import Path
 from typing import Optional
+from functools import singledispatch
 
 from cargotable import CargoTable as Cargo
 
@@ -87,16 +88,14 @@ def generateIndustryPnml():
     template = Template(template_file.read_text())
     for industry in SECONDARY_INDUSTRIES:
         template_values = {
-            "id":               industry.id,
-            "name":             industry.name,
-            "prodtick_consume": genProdTickConsume(industry),
-            "prodtick_produce": genProdTickProduce(industry),
-            "production_limit": genProductionLimitSecondary(industry),
-            "consumed_total":   genConsumedTotal(industry),
-            "stockpile_level":  genRelevantLevel(industry),
-            "output":           industry.output,
-            "accept_cargo":     genCargoTypeAccept(industry),
-            "produce_cargo":    genCargoTypeProduce(industry),
+            "id":              industry.id,
+            "name":            industry.name,
+            "produceblock":    genProduceBlock(industry),
+            "consume_limit":   genConsumeLimitSecondary(industry),
+            "consume_total":   genConsumeTotal(industry),
+            "stockpile_level": genRelevantLevel(industry),
+            "output":          industry.output,
+            "cargo_types":     genCargoTypes(industry),
         }
         pnml += template.substitute(template_values)
 
@@ -104,13 +103,13 @@ def generateIndustryPnml():
     template = Template(template_file.read_text())
     for industry in TERTIARY_INDUSTRIES:
         template_values = {
-            "id":               industry.id,
-            "name":             industry.name,
-            "prodtick_consume": genProdTickConsume(industry),
-            "consume_limit":    genConsumeLimitTertiary(industry),
-            "consume_total":    genConsumedTotal(industry),
-            "stockpile_level":  genRelevantLevel(industry),
-            "accept_cargo":     genCargoTypeAccept(industry),
+            "id":              industry.id,
+            "name":            industry.name,
+            "produceblock":    genProduceBlock(industry),
+            "consume_limit":   genConsumeLimitTertiary(industry),
+            "consume_total":   genConsumeTotal(industry),
+            "stockpile_level": genRelevantLevel(industry),
+            "cargo_types":     genCargoTypes(industry),
         }
         pnml += template.substitute(template_values)
 
@@ -118,24 +117,36 @@ def generateIndustryPnml():
 # fmt: on
 
 
-def indent(text, indent_level):
-    for idx, line in enumerate(text[1:], start=1):
-        text[idx] = "    " * indent_level + line
-    return "\n".join(text)
+@singledispatch
+def indent(lines, indent_level, start=1):
+    for idx, line in enumerate(lines[start:], start=start):
+        lines[idx] = "    " * indent_level + line
+    return "\n".join(lines)
 
 
-def genProdTickConsume(industry):
+@indent.register
+def _(text: str, indent_level, start=1):
+    lines = text.splitlines()
+    return indent(lines, indent_level, start)
+
+
+def genProduceBlock(industry):
     consume = []
     for reg_idx, input in enumerate(industry.input):
         consume.append(f"{input}: GET_TEMP(CONSUMED_{reg_idx});")
-    return indent(consume, 2)
+    consume = "\n" + indent(consume, 1, start=0) + "\n"
+
+    if industry.output:
+        produce = f"\n    {industry.output}: GET_TEMP(CONSUMED_TOTAL);\n"
+    else:
+        produce = ""
+
+    block = f"[{consume}], [{produce}]"
+
+    return indent(block, 1)
 
 
-def genProdTickProduce(industry):
-    return f"{industry.output}: GET_TEMP(CONSUMED_TOTAL);"
-
-
-def genProductionLimitSecondary(industry):
+def genConsumeLimitSecondary(industry):
     limit = []
     for reg_idx, input in enumerate(industry.input):
         limit.append(
@@ -153,11 +164,11 @@ def genConsumeLimitTertiary(industry):
             f"SET_TEMP(CONSUMED_{reg_idx}, "
                 f'min(incoming_cargo_waiting("{input}"), GET_TEMP(FUEL_REQUIRED))'
             "),"
-        )
+       )
     return indent(limit, 1)
 
 
-def genConsumedTotal(industry):
+def genConsumeTotal(industry):
     produced = "SET_TEMP(CONSUMED_TOTAL, "
     for reg_idx, input in enumerate(industry.input):
         produced += f"GET_TEMP(CONSUMED_{reg_idx}) + "
@@ -173,15 +184,17 @@ def genRelevantLevel(ind):
     return relevant_level
 
 
-def genCargoTypeAccept(ind):
+def genCargoTypes(industry):
     accept_cargo = []
-    for input in ind.input:
+    for input in industry.input:
         accept_cargo.append(f'accept_cargo("{input}"),')
-    return indent(accept_cargo, 3)
+    accept_cargo = indent(accept_cargo, 3)
 
+    produce_cargo = ""
+    if industry.output:
+        produce_cargo = indent(f'\nproduce_cargo("{industry.output}", 0),', 3)
 
-def genCargoTypeProduce(ind):
-    return f'produce_cargo("{ind.output}", 0),'
+    return accept_cargo + produce_cargo
 
 
 def main(argv):

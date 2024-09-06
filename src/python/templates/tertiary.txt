@@ -1,8 +1,5 @@
-produce(${name}_produceCargo,
-    [
-        $prodtick_consume
-    ],
-    [],
+produce(${name}_produceBlock,
+    $produceblock,
     0
 )
 
@@ -12,14 +9,14 @@ switch(FEAT_INDUSTRIES, SELF, ${name}_calcProduction, [
     $consume_limit
     $consume_total
     setPowerAvailable(GET_TEMP(CONSUMED_TOTAL)),
-]) { return ${name}_produceCargo; }
+]) { return ${name}_produceBlock; }
 
 item(FEAT_INDUSTRIES, $name) {
     property {
         substitute: $id;
         override:   $id;
         cargo_types: [
-            $accept_cargo
+            $cargo_types
         ];
     }
     graphics {
