@@ -11,8 +11,8 @@ produce(${name}_produceCargo,
 switch(FEAT_INDUSTRIES, SELF, ${name}_calcProduction, [
     setStockpileAverage($stockpile_level),
     $production_limit
-    $produced_cargo
-    setPowerDemand(GET_TEMP(PRODUCED))
+    $consumed_total
+    setPowerDemand(GET_TEMP(CONSUMED_TOTAL))
 ]) { return ${name}_produceCargo; }
 
 switch(FEAT_INDUSTRIES, SELF, ${name}_productionChange, [

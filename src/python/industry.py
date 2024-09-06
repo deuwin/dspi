@@ -91,8 +91,8 @@ def generateIndustryPnml():
             "name":             industry.name,
             "prodtick_consume": genProdTickConsume(industry),
             "prodtick_produce": genProdTickProduce(industry),
-            "production_limit": genProductionLimit(industry),
-            "produced_cargo":   genProducedCargo(industry),
+            "production_limit": genProductionLimitSecondary(industry),
+            "consumed_total":   genConsumedTotal(industry),
             "stockpile_level":  genRelevantLevel(industry),
             "output":           industry.output,
             "accept_cargo":     genCargoTypeAccept(industry),
@@ -107,7 +107,8 @@ def generateIndustryPnml():
             "id":               industry.id,
             "name":             industry.name,
             "prodtick_consume": genProdTickConsume(industry),
-            "production_limit": genProductionLimit(industry),
+            "consume_limit":    genConsumeLimitTertiary(industry),
+            "consume_total":    genConsumedTotal(industry),
             "stockpile_level":  genRelevantLevel(industry),
             "accept_cargo":     genCargoTypeAccept(industry),
         }
@@ -131,10 +132,10 @@ def genProdTickConsume(industry):
 
 
 def genProdTickProduce(industry):
-    return f"{industry.output}: GET_TEMP(PRODUCED);"
+    return f"{industry.output}: GET_TEMP(CONSUMED_TOTAL);"
 
 
-def genProductionLimit(industry):
+def genProductionLimitSecondary(industry):
     limit = []
     for reg_idx, input in enumerate(industry.input):
         limit.append(
@@ -145,8 +146,19 @@ def genProductionLimit(industry):
     return indent(limit, 1)
 
 
-def genProducedCargo(industry):
-    produced = "SET_TEMP(PRODUCED, "
+def genConsumeLimitTertiary(industry):
+    limit = []
+    for reg_idx, input in enumerate(industry.input):
+       limit.append(
+            f"SET_TEMP(CONSUMED_{reg_idx}, "
+                f'min(incoming_cargo_waiting("{input}"), GET_TEMP(FUEL_REQUIRED))'
+            "),"
+        )
+    return indent(limit, 1)
+
+
+def genConsumedTotal(industry):
+    produced = "SET_TEMP(CONSUMED_TOTAL, "
     for reg_idx, input in enumerate(industry.input):
         produced += f"GET_TEMP(CONSUMED_{reg_idx}) + "
     return produced[:-3] + "),"

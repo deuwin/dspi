@@ -3,23 +3,27 @@
 
 #include "registers.pnml"
 
+// Power required per unit of cargo produced
+#define DEMAND_PER_OUTPUT 250
+// Power extracted from each unit of fuel. These are pretty inefficient power
+// stations...
+#define SUPPLY_PER_FUEL   1500
+
+
 /* adjustPowerDemand(demand_change) */
 switch(FEAT_INDUSTRIES, PARENT, adjustPowerDemand, demand_change, [
     SET_PERM(POWER_DEMAND_TOTAL, GET_PERM(POWER_DEMAND_TOTAL) + demand_change)
 ]) { return; }
 
 
-// power required per unit of cargo produced
-#define DEMAND_PER_CARGO_UNIT 250
-
 /* setPowerDemand(cargo_produced) */
 switch(FEAT_INDUSTRIES, SELF, setPowerDemand, cargo_produced, [
     SET_TEMP(DEMAND_PRODUCED,
-        cargo_produced * DEMAND_PER_CARGO_UNIT
+        cargo_produced * DEMAND_PER_OUTPUT
     ),
     // idling capacity demands 10% of active production power
     SET_TEMP(DEMAND_IDLE,
-        (OUTPUT_RATE_MAX - cargo_produced) * DEMAND_PER_CARGO_UNIT / 10
+        (OUTPUT_RATE_MAX - cargo_produced) * DEMAND_PER_OUTPUT / 10
     ),
 
     SET_TEMP(DEMAND_CHANGE,
@@ -36,6 +40,37 @@ switch(FEAT_INDUSTRIES, SELF, setPowerDemand, cargo_produced, [
     ),
 
     adjustPowerDemand(GET_TEMP(DEMAND_CHANGE))
+]) { return; }
+
+
+/* getFuelRequired() */
+switch(FEAT_INDUSTRIES, PARENT, getFuelRequired, [
+    ((GET_PERM(POWER_DEMAND_TOTAL) % SUPPLY_PER_FUEL) == 0)
+        ? GET_PERM(POWER_DEMAND_TOTAL) / SUPPLY_PER_FUEL
+        : GET_PERM(POWER_DEMAND_TOTAL) / SUPPLY_PER_FUEL + 1
+]) { return; }
+
+
+/* adjustPowerAvailable(power_change) */
+switch(FEAT_INDUSTRIES, PARENT, adjustPowerAvailable, power_change, [
+    SET_PERM(POWER_SUPPLY_TOTAL, GET_PERM(POWER_SUPPLY_TOTAL) + power_change),
+    SET_PERM(POWER_SUPPLY_PCT,
+        GET_PERM(POWER_SUPPLY_TOTAL) * 100 / GET_PERM(POWER_DEMAND_TOTAL)
+    )
+]) { return; }
+
+
+/* setPowerAvailable(fuel_consumed) */
+switch(FEAT_INDUSTRIES, SELF, setPowerAvailable, fuel_consumed, [
+    SET_TEMP(GENERATED_CHANGE,
+        (fuel_consumed * SUPPLY_PER_FUEL) - GET_PERM(POWER_SUPPLY_PREV)
+    ),
+    SET_PERM(POWER_SUPPLY_PREV, fuel_consumed * SUPPLY_PER_FUEL),
+
+    // NOTE: Similarly to setPowerDemand() passing variables between SELF and
+    // PARENT is very fussy. SET_TEMP() and SET_PERM() must be before this call
+    // otherwise the change is not set correctly.
+    adjustPowerAvailable(GET_TEMP(GENERATED_CHANGE)),
 ]) { return; }
 
 #endif // POWER_PNML

@@ -21,11 +21,14 @@
 
 #define PERM_POWER_SLOT           0x0A
 #define PERM_POWER_DEMAND_PREV    0x0B
+#define PERM_POWER_SUPPLY_PREV    0x0C
 
 
 // town
 #define PERM_POWER_SLOTS          0x00
 #define PERM_POWER_DEMAND_TOTAL   0x01
+#define PERM_POWER_SUPPLY_TOTAL   0x02
+#define PERM_POWER_SUPPLY_PCT     0x03
 
 
 // debug
@@ -56,12 +59,14 @@
 #define TEMP_DEMAND_PRODUCED    0x0B
 #define TEMP_DEMAND_IDLE        0x0C
 #define TEMP_DEMAND_CHANGE      0x0D
+#define TEMP_GENERATED_CHANGE   0x0E
 
 // industry.py
-#define TEMP_CONSUMED_0         0x0E
-#define TEMP_CONSUMED_1         0x0F
-#define TEMP_CONSUMED_2         0x10
-#define TEMP_PRODUCED           0x11
+#define TEMP_CONSUMED_0         0x0F
+#define TEMP_CONSUMED_1         0x10
+#define TEMP_CONSUMED_2         0x11
+#define TEMP_CONSUMED_TOTAL     0x12
+#define TEMP_FUEL_REQUIRED      0x13
 
 
 /***********************

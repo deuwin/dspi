@@ -8,12 +8,11 @@ produce(${name}_produceCargo,
 
 switch(FEAT_INDUSTRIES, SELF, ${name}_calcProduction, [
     setStockpileAverage($stockpile_level),
-    $production_limit
+    SET_TEMP(FUEL_REQUIRED, getFuelRequired()),
+    $consume_limit
+    $consume_total
+    setPowerAvailable(GET_TEMP(CONSUMED_TOTAL)),
 ]) { return ${name}_produceCargo; }
-
-switch(FEAT_INDUSTRIES, SELF, ${name}_productionChange, [
-    evalProduction(GET_PERM(STOCKPILE_AVERAGE), 0, 0)
-]) { return; }
 
 item(FEAT_INDUSTRIES, $name) {
     property {
@@ -33,7 +32,7 @@ item(FEAT_INDUSTRIES, $name) {
         stop_accept_cargo:     isStockpileFull;
 
         random_prod_change:    CB_RESULT_IND_PROD_NO_CHANGE;
-        monthly_prod_change:   ${name}_productionChange();
+        monthly_prod_change:   CB_RESULT_IND_PROD_NO_CHANGE;
     }
 }
 
