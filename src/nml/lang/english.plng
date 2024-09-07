@@ -19,25 +19,30 @@ JOIN_LINES(
 #  * Extra Text
 #  ********************/
 
-JOIN_LINES(
-    STR_INDUSTRY_EXTRA_TEXT:\
-        Production capacity:{}\
-            _TAB_ {YELLOW}{UNSIGNED_WORD} - {UNSIGNED_WORD}{BLACK} units{}\
-            _TAB_ {YELLOW}{UNSIGNED_WORD}%{BLACK} of maximum{}\
-        {}\
-        Stockpile:{}\
-            _TAB_ Average: {UNSIGNED_WORD}{}\
-            _TAB_ Required: {UNSIGNED_WORD}\
+JOIN_LINES(STR_INDUSTRY_EXTRA_TEXT:\
+    Production capacity:{}\
         {STRING}
+        _TAB_ {YELLOW}{UNSIGNED_WORD} - {UNSIGNED_WORD}{BLACK} units{}\
+        _TAB_ {YELLOW}{UNSIGNED_WORD}%{BLACK} of maximum{}
+    {}\
+    Stockpile:{}\
+        _TAB_ Average: {UNSIGNED_WORD}{}\
+        _TAB_ Required: {UNSIGNED_WORD}\
+    {STRING}
 )
+
+STR_POWER_STATUS_NONE:_TAB_{RED}No power!{BLACK}{}
+STR_POWER_STATUS_LOW:_TAB_{ORANGE}Low power{BLACK}{}
+STR_EMPTY:
 
 JOIN_LINES(\
     STR_PROD_BREAKDOWN:\
         {}{}\
         Production change breakdown:{}\
             _TAB_ Stockpile impact: {SIGNED_WORD}%{}\
-            _TAB_ Transported impact: {SIGNED_WORD}%{}\
+            _TAB_ Transported impact: {SIGNED_WORD}%\
 )
+
 
 JOIN_LINES(
     STR_INDUSTRY_EXTRA_TEXT_POWER_PLANT:\
@@ -51,9 +56,9 @@ JOIN_LINES(
             _TAB_ Average: {UNSIGNED_WORD}
 )
 
-STR_HEALTHY:{GREEN}Healthy{BLACK}
-STR_OVERLOADED:{ORANGE}Overloaded{BLACK}
-STR_NO_POWER:{RED}No power!{BLACK}
+STR_GRID_HEALTHY:{GREEN}Healthy{BLACK}
+STR_GRID_OVERLOADED:{ORANGE}Overloaded{BLACK}
+STR_GRID_NO_POWER:{RED}No power!{BLACK}
 
 
 # /********************

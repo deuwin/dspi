@@ -17,8 +17,8 @@
  * Includes
  ********************/
 
-#include "production.pnml"
 #include "power.pnml"
+#include "production.pnml"
 #include "closure.pnml"
 #include "prod_change.pnml"
 #include "stockpile.pnml"
