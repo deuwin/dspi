@@ -10,9 +10,15 @@ STR_GRF_NAME:{NAME} v{VERSION}
 
 JOIN_LINES(
     STR_GRF_DESCRIPTION:\
-        A vanilla industry stockpiling GRF.{}\
+        Description: {SILVER}{}
+        A vanilla industry set where input is stockpiled and cargo is created
+        at regular intervals. Keep a healthy stockpile and good level of
+        transported output to increase production with smooth economy style
+        changes.{}\
+        {}\
         {COPYRIGHT} deuwin 2024{}\
-        Licensed under GPLv2)
+        {BLACK}License: {SILVER}GPLv2{BLACK}
+)
 
 
 # /********************
