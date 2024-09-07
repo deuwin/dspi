@@ -15,14 +15,19 @@ switch(FEAT_INDUSTRIES, PARENT, adjustPowerDemand, demand_change, [
 ]) { return; }
 
 
-/* setPowerDemand(cargo_produced) */
-switch(FEAT_INDUSTRIES, SELF, setPowerDemand, cargo_produced, [
+/* setPowerDemand(cargo_produced, max_possible)
+ * Calculate power required using current output and maximum possible at present
+ * production rate. */
+switch(FEAT_INDUSTRIES, SELF, setPowerDemand,
+    cargo_produced,
+    max_possible,
+[
     SET_TEMP(DEMAND_PRODUCED,
         cargo_produced * DEMAND_PER_OUTPUT
     ),
     // idling capacity demands 10% of active production power
     SET_TEMP(DEMAND_IDLE,
-        (OUTPUT_RATE_MAX - cargo_produced) * DEMAND_PER_OUTPUT / 10
+        (max_possible - cargo_produced) * DEMAND_PER_OUTPUT / 10
     ),
 
     SET_TEMP(DEMAND_CHANGE,

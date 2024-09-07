@@ -62,10 +62,10 @@
 #define TEMP_GENERATED_CHANGE   0x0E
 
 // industry.py
-#define TEMP_CONSUMED_0         0x0F
-#define TEMP_CONSUMED_1         0x10
-#define TEMP_CONSUMED_2         0x11
-#define TEMP_CONSUMED_TOTAL     0x12
+#define TEMP_CONSUME_0          0x0F
+#define TEMP_CONSUME_1          0x10
+#define TEMP_CONSUME_2          0x11
+#define TEMP_CONSUME_TOTAL      0x12
 #define TEMP_FUEL_REQUIRED      0x13
 
 // extra_text

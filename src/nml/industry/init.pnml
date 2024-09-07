@@ -25,7 +25,7 @@ switch(FEAT_INDUSTRIES, SELF, initPermanentStorage,
     ],
 
     (industry_sector == IND_SECONDARY) ? [
-        setPowerDemand(0)
+        setPowerDemand(0, OUTPUT_RATE_MAX)
     ] : [0],
 
     // must not return 0

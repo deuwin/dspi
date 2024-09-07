@@ -7,7 +7,11 @@ switch(FEAT_INDUSTRIES, SELF, ${name}_calcProduction, [
     setStockpileAverage($stockpile_level),
     $consume_limit
     $consume_total
-    setPowerDemand(GET_TEMP(CONSUMED_TOTAL))
+    setPowerDemand(GET_TEMP(CONSUME_TOTAL), OUTPUT_RATE_MAX),
+    (power_required == 1) ? [
+        $power_limit
+        $consume_total
+    ]:[0]
 ]) { return ${name}_produceBlock; }
 
 switch(FEAT_INDUSTRIES, SELF, ${name}_productionChange, [

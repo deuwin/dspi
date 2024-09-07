@@ -93,6 +93,7 @@ def generateIndustryPnml():
             "produceblock":    genProduceBlock(industry),
             "consume_limit":   genConsumeLimitSecondary(industry),
             "consume_total":   genConsumeTotal(industry),
+            "power_limit":     genConsumeLimitPower(industry),
             "stockpile_level": genRelevantLevel(industry),
             "output":          industry.output,
             "cargo_types":     genCargoTypes(industry),
@@ -133,11 +134,11 @@ def _(text: str, indent_level, start=1):
 def genProduceBlock(industry):
     consume = []
     for reg_idx, input in enumerate(industry.input):
-        consume.append(f"{input}: GET_TEMP(CONSUMED_{reg_idx});")
+        consume.append(f"{input}: GET_TEMP(CONSUME_{reg_idx});")
     consume = "\n" + indent(consume, 1, start=0) + "\n"
 
     if industry.output:
-        produce = f"\n    {industry.output}: GET_TEMP(CONSUMED_TOTAL);\n"
+        produce = f"\n    {industry.output}: GET_TEMP(CONSUME_TOTAL);\n"
     else:
         produce = ""
 
@@ -150,8 +151,21 @@ def genConsumeLimitSecondary(industry):
     limit = []
     for reg_idx, input in enumerate(industry.input):
         limit.append(
-            f"SET_TEMP(CONSUMED_{reg_idx}, "
+            "SET_TEMP("
+                f"CONSUME_{reg_idx}, "
                 f'min(incoming_cargo_waiting("{input}"), GET_PERM(PRODUCTION_RATE))'
+            "),"
+        )
+    return indent(limit, 1)
+
+
+def genConsumeLimitPower(industry):
+    limit = []
+    for reg_idx, input in enumerate(industry.input):
+        limit.append(
+            "SET_TEMP("
+                f"CONSUME_{reg_idx}, "
+                f"GET_TEMP(CONSUME_{reg_idx}) * getPowerSuppliedPct() / 100"
             "),"
         )
     return indent(limit, 1)
@@ -161,7 +175,7 @@ def genConsumeLimitTertiary(industry):
     limit = []
     for reg_idx, input in enumerate(industry.input):
        limit.append(
-            f"SET_TEMP(CONSUMED_{reg_idx}, "
+            f"SET_TEMP(CONSUME_{reg_idx}, "
                 f'min(incoming_cargo_waiting("{input}"), '
                     "min(GET_TEMP(FUEL_REQUIRED), PRODUCTION_MAX)"
                 ")"
@@ -171,9 +185,9 @@ def genConsumeLimitTertiary(industry):
 
 
 def genConsumeTotal(industry):
-    produced = "SET_TEMP(CONSUMED_TOTAL, "
+    produced = "SET_TEMP(CONSUME_TOTAL, "
     for reg_idx, input in enumerate(industry.input):
-        produced += f"GET_TEMP(CONSUMED_{reg_idx}) + "
+        produced += f"GET_TEMP(CONSUME_{reg_idx}) + "
     return produced[:-3] + "),"
 
 
