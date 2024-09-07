@@ -18,8 +18,8 @@
  ********************/
 
 #include "production.pnml"
+#include "power.pnml"
 #include "closure.pnml"
 #include "prod_change.pnml"
 #include "stockpile.pnml"
-#include "power.pnml"
 #include "extra_text.pnml"

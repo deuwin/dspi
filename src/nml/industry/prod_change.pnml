@@ -118,6 +118,6 @@ switch(FEAT_INDUSTRIES, SELF, evalProduction,
         ? isAbandoned(cargo_produced)
         : 0
 ]) {
-    1: CB_RESULT_IND_PROD_CLOSE;
+    1: closeIndustry();
     shouldProductionChange(cargo_waiting, cargo_transported);
 }

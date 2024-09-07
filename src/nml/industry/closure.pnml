@@ -21,4 +21,8 @@ switch(FEAT_INDUSTRIES, SELF, isAbandoned, cargo_produced, [
     0;
 }
 
-
+switch(FEAT_INDUSTRIES, SELF, closeIndustry, [
+    setPowerDemand(0, 0)
+]) {
+    return CB_RESULT_IND_PROD_CLOSE;
+}
