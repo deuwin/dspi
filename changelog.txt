@@ -1,0 +1,11 @@
+
+v0.0.0
+------------------------------------------------------------------------
+Initial development.
+
+  * Secondary and tertiary industry stockpiling
+  * Secondary industry production rate tied to stockpile level and cargo
+    transported with smooth economy style changes
+  * Calculate running average of stockpile level
+  * Power plant production tied to industry power demand
+  * Secondary industry power requirements, controlled by parameter
