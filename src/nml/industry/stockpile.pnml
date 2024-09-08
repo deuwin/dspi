@@ -2,7 +2,8 @@
  * Stockpile
  ********************/
 
-#define STOCKPILE_LIMIT 15000
+// comfortably holds 3 three months of stockpile at maximum production rate
+#define STOCKPILE_LIMIT 7500
 
 /* setStockpileAverage(current)
  * Calculates average stockpile level using simple exponential smoothing */
