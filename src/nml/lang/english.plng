@@ -16,8 +16,7 @@ JOIN_LINES(
         transported output to increase production with smooth economy style
         changes.{}\
         {}\
-        {COPYRIGHT} deuwin 2024{}\
-        {BLACK}License: {SILVER}GPLv2{BLACK}
+        {BLACK}License: {SILVER}GPLv2 {COPYRIGHT} deuwin 2024{}\
 )
 
 
