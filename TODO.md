@@ -7,9 +7,9 @@ this list will be subject to many changes.
 * Playtest power requirements
 * Extra cargo inputs for:
     * Steel Mill: Iron Ore and Coal
-        * Apparently the real life ratio of Ore:Coal is approximately 1.6:0.77 
-          for 1 tonne of steel [^1][^2]
-        * Probably should use 1:0.5 for gameplay reasons, especially given
+        * Apparently the real life ratio of Ore:Coal:Steel is about 1.6:0.77:1
+          [^1][^2]
+        * Probably should use 2:1:2 for gameplay reasons, especially given
           OpenTTD's tenuous grasp on
           [reality](https://web.archive.org/web/20190920110634/http://devs.openttd.org:80/~belugas/texts/realism_in_OpenTTD.txt)
     * Power Station: Coal and Oil

@@ -6,9 +6,8 @@ produce(${name}_produceBlock,
 switch(FEAT_INDUSTRIES, SELF, ${name}_calcProduction, [
     setStockpileAverage($stockpile_level),
     SET_TEMP(FUEL_REQUIRED, getFuelRequired()),
-    $consume_limit
-    $consume_total
-    setPowerSupplied(GET_TEMP(CONSUME_TOTAL)),
+    $fuel_consumed
+    setPowerSupplied(GET_TEMP(CONSUME_0)),
 ]) { return ${name}_produceBlock; }
 
 item(FEAT_INDUSTRIES, $name) {

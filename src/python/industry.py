@@ -23,8 +23,9 @@ class Industry:
             required if you change accepted cargo from the default. A list of
             industry tile IDs can be found here:
             https://newgrf-specs.tt-wiki.net/wiki/NML:Default_industry_tiles
-        ratio (list[int], optional): Ratio of inputs consumed to produce 1 unit
-            of output cargo.
+        ratio (list[int], optional): Ratio of inputs consumed to output
+            generated. e.g. A ratio of [2, 1, 2] consumes 2 units of input_0 and
+            1 unit of input_1 to produce 2 units of output.
     """
 
     id:     str
@@ -38,6 +39,9 @@ class Industry:
             object.__setattr__(self, "input", input)
         else:
             object.__setattr__(self, "input", [input])
+
+        if self.ratio and len(self.ratio) != len(self.input) + 1:
+            raise ValueError("Incorrect ratio length!")
 
     @property
     def name(self):
@@ -79,42 +83,40 @@ TERTIARY_INDUSTRIES = [
         None
     ),
 ]
+# fmt: off
+
+
+TEMPLATE_DIR = Path(__file__).parent / "templates"
+def getTemplate(name):
+    return Template((TEMPLATE_DIR / (name + ".txt")).read_text())
 
 
 def generateIndustryPnml():
     pnml = ""
 
-    template_file = Path(__file__).parent / "templates" / "secondary.txt"
-    template = Template(template_file.read_text())
+    secondary_template = getTemplate("secondary")
     for industry in SECONDARY_INDUSTRIES:
-        template_values = {
-            "id":              industry.id,
-            "name":            industry.name,
-            "produceblock":    genProduceBlock(industry),
-            "consume_limit":   genConsumeLimitSecondary(industry),
-            "consume_total":   genConsumeTotal(industry),
-            "power_limit":     genConsumeLimitPower(industry),
-            "stockpile_level": genRelevantLevel(industry),
-            "output":          industry.output,
-            "cargo_types":     genCargoTypes(industry),
-        }
-        pnml += template.substitute(template_values)
+        pnml += secondary_template.substitute(getTemplateMapping(industry))
 
-    template_file = template_file.with_stem("tertiary")
-    template = Template(template_file.read_text())
+    tertiary_template = getTemplate("tertiary")
     for industry in TERTIARY_INDUSTRIES:
-        template_values = {
-            "id":              industry.id,
-            "name":            industry.name,
-            "produceblock":    genProduceBlock(industry),
-            "consume_limit":   genConsumeLimitTertiary(industry),
-            "consume_total":   genConsumeTotal(industry),
-            "stockpile_level": genRelevantLevel(industry),
-            "cargo_types":     genCargoTypes(industry),
-        }
-        pnml += template.substitute(template_values)
+        pnml += tertiary_template.substitute(getTemplateMapping(industry))
 
     return pnml
+
+# fmt: off
+def getTemplateMapping(industry):
+    return {
+        "name":            industry.name,
+        "produceblock":    genProduceBlock(industry),
+        "stockpile_level": genRelevantLevel(industry),
+        "input_output":    genInputOutput(industry),
+        "power_limit":     genInputOutputPowerLimit(industry),
+        "output":          industry.output,
+        "id":              industry.id,
+        "cargo_types":     genCargoTypes(industry),
+        "fuel_consumed":   genFuelConsumed(industry),
+    }
 # fmt: on
 
 
@@ -138,7 +140,7 @@ def genProduceBlock(industry):
     consume = "\n" + indent(consume, 1, start=0) + "\n"
 
     if industry.output:
-        produce = f"\n    {industry.output}: GET_TEMP(CONSUME_TOTAL);\n"
+        produce = f"\n    {industry.output}: GET_TEMP(PRODUCE);\n"
     else:
         produce = ""
 
@@ -147,48 +149,111 @@ def genProduceBlock(industry):
     return indent(block, 1)
 
 
-def genConsumeLimitSecondary(industry):
-    limit = []
-    for reg_idx, input in enumerate(industry.input):
-        limit.append(
-            "SET_TEMP("
-                f"CONSUME_{reg_idx}, "
-                f'min(incoming_cargo_waiting("{input}"), GET_PERM(PRODUCTION_RATE))'
-            "),"
+def genInputOutput(industry):
+    if industry.ratio:
+        return genInputOutputRatio(industry)
+    else:
+        return genInputOutputStandard(industry)
+
+
+def genInputOutputStandard(industry):
+    consume_str = (
+        "SET_TEMP("
+            "CONSUME_{idx}, "
+            'min(incoming_cargo_waiting("{input}"), GET_PERM(PRODUCTION_RATE))'
+        "),"
+    )
+    consume_limits = []
+    for idx, input in enumerate(industry.input):
+        consume_limits.append(consume_str.format(idx=idx, input=input))
+
+    produce_str = genProduceStringStandard(industry)
+    return indent(consume_limits + [produce_str], 1)
+
+
+def genProduceStringStandard(industry):
+    produce_str = "SET_TEMP(PRODUCE, "
+    for idx in range(len(industry.input)):
+        produce_str += f"GET_TEMP(CONSUME_{idx}) + "
+    return produce_str[:-3] + "),"
+
+
+CONSUME_STR_RATIO = (
+    "SET_TEMP("
+        "CONSUME_{idx}, "
+        "GET_TEMP(PRODUCE){ratio}"
+    "),"
+)
+
+def genInputOutputRatio(industry):
+    produce_str = "SET_TEMP(PRODUCE, min(GET_PERM(PRODUCTION_RATE), min("
+    proportion_out = industry.ratio[-1]
+    consume_limits = []
+    for idx, input in enumerate(industry.input):
+        produce_str += (
+            f'incoming_cargo_waiting("{input}")'
+            f"{getRatioString(proportion_out, industry.ratio[idx])}, "
         )
-    return indent(limit, 1)
-
-
-def genConsumeLimitPower(industry):
-    limit = []
-    for reg_idx, input in enumerate(industry.input):
-        limit.append(
-            "SET_TEMP("
-                f"CONSUME_{reg_idx}, "
-                f"GET_TEMP(CONSUME_{reg_idx}) * getPowerSuppliedPct() / 100"
-            "),"
+        consume_limits.append(
+            CONSUME_STR_RATIO.format(
+                idx=idx,
+                input=input,
+                ratio=getRatioString(industry.ratio[idx], proportion_out)
+            )
         )
-    return indent(limit, 1)
+    produce_str = produce_str[:-2] + "))),"
+    return indent([produce_str] + consume_limits, 1)
 
 
-def genConsumeLimitTertiary(industry):
-    limit = []
-    for reg_idx, input in enumerate(industry.input):
-       limit.append(
-            f"SET_TEMP(CONSUME_{reg_idx}, "
-                f'min(incoming_cargo_waiting("{input}"), '
-                    "min(GET_TEMP(FUEL_REQUIRED), PRODUCTION_MAX)"
-                ")"
-            "),"
-       )
-    return indent(limit, 1)
+def getRatioString(numerator, denominator):
+    ratio_str = ""
+    if numerator != denominator:
+        if numerator != 1:
+            ratio_str += f" * {numerator}"
+        if denominator != 1:
+            ratio_str += f" / {denominator}"
+    return ratio_str
 
 
-def genConsumeTotal(industry):
-    produced = "SET_TEMP(CONSUME_TOTAL, "
-    for reg_idx, input in enumerate(industry.input):
-        produced += f"GET_TEMP(CONSUME_{reg_idx}) + "
-    return produced[:-3] + "),"
+def genInputOutputPowerLimit(industry):
+    if industry.ratio:
+        produce_str = genRegisterPowerLimit("PRODUCE")
+        consume_str = CONSUME_STR_RATIO
+    else:
+        produce_str = genProduceStringStandard(industry)
+        consume_str = genRegisterPowerLimit("CONSUME_{idx}")
+
+    consume_limits = []
+    for idx, input in enumerate(industry.input):
+        values = {"idx": idx}
+        if industry.ratio:
+            values["ratio"] = getRatioString(industry.ratio[idx], industry.ratio[-1])
+        consume_limits.append(consume_str.format(**values))
+
+    if industry.ratio:
+        power_limit = [produce_str] + consume_limits
+    else:
+        power_limit = consume_limits + [produce_str]
+
+    return indent(power_limit, 2)
+
+
+def genRegisterPowerLimit(register):
+    return (
+        f"SET_TEMP({register}, "
+            f"GET_TEMP({register}) * getPowerSuppliedPct() / 100"
+        "),"
+    )
+
+
+def genFuelConsumed(industry):
+    return (
+        "SET_TEMP(CONSUME_0, "
+            'min(incoming_cargo_waiting("COAL"), '
+                "min(GET_TEMP(FUEL_REQUIRED), PRODUCTION_MAX)"
+            ")"
+        "),"
+    )
 
 
 def genRelevantLevel(ind):

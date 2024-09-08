@@ -62,7 +62,7 @@
 #define TEMP_CONSUME_0          0x0D
 #define TEMP_CONSUME_1          0x0E
 #define TEMP_CONSUME_2          0x0F
-#define TEMP_CONSUME_TOTAL      0x10
+#define TEMP_PRODUCE            0x10
 #define TEMP_FUEL_REQUIRED      0x11
 
 // extra_text
