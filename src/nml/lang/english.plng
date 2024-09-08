@@ -75,3 +75,10 @@ STR_PARAM_PROD_BREAKDOWN_DESC: Display detailed information on the factors affec
 
 STR_PARAM_POWER_REQUIRED_NAME: Secondary industries require power
 STR_PARAM_POWER_REQUIRED_DESC: If enabled secondary industries require power to produce cargo.
+
+
+# /********************
+#  * Errors
+#  ********************/
+
+STR_ERROR_CLIMATE:{STRING} has only been tested with temperate climate!

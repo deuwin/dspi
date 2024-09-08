@@ -26,6 +26,10 @@ grf {
     }
 }
 
+if (climate != CLIMATE_TEMPERATE) {
+    error(FATAL, string(STR_ERROR_CLIMATE));
+}
+
 show_prod_breakdown = param[0];
 power_required = param[1];
 
