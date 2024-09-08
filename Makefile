@@ -97,7 +97,7 @@ $(PROJECT_GRF): $(PROJECT_NML)
 $(BUNDLE_FILES) &: $(BUNDLE_SRC)
 	$(V)mkdir --parents $(@D)
 	$(V)cp $(PROJECT_GRF) $(@D)
-	$(V)cp ./README.md $(@D)/readme.txt
+	$(V)$(PYTHON) script/markdown_to_text.py ./README.md $(@D)/readme.txt
 	$(V)cp ./COPYING $(@D)/license.txt
 	$(V)cp ./changelog.txt $(@D)
 
