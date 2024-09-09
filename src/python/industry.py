@@ -52,8 +52,13 @@ class Industry:
 SECONDARY_INDUSTRIES = [
     Industry(
         "INDUSTRYTYPE_STEEL_MILL",
-        Cargo.IronOre,
+        [
+            Cargo.IronOre,
+            Cargo.Coal,
+        ],
         Cargo.Steel,
+        list(range(52, 58)),
+        [2, 1, 2],
     ),
     Industry(
         "INDUSTRYTYPE_SAWMILL",

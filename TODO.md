@@ -6,14 +6,8 @@ this list will be subject to many changes.
 * Playtest production rate changes
 * Playtest power requirements
 * Extra cargo inputs for:
-    * Steel Mill: Iron Ore and Coal
-        * Apparently the real life ratio of Ore:Coal:Steel is about 1.6:0.77:1
-          [^1][^2]
-        * Probably should use 2:1:2 for gameplay reasons, especially given
-          OpenTTD's tenuous grasp on
-          [reality](https://web.archive.org/web/20190920110634/http://devs.openttd.org:80/~belugas/texts/realism_in_OpenTTD.txt)
     * Power Station: Coal and Oil
-        * Dual fired power stations are a thing [^3]
+        * Dual fired power stations are a thing [^1]
         * Consumption options:
             * Burn both together?
             * Have one fuel as reserve?
@@ -40,6 +34,4 @@ this list will be subject to many changes.
     * Standard, Keen, or Zealous/Intense/Fervid
 
 
-[^1]: https://www.bhp.com/what-we-do/products/iron-ore
-[^2]: https://www.bhp.com/what-we-do/products/metallurgical-coal
-[^3]: https://en.wikipedia.org/wiki/Kingsnorth_power_station
+[^1]: https://en.wikipedia.org/wiki/Kingsnorth_power_station
