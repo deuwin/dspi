@@ -95,12 +95,15 @@ def generateIndustryPnml():
     pnml = ""
 
     secondary_template = getTemplate("secondary")
+    tertiary_template = getTemplate("tertiary")
+
     for industry in SECONDARY_INDUSTRIES:
         pnml += secondary_template.substitute(getTemplateMapping(industry))
+        pnml += genIndustryTiles(industry)
 
-    tertiary_template = getTemplate("tertiary")
     for industry in TERTIARY_INDUSTRIES:
         pnml += tertiary_template.substitute(getTemplateMapping(industry))
+        pnml += genIndustryTiles(industry)
 
     return pnml
 
@@ -276,6 +279,20 @@ def genCargoTypes(industry):
         produce_cargo = indent(f'\nproduce_cargo("{industry.output}", 0),', 3)
 
     return accept_cargo + produce_cargo
+
+
+def genIndustryTiles(industry):
+    if not industry.tiles:
+        return ""
+
+    tile_items = ""
+    tile_template = getTemplate("industry_tile")
+    for idx, tile_id in enumerate(industry.tiles):
+        tile_items += tile_template.substitute(
+            name=industry.name, idx=idx, tile_id=tile_id
+        )
+
+    return tile_items
 
 
 def main(argv):
