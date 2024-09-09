@@ -20,9 +20,7 @@ switch(FEAT_INDUSTRIES, SELF, setPowerStatus, power_pct, [
 
 switch(FEAT_INDUSTRIES, SELF, genExtraText, [
     (power_required == 1) ? [
-        SET_TEMP(POWER_PCT,
-            clamp(getPowerSuppliedPct(), 0, 100)
-        ),
+        SET_TEMP(POWER_PCT, getPowerSuppliedPct()),
         setPowerStatus(GET_TEMP(POWER_PCT))
     ]:[
         SET_TEMP(POWER_PCT, 100),

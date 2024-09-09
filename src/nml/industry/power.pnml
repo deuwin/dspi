@@ -81,7 +81,7 @@ switch(FEAT_INDUSTRIES, SELF, setPowerSupplied, fuel_consumed, [
 
 /* getPowerSuppliedPct() */
 switch(FEAT_INDUSTRIES, PARENT, getPowerSuppliedPct, [
-    GET_PERM(POWER_SUPPLY_PCT)
+    clamp(GET_PERM(POWER_SUPPLY_PCT), 0, 100)
 ]) { return; }
 
 #endif // POWER_PNML
