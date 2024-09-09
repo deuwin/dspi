@@ -69,6 +69,7 @@
 #define TEMP_GRID_STATUS        0x12
 #define TEMP_POWER_STATUS       0x13
 #define TEMP_POWER_PCT          0x14
+#define TEMP_PROD_PCT           0x15
 
 
 /***********************
