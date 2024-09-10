@@ -5,9 +5,6 @@
 // comfortably holds 3 three months of stockpile at maximum production rate
 #define STOCKPILE_LIMIT 7500
 
-/* setStockpileAverage(current)
- * Calculates average stockpile level using simple exponential smoothing */
-
 // approximately 3 months of production ticks
 #define SAMPLE_SIZE 27
 
@@ -24,4 +21,61 @@ switch(FEAT_INDUSTRIES, SELF, setStockpileAverage, current,
             SET_PERM(STOCKPILE_AVERAGE, current)
         ] : [0]
     ]
+) { return; }
+
+
+// luckily the stockpile is limited to 7500 which is less than 15 bits
+switch(FEAT_INDUSTRIES, SELF, getStockpileAverage, idx, [
+    idx
+]) {
+    0: GET_PERM(STOCKPILE_AVERAGE_0);
+    1: GET_PERM(STOCKPILE_AVERAGE_1);
+    2: GET_PERM(STOCKPILE_AVERAGE_2);
+}
+
+
+switch(FEAT_INDUSTRIES, SELF, isValid, idx, [
+    idx
+]) {
+    0: GET_PERM(STOCKPILE_VALID_0);
+    1: GET_PERM(STOCKPILE_VALID_1);
+    2: GET_PERM(STOCKPILE_VALID_2);
+}
+
+switch(FEAT_INDUSTRIES, SELF, setValid, idx, [
+    idx
+]) {
+    0: SET_PERM(STOCKPILE_VALID_0, 1);
+    1: SET_PERM(STOCKPILE_VALID_1, 1);
+    2: SET_PERM(STOCKPILE_VALID_2, 1);
+}
+
+
+switch(FEAT_INDUSTRIES, SELF, setStockpile, idx, value, [
+    idx
+]) {
+    0: SET_PERM(STOCKPILE_AVERAGE_0, value);
+    1: SET_PERM(STOCKPILE_AVERAGE_1, value);
+    2: SET_PERM(STOCKPILE_AVERAGE_2, value);
+}
+
+/* updateStockpileAverage(idx, current)
+ * Calculates average stockpile level using simple exponential smoothing.
+ * Args:
+ *     idx: Index of the cargo as listed in the industry's cargo_types array
+ *     current: Current stockpile level
+ */
+switch(FEAT_INDUSTRIES, SELF, updateStockpileAverage, idx, current,
+    // check for valid samples (i.e. if there has been a previous delivery of
+    // cargo)
+    (isValid(idx)) ? [
+        setStockpile(idx,
+            getStockpileAverage(idx) + (current - getStockpileAverage(idx)) / SAMPLE_SIZE
+        )
+    ] : [
+        (current > 0) ? [
+            setValid(idx),
+            setStockpile(idx, current)
+        ] : [0]
+    ],
 ) { return; }
