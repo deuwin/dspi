@@ -6,9 +6,8 @@
  ********************/
 
 /* clamp(value, lower_limit, upper_limit) */
-switch(FEAT_INDUSTRIES, SELF, clamp, value, lower_limit, upper_limit,
+#define clamp(value, lower_limit, upper_limit) \
     min(upper_limit, max(lower_limit, value))
-) { return; }
 
 /* divideCeil(numerator, denominator)
  * Round up integer division. */
