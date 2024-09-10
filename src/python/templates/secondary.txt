@@ -4,7 +4,7 @@ produce(${name}_produceBlock,
 )
 
 switch(FEAT_INDUSTRIES, SELF, ${name}_calcProduction, [
-    setStockpileAverage($stockpile_level),
+    $update_stockpile
     $input_output
     setPowerDemand(GET_TEMP(PRODUCE), OUTPUT_RATE_MAX),
     (power_required == 1) ? [
@@ -14,7 +14,7 @@ switch(FEAT_INDUSTRIES, SELF, ${name}_calcProduction, [
 
 switch(FEAT_INDUSTRIES, SELF, ${name}_productionChange, [
     evalProduction(
-        GET_PERM(STOCKPILE_AVERAGE),
+        $stockpile_average,
         last_month_production("$output"),
         transported_last_month_pct("$output")
     )

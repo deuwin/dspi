@@ -42,7 +42,8 @@ switch(FEAT_INDUSTRIES, SELF, fixOvershoot, [
 }
 
 switch(FEAT_INDUSTRIES, SELF, power_plant_calcProduction, [
-    setStockpileAverage(incoming_cargo_waiting("COAL")),
+    updateStockpileAverage(0, incoming_cargo_waiting("COAL")),
+    updateStockpileAverage(1, incoming_cargo_waiting("OIL_")),
 
     SET_AVAILABLE(COAL),
     SET_AVAILABLE(OIL_),

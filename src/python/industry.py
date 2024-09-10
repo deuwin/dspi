@@ -118,17 +118,19 @@ def generateIndustryPnml():
 
     return pnml
 
+
 # fmt: off
 def getTemplateMapping(industry):
     return {
-        "name":            industry.name,
-        "produceblock":    genProduceBlock(industry),
-        "stockpile_level": genRelevantLevel(industry),
-        "input_output":    genInputOutput(industry),
-        "power_limit":     genInputOutputPowerLimit(industry),
-        "output":          industry.output,
-        "id":              industry.id,
-        "cargo_types":     genCargoTypes(industry),
+        "name":              industry.name,
+        "produceblock":      genProduceBlock(industry),
+        "update_stockpile":  genUpdateStockpile(industry),
+        "input_output":      genInputOutput(industry),
+        "power_limit":       genInputOutputPowerLimit(industry),
+        "stockpile_average": genStockpileAverage(industry),
+        "output":            industry.output,
+        "id":                industry.id,
+        "cargo_types":       genCargoTypes(industry),
     }
 # fmt: on
 
@@ -259,13 +261,28 @@ def genRegisterPowerLimit(register):
     )
 
 
-def genRelevantLevel(ind):
-    relevant_level = f'incoming_cargo_waiting("{ind.input[0]}")'
-    for input in ind.input[1:]:
-        relevant_level = (
-            f'max(incoming_cargo_waiting("{input}"), ' + relevant_level + ")"
+def genUpdateStockpile(industry):
+    update_stockpile = []
+    for idx, input in enumerate(industry.input):
+        update_stockpile.append(
+            f'updateStockpileAverage({idx}, incoming_cargo_waiting("{input}")),'
         )
-    return relevant_level
+    return indent(update_stockpile, 1)
+
+
+def genStockpileAverage(industry):
+    if industry.ratio:
+        average_str = "getStockpileAverage(0)" + getRatioString(
+            industry.ratio[-1], industry.ratio[0]
+        )
+        for idx in range(1, len(industry.input)):
+            ratio = getRatioString(industry.ratio[-1], industry.ratio[idx])
+            average_str = f"min(getStockpileAverage({idx}){ratio}, " + average_str + ")"
+    else:
+        average_str = "getStockpileAverage(0)"
+        for idx in range(1, len(industry.input)):
+            average_str = f"max(getStockpileAverage({idx}), " + average_str + ")"
+    return average_str
 
 
 def genCargoTypes(industry):
