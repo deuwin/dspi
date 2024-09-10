@@ -10,4 +10,9 @@ switch(FEAT_INDUSTRIES, SELF, clamp, value, lower_limit, upper_limit,
     min(upper_limit, max(lower_limit, value))
 ) { return; }
 
+/* divideCeil(numerator, denominator)
+ * Round up integer division. */
+#define divideCeil(numerator, denominator) \
+    (((numerator) + (denominator) - 1) / (denominator))
+
 #endif // MATHS_PNML

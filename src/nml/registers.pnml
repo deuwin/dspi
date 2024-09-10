@@ -71,6 +71,11 @@
 #define TEMP_POWER_PCT          0x14
 #define TEMP_PROD_PCT           0x15
 
+// production
+#define TEMP_AVAILABLE_COAL     0x16
+#define TEMP_AVAILABLE_OIL_     0x17
+#define TEMP_AVAILABLE_TOTAL    0x18
+
 
 /***********************
  * Register Access

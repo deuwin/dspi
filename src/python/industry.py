@@ -84,11 +84,15 @@ SECONDARY_INDUSTRIES = [
 TERTIARY_INDUSTRIES = [
     Industry(
         "INDUSTRYTYPE_POWER_PLANT",
-        Cargo.Coal,
-        None
+        [
+            Cargo.Coal,
+            Cargo.Oil,
+        ],
+        None,
+        list(range(7, 11))
     ),
 ]
-# fmt: off
+# fmt: on
 
 
 TEMPLATE_DIR = Path(__file__).parent / "templates"
@@ -107,7 +111,9 @@ def generateIndustryPnml():
         pnml += genIndustryTiles(industry)
 
     for industry in TERTIARY_INDUSTRIES:
-        pnml += tertiary_template.substitute(getTemplateMapping(industry))
+        pnml += tertiary_template.substitute(
+            name=industry.name, id=industry.id, cargo_types=genCargoTypes(industry)
+        )
         pnml += genIndustryTiles(industry)
 
     return pnml
@@ -123,7 +129,6 @@ def getTemplateMapping(industry):
         "output":          industry.output,
         "id":              industry.id,
         "cargo_types":     genCargoTypes(industry),
-        "fuel_consumed":   genFuelConsumed(industry),
     }
 # fmt: on
 
@@ -250,16 +255,6 @@ def genRegisterPowerLimit(register):
     return (
         f"SET_TEMP({register}, "
             f"GET_TEMP({register}) * getPowerSuppliedPct() / 100"
-        "),"
-    )
-
-
-def genFuelConsumed(industry):
-    return (
-        "SET_TEMP(CONSUME_0, "
-            'min(incoming_cargo_waiting("COAL"), '
-                "min(GET_TEMP(FUEL_REQUIRED), PRODUCTION_MAX)"
-            ")"
         "),"
     )
 

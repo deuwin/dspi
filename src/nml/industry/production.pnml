@@ -15,3 +15,66 @@
 
 produce(noProduction, [], [])
 
+
+/********************
+ * Power Plant
+ ********************/
+
+produce(power_plant_produceBlock,
+    [
+        COAL: GET_TEMP(CONSUME_0);
+        OIL_: GET_TEMP(CONSUME_1);
+    ], [],
+    0
+)
+
+#define AVAIL_NAME(name) AVAILABLE_##name
+#define SET_AVAILABLE(cargo) \
+    SET_TEMP(AVAIL_NAME(cargo), \
+        min(incoming_cargo_waiting(#cargo), PRODUCTION_MAX) \
+    )
+
+switch(FEAT_INDUSTRIES, SELF, fixOvershoot, [
+    CMP(incoming_cargo_waiting("COAL"), incoming_cargo_waiting("OIL_"))
+]) {
+    CMP_LESS: SET_TEMP(CONSUME_0, GET_TEMP(CONSUME_0) - 1);
+    default:  SET_TEMP(CONSUME_1, GET_TEMP(CONSUME_1) - 1);
+}
+
+switch(FEAT_INDUSTRIES, SELF, power_plant_calcProduction, [
+    setStockpileAverage(incoming_cargo_waiting("COAL")),
+
+    SET_AVAILABLE(COAL),
+    SET_AVAILABLE(OIL_),
+    SET_TEMP(AVAILABLE_TOTAL,
+        GET_TEMP(AVAILABLE_COAL) + GET_TEMP(AVAILABLE_OIL_)
+    ),
+
+    (GET_TEMP(AVAILABLE_TOTAL) == 0) ? [
+        SET_TEMP(CONSUME_0, 0),
+        SET_TEMP(CONSUME_1, 0)
+    ]:[
+        SET_TEMP(FUEL_REQUIRED, getFuelRequired()),
+        SET_TEMP(CONSUME_0,
+            divideCeil(
+                GET_TEMP(AVAILABLE_COAL) * GET_TEMP(FUEL_REQUIRED),
+                GET_TEMP(AVAILABLE_TOTAL)
+            )
+        ),
+        SET_TEMP(CONSUME_1,
+            divideCeil(
+                GET_TEMP(AVAILABLE_OIL_) * GET_TEMP(FUEL_REQUIRED),
+                GET_TEMP(AVAILABLE_TOTAL)
+            )
+        )
+    ],
+
+    // using divideCeil() may cause the plant to burn a little extra than it
+    // should, so that's adjusted here
+    ((GET_TEMP(CONSUME_0) + GET_TEMP(CONSUME_1)) > GET_TEMP(FUEL_REQUIRED))
+        ? fixOvershoot()
+        : 0,
+
+    setPowerSupplied(GET_TEMP(CONSUME_0) + GET_TEMP(CONSUME_1)),
+]) { return power_plant_produceBlock; }
+
