@@ -64,6 +64,7 @@ JOIN_LINES(
 STR_GRID_HEALTHY:{GREEN}Healthy{BLACK}
 STR_GRID_OVERLOADED:{ORANGE}Overloaded{BLACK}
 STR_GRID_NO_POWER:{RED}No power!{BLACK}
+STR_GRID_NO_DEMAND:{LTBLUE}No power demand{BLACK}
 
 
 # /********************

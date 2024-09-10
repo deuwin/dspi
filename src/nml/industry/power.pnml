@@ -84,4 +84,10 @@ switch(FEAT_INDUSTRIES, PARENT, getPowerSuppliedPct, [
     clamp(GET_PERM(POWER_SUPPLY_PCT), 0, 100)
 ]) { return; }
 
+
+/* hasPowerDemand() */
+switch(FEAT_INDUSTRIES, PARENT, hasPowerDemand, [
+    GET_PERM(POWER_DEMAND_TOTAL) > 0
+]) { return; }
+
 #endif // POWER_PNML

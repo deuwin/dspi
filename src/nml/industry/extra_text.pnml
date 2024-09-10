@@ -65,7 +65,9 @@ switch(FEAT_INDUSTRIES, SELF, getGridStatus, [
 }
 
 switch(FEAT_INDUSTRIES, SELF, genExtraTextPowerPlant, [
-    getGridStatus(),
+    (hasPowerDemand())
+        ? getGridStatus()
+        : SET_TEMP(GRID_STATUS, string(STR_GRID_NO_DEMAND)),
     SET_TEMP(PROD_PCT, GET_PERM(PRODUCTION_RATE) * 100 / PRODUCTION_MAX),
     (GET_TEMP(PROD_PCT) == 0 && GET_PERM(PRODUCTION_RATE) != 0)
         ? SET_TEMP(PROD_PCT, 1)
