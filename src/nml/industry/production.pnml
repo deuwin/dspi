@@ -9,10 +9,6 @@
 // Industries have 8 or 9 production ticks a month so we use 8.5 * 3 ≈ 26
 #define THREE_MONTH_PROD_TICKS 26
 
-// Maximum output at the current production rate when considering all inputs.
-// Only really relevant for factories.
-#define OUTPUT_RATE_MAX (GET_PERM(PRODUCTION_RATE) * GET_PERM(PROD_MULTIPLIER))
-
 produce(noProduction, [], [])
 
 
