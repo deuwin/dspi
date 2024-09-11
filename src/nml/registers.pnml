@@ -7,13 +7,8 @@
 
 // industry
 #define PERM_INDUSTRY_SECTOR      0x00
-#define PERM_INDUSTRY_TYPE        0x01
 #define PERM_PRODUCTION_RATE      0x02
-#define PERM_PROD_MULTIPLIER      0x03  // multiplier for number of input cargo types
 #define PERM_ABANDONMENT_PERIOD   0x04
-
-#define PERM_STOCKPILE_AVERAGE    0x05
-#define PERM_VALID_AVERAGE        0x06
 
 #define PERM_PRODUCTION_RATE_PREV 0x07
 #define PERM_STOCKPILE_IMPACT     0x08
