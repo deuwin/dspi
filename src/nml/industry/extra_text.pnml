@@ -36,11 +36,11 @@ switch(FEAT_INDUSTRIES, SELF, setProductionBreakdown, base_reg, [
     (show_prod_breakdown == 1) ? [
         setDword(
             string(STR_PROD_BREAKDOWN),
-            GET_PERM(STOCKPILE_IMPACT) * 100 / GET_PERM(PRODUCTION_RATE_PREV),
+            GET_PERM(IMPACT_STOCKPILE) * 100 / GET_PERM(PRODUCTION_RATE_PREV),
             base_reg
         ),
         STORE_TEMP(
-            GET_PERM(TRANSPORTED_IMPACT) * 100 / GET_PERM(PRODUCTION_RATE_PREV),
+            GET_PERM(IMPACT_TRANSPORTED) * 100 / GET_PERM(PRODUCTION_RATE_PREV),
             base_reg + 1
         )
     ]:[0]
