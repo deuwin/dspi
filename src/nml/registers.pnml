@@ -6,7 +6,7 @@
  ***********************/
 
 // industry
-#define PERM_SECTOR               0x00
+#define PERM_INDUSTRY_SECTOR      0x00
 #define PERM_INDUSTRY_TYPE        0x01
 #define PERM_PRODUCTION_RATE      0x02
 #define PERM_PROD_MULTIPLIER      0x03  // multiplier for number of input cargo types
