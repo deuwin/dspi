@@ -128,6 +128,7 @@ def getTemplateMapping(industry):
         "update_stockpile":  genUpdateStockpile(industry),
         "input_output":      genInputOutput(industry),
         "power_limit":       genInputOutputPowerLimit(industry),
+        "output_rate_max":   genOutputRateMax(industry),
         "stockpile_average": genStockpileAverage(industry),
         "output":            industry.output,
         "id":                industry.id,
@@ -253,6 +254,13 @@ def genInputOutputPowerLimit(industry):
         power_limit = consume_limits + [produce_str]
 
     return indent(power_limit, 2)
+
+
+def genOutputRateMax(industry):
+    output_rate_max = "GET_PERM(PRODUCTION_RATE)"
+    if len(industry.input) > 1 and not industry.ratio:
+        output_rate_max += f" * {len(industry.input)}"
+    return output_rate_max
 
 
 def genRegisterPowerLimit(register):

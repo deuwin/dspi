@@ -6,7 +6,7 @@ produce(${name}_produceBlock,
 switch(FEAT_INDUSTRIES, SELF, ${name}_calcProduction, [
     $update_stockpile
     $input_output
-    setPowerDemand(GET_TEMP(PRODUCE), OUTPUT_RATE_MAX),
+    setPowerDemand(GET_TEMP(PRODUCE), $output_rate_max),
     (power_required == 1) ? [
         $power_limit
     ]:[0]
