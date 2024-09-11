@@ -8,22 +8,6 @@
 // approximately 3 months of production ticks
 #define SAMPLE_SIZE 27
 
-switch(FEAT_INDUSTRIES, SELF, setStockpileAverage, current,
-    // check for valid samples (i.e. if there has been a previous delivery of
-    // cargo)
-    (GET_PERM(VALID_AVERAGE)) ? [
-        SET_PERM(STOCKPILE_AVERAGE,
-            GET_PERM(STOCKPILE_AVERAGE) + (current - GET_PERM(STOCKPILE_AVERAGE)) / SAMPLE_SIZE
-        )
-    ] : [
-        (current > 0) ? [
-            SET_PERM(VALID_AVERAGE, 1),
-            SET_PERM(STOCKPILE_AVERAGE, current)
-        ] : [0]
-    ]
-) { return; }
-
-
 // luckily the stockpile is limited to 7500 which is less than 15 bits
 switch(FEAT_INDUSTRIES, SELF, getStockpileAverage, idx, [
     idx
@@ -31,6 +15,14 @@ switch(FEAT_INDUSTRIES, SELF, getStockpileAverage, idx, [
     0: GET_PERM(STOCKPILE_AVERAGE_0);
     1: GET_PERM(STOCKPILE_AVERAGE_1);
     2: GET_PERM(STOCKPILE_AVERAGE_2);
+}
+
+switch(FEAT_INDUSTRIES, SELF, setStockpile, idx, value, [
+    idx
+]) {
+    0: SET_PERM(STOCKPILE_AVERAGE_0, value);
+    1: SET_PERM(STOCKPILE_AVERAGE_1, value);
+    2: SET_PERM(STOCKPILE_AVERAGE_2, value);
 }
 
 
@@ -50,14 +42,6 @@ switch(FEAT_INDUSTRIES, SELF, setValid, idx, [
     2: SET_PERM(STOCKPILE_VALID_2, 1);
 }
 
-
-switch(FEAT_INDUSTRIES, SELF, setStockpile, idx, value, [
-    idx
-]) {
-    0: SET_PERM(STOCKPILE_AVERAGE_0, value);
-    1: SET_PERM(STOCKPILE_AVERAGE_1, value);
-    2: SET_PERM(STOCKPILE_AVERAGE_2, value);
-}
 
 /* updateStockpileAverage(idx, current)
  * Calculates average stockpile level using simple exponential smoothing.
