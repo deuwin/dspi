@@ -242,7 +242,7 @@ def genInputOutputPowerLimit(industry):
         consume_str = genRegisterPowerLimit("CONSUME_{idx}")
 
     consume_limits = []
-    for idx, input in enumerate(industry.input):
+    for idx in range(len(industry.input)):
         values = {"idx": idx}
         if industry.ratio:
             values["ratio"] = getRatioString(industry.ratio[idx], industry.ratio[-1])
