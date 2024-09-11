@@ -3,6 +3,7 @@ from string import Template
 from pathlib import Path
 from typing import Optional
 from functools import singledispatch
+import re
 
 from cargotable import CargoTable as Cargo
 
@@ -131,6 +132,7 @@ def getTemplateMapping(industry):
         "output":            industry.output,
         "id":                industry.id,
         "cargo_types":       genCargoTypes(industry),
+        "extra_text":        genExtraText(industry),
     }
 # fmt: on
 
@@ -296,6 +298,21 @@ def genCargoTypes(industry):
         produce_cargo = indent(f'\nproduce_cargo("{industry.output}", 0),', 3)
 
     return accept_cargo + produce_cargo
+
+
+def cargoToPluralString(cargo):
+    # https://newgrf-specs.tt-wiki.net/wiki/NML:Default_TTD_strings
+    return (
+        "TTD_STR_CARGO_PLURAL_"
+        + "_".join(re.findall("[A-Z][a-z]+", cargo.name)).upper()
+    )
+
+
+def genExtraText(industry):
+    if len(industry.input) > 1:
+        return f"{industry.name}_genExtraText()"
+    else:
+        return f"genExtraText({cargoToPluralString(industry.input[0])})"
 
 
 def genIndustryTiles(industry):

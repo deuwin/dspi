@@ -24,15 +24,37 @@ JOIN_LINES(
 #  * Extra Text
 #  ********************/
 
-JOIN_LINES(STR_INDUSTRY_EXTRA_TEXT:\
-    Production capacity:{}\
+JOIN_LINES(STR_INDUSTRY_EXTRA_TEXT:
+    Production capacity:{}
         {STRING}
-        _TAB_ {YELLOW}{UNSIGNED_WORD} - {UNSIGNED_WORD}{BLACK} units{}\
         _TAB_ {YELLOW}{UNSIGNED_WORD}%{BLACK} of maximum{}
-    {}\
-    Stockpile:{}\
-        _TAB_ Average: {UNSIGNED_WORD}{}\
-        _TAB_ Required: {UNSIGNED_WORD}\
+    {}
+    Stockpile (average/required):{}
+        _TAB_ {STRING}: {UNSIGNED_WORD}/{COMMA}
+    {STRING}
+)
+
+JOIN_LINES(STR_INDUSTRY_EXTRA_TEXT_STEEL_MILL:
+    Production capacity:{}
+        {STRING}
+        _TAB_ {YELLOW}{UNSIGNED_WORD}%{BLACK} of maximum{}
+    {}
+    Stockpile (average/required):{}
+        _TAB_ {STRING}: {UNSIGNED_WORD}/{UNSIGNED_WORD}{}
+        _TAB_ {STRING}: {UNSIGNED_WORD}/{UNSIGNED_WORD}
+    {STRING}
+)
+
+JOIN_LINES(STR_INDUSTRY_EXTRA_TEXT_FACTORY:
+    Production capacity:{}
+        {STRING}
+        _TAB_ {YELLOW}{UNSIGNED_WORD}%{BLACK} of maximum{}
+    {}
+    Stockpile:{}
+        _TAB_ {STRING}: {UNSIGNED_WORD}{}
+        _TAB_ {STRING}: {UNSIGNED_WORD}{}
+        _TAB_ {STRING}: {UNSIGNED_WORD}{}
+        _TAB_ Required: {COMMA}
     {STRING}
 )
 
@@ -50,15 +72,16 @@ JOIN_LINES(\
 
 
 JOIN_LINES(
-    STR_INDUSTRY_EXTRA_TEXT_POWER_PLANT:\
-        Production capacity:{}\
-            _TAB_ {YELLOW}{UNSIGNED_WORD}%{BLACK} of maximum{}\
-        {}\
-        Grid status:{}\
-            _TAB_ {STRING}{}\
-        {}\
-        Stockpile:{}\
-            _TAB_ Average: {UNSIGNED_WORD}
+    STR_INDUSTRY_EXTRA_TEXT_POWER_PLANT:
+        Production capacity:{}
+            _TAB_ {YELLOW}{UNSIGNED_WORD}%{BLACK} of maximum{}
+        {}
+        Grid status:{}
+            _TAB_ {STRING}{}
+        {}
+        Stockpile Average:{}
+            _TAB_ {STRING}: {UNSIGNED_WORD}{}
+            _TAB_ {STRING}: {UNSIGNED_WORD}
 )
 
 STR_GRID_HEALTHY:{GREEN}Healthy{BLACK}

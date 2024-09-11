@@ -8,7 +8,7 @@ item(FEAT_INDUSTRIES, $name) {
     }
     graphics {
         build_prod_change:     initPermanentStorage(IND_TERTIARY, $id);
-        extra_text_industry:   genExtraTextPowerPlant();
+        extra_text_industry:   ${name}_genExtraText();
 
         produce_cargo_arrival: noProduction;
         produce_256_ticks:     ${name}_calcProduction();

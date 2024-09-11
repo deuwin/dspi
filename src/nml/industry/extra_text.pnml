@@ -18,7 +18,7 @@ switch(FEAT_INDUSTRIES, SELF, setPowerStatus, power_pct, [
     default: SET_TEMP(POWER_STATUS, string(STR_EMPTY));
 }
 
-switch(FEAT_INDUSTRIES, SELF, genExtraText, [
+switch(FEAT_INDUSTRIES, SELF, setProductionCapacity, [
     (power_required == 1) ? [
         SET_TEMP(POWER_PCT, getPowerSuppliedPct()),
         setPowerStatus(GET_TEMP(POWER_PCT))
@@ -26,35 +26,81 @@ switch(FEAT_INDUSTRIES, SELF, genExtraText, [
         SET_TEMP(POWER_PCT, 100),
         SET_TEMP(POWER_STATUS, string(STR_EMPTY)),
     ],
-
     setDword(
         GET_TEMP(POWER_STATUS),
-        OUTPUT_RATE_MAX * 8 * GET_TEMP(POWER_PCT) / 100,
-        256),
-    setDword(
-        OUTPUT_RATE_MAX * 9 * GET_TEMP(POWER_PCT) / 100,
         GET_PERM(PRODUCTION_RATE) * GET_TEMP(POWER_PCT) / PRODUCTION_MAX,
-        257),
-    setDword(
-        GET_PERM(STOCKPILE_AVERAGE),
-        THREE_MONTH_PROD_TICKS * GET_PERM(PRODUCTION_RATE),
-        258),
+        256),
+]) { return; }
 
+switch(FEAT_INDUSTRIES, SELF, setProductionBreakdown, base_reg, [
     (show_prod_breakdown == 1) ? [
         setDword(
             string(STR_PROD_BREAKDOWN),
             GET_PERM(STOCKPILE_IMPACT) * 100 / GET_PERM(PRODUCTION_RATE_PREV),
-            259
+            base_reg
         ),
         STORE_TEMP(
             GET_PERM(TRANSPORTED_IMPACT) * 100 / GET_PERM(PRODUCTION_RATE_PREV),
-            260
+            base_reg + 1
         )
     ]:[0]
+]) { return; }
+
+
+switch(FEAT_INDUSTRIES, SELF, genExtraText, cargo_name, [
+    setProductionCapacity(),
+    setDword(
+        cargo_name,
+        getStockpileAverage(0),
+        257),
+    STORE_TEMP(
+        THREE_MONTH_PROD_TICKS * GET_PERM(PRODUCTION_RATE),
+        258),
+    setProductionBreakdown(259)
 ]) {
     return string(STR_INDUSTRY_EXTRA_TEXT);
 }
 
+switch(FEAT_INDUSTRIES, SELF, steel_mill_genExtraText, [
+    setProductionCapacity(),
+    setDword(
+        TTD_STR_CARGO_PLURAL_IRON_ORE,
+        getStockpileAverage(0),
+        257),
+    setDword(
+        THREE_MONTH_PROD_TICKS * GET_PERM(PRODUCTION_RATE),
+        TTD_STR_CARGO_PLURAL_COAL,
+        258),
+    setDword(
+        getStockpileAverage(1),
+        THREE_MONTH_PROD_TICKS * GET_PERM(PRODUCTION_RATE) / 2,
+        259),
+    setProductionBreakdown(260)
+]) {
+    return string(STR_INDUSTRY_EXTRA_TEXT_STEEL_MILL);
+}
+
+switch(FEAT_INDUSTRIES, SELF, temperate_factory_genExtraText, [
+    setProductionCapacity(),
+    setDword(
+        TTD_STR_CARGO_PLURAL_LIVESTOCK,
+        getStockpileAverage(0),
+        257),
+    setDword(
+        TTD_STR_CARGO_PLURAL_GRAIN,
+        getStockpileAverage(1),
+        258),
+    setDword(
+        TTD_STR_CARGO_PLURAL_STEEL,
+        getStockpileAverage(2),
+        259),
+    STORE_TEMP(
+        THREE_MONTH_PROD_TICKS * GET_PERM(PRODUCTION_RATE),
+        260),
+    setProductionBreakdown(261)
+]) {
+    return string(STR_INDUSTRY_EXTRA_TEXT_FACTORY);
+}
 
 switch(FEAT_INDUSTRIES, SELF, getGridStatus, [
     getPowerSuppliedPct()
@@ -64,21 +110,28 @@ switch(FEAT_INDUSTRIES, SELF, getGridStatus, [
     default: SET_TEMP(GRID_STATUS, string(STR_GRID_HEALTHY));
 }
 
-switch(FEAT_INDUSTRIES, SELF, genExtraTextPowerPlant, [
+switch(FEAT_INDUSTRIES, SELF, power_plant_genExtraText, [
     (hasPowerDemand())
         ? getGridStatus()
         : SET_TEMP(GRID_STATUS, string(STR_GRID_NO_DEMAND)),
+
     SET_TEMP(PROD_PCT, GET_PERM(PRODUCTION_RATE) * 100 / PRODUCTION_MAX),
     (GET_TEMP(PROD_PCT) == 0 && GET_PERM(PRODUCTION_RATE) != 0)
         ? SET_TEMP(PROD_PCT, 1)
         : 0,
+
     setDword(
         GET_TEMP(PROD_PCT),
         GET_TEMP(GRID_STATUS),
         256),
-    STORE_TEMP(
-        GET_PERM(STOCKPILE_AVERAGE),
+    setDword(
+        TTD_STR_CARGO_PLURAL_COAL,
+        GET_PERM(STOCKPILE_AVERAGE_0),
         257),
+    setDword(
+        TTD_STR_CARGO_PLURAL_OIL,
+        GET_PERM(STOCKPILE_AVERAGE_1),
+        258),
 ]) {
     return string(STR_INDUSTRY_EXTRA_TEXT_POWER_PLANT);
 }
