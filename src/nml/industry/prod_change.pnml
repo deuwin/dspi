@@ -26,21 +26,21 @@ switch(FEAT_INDUSTRIES, SELF, chanceToIncrease, percent,
     81..100: randomChance(5, 6);
 }
 
-/* updateProduction(cargo_waiting, cargo_transported)
- * Calculate production change based on current production rate, waiting cargo,
- * and cargo transported. */
+/* updateProduction(stockpile_average, cargo_transported)
+ * Calculate production change based on current production rate, stockpile
+ * average, and cargo transported. */
 
 // Maximum change allowed by assessment of stockpile level
 #define MAX_CHANGE_STOCKPILE_PCT 20
 
 switch(FEAT_INDUSTRIES, SELF, updateProduction,
-    cargo_waiting,
+    stockpile_average,
     cargo_transported,
 [
     // calculate impact of stockpile level
     (IND_CONSUMES) ? [
         SET_TEMP(DIFFERENCE,
-            (cargo_waiting / THREE_MONTH_PROD_TICKS) - GET_PERM(PRODUCTION_RATE)
+            (stockpile_average / THREE_MONTH_PROD_TICKS) - GET_PERM(PRODUCTION_RATE)
         ),
         SET_TEMP(LIMIT,
             GET_PERM(PRODUCTION_RATE) * MAX_CHANGE_STOCKPILE_PCT / 100
@@ -87,11 +87,11 @@ switch(FEAT_INDUSTRIES, SELF, updateProduction,
     setProductionLevel()
 ]) { return; }
 
-/* shouldProductionChange(cargo_waiting, cargo_transported)
+/* shouldProductionChange(stockpile_average, cargo_transported)
  * Random probability of change as long as output cargo has been transported */
 #define PRODUCTION_CHANGE_PROB 22
 switch(FEAT_INDUSTRIES, SELF, shouldProductionChange,
-    cargo_waiting,
+    stockpile_average,
     cargo_transported,
 [
     (IND_PRODUCES) ? [
@@ -100,16 +100,16 @@ switch(FEAT_INDUSTRIES, SELF, shouldProductionChange,
         randomChance(1, PRODUCTION_CHANGE_PROB)
     ]
 ]) {
-    1: updateProduction(cargo_waiting, cargo_transported);
+    1: updateProduction(stockpile_average, cargo_transported);
     CB_RESULT_IND_PROD_NO_CHANGE;
 }
 
-/* evalProduction(cargo_waiting, cargo_produced, cargo_transported)
+/* evalProduction(stockpile_average, cargo_produced, cargo_transported)
  * Initial check to see if the industry has been abandoned. Not all parameters
  * are used for this check, but are used later in the chain for potential
  * production changes. */
 switch(FEAT_INDUSTRIES, SELF, evalProduction,
-    cargo_waiting,
+    stockpile_average,
     cargo_produced,
     cargo_transported,
 [
@@ -119,5 +119,5 @@ switch(FEAT_INDUSTRIES, SELF, evalProduction,
         : 0
 ]) {
     1: closeIndustry();
-    shouldProductionChange(cargo_waiting, cargo_transported);
+    shouldProductionChange(stockpile_average, cargo_transported);
 }
