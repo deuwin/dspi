@@ -46,6 +46,26 @@ switch(FEAT_INDUSTRIES, SELF, setProductionBreakdown, base_reg, [
     ]:[0]
 ]) { return; }
 
+switch(FEAT_INDUSTRIES, SELF, setProductionBreakdownHalfStart,
+    low_bits,
+    base_reg,
+[
+    (show_prod_breakdown == 0) ? [
+        STORE_TEMP(
+            low_bits,
+            base_reg)
+    ]:[
+        setDword(
+            low_bits,
+            string(STR_PROD_BREAKDOWN),
+            base_reg),
+        setDword(
+            GET_PERM(IMPACT_STOCKPILE) * 100 / GET_PERM(PRODUCTION_RATE_PREV),
+            GET_PERM(IMPACT_TRANSPORTED) * 100 / GET_PERM(PRODUCTION_RATE_PREV),
+            base_reg + 1),
+    ]
+]) { return; }
+
 
 switch(FEAT_INDUSTRIES, SELF, genExtraText, cargo_name, [
     setProductionCapacity(),
@@ -53,10 +73,9 @@ switch(FEAT_INDUSTRIES, SELF, genExtraText, cargo_name, [
         cargo_name,
         getStockpileAverage(0),
         257),
-    STORE_TEMP(
+    setProductionBreakdownHalfStart(
         THREE_MONTH_PROD_TICKS * GET_PERM(PRODUCTION_RATE),
-        258),
-    setProductionBreakdown(259)
+        258)
 ]) {
     return string(STR_INDUSTRY_EXTRA_TEXT);
 }
@@ -94,10 +113,9 @@ switch(FEAT_INDUSTRIES, SELF, temperate_factory_genExtraText, [
         TTD_STR_CARGO_PLURAL_STEEL,
         getStockpileAverage(2),
         259),
-    STORE_TEMP(
+    setProductionBreakdownHalfStart(
         THREE_MONTH_PROD_TICKS * GET_PERM(PRODUCTION_RATE),
-        260),
-    setProductionBreakdown(261)
+        260)
 ]) {
     return string(STR_INDUSTRY_EXTRA_TEXT_FACTORY);
 }

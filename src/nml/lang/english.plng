@@ -30,7 +30,7 @@ JOIN_LINES(STR_INDUSTRY_EXTRA_TEXT:
         _TAB_ {YELLOW}{UNSIGNED_WORD}%{BLACK} of maximum{}
     {}
     Stockpile (average/required):{}
-        _TAB_ {STRING}: {UNSIGNED_WORD}/{COMMA}
+        _TAB_ {STRING}: {UNSIGNED_WORD}/{UNSIGNED_WORD}
     {STRING}
 )
 
@@ -54,7 +54,7 @@ JOIN_LINES(STR_INDUSTRY_EXTRA_TEXT_FACTORY:
         _TAB_ {STRING}: {UNSIGNED_WORD}{}
         _TAB_ {STRING}: {UNSIGNED_WORD}{}
         _TAB_ {STRING}: {UNSIGNED_WORD}{}
-        _TAB_ Required: {COMMA}
+        _TAB_ Required: {UNSIGNED_WORD}
     {STRING}
 )
 
