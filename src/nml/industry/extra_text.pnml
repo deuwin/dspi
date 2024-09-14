@@ -4,7 +4,7 @@
 
 switch(FEAT_INDUSTRIES, SELF, setDword, low_bits, high_bits, register, [
     STORE_TEMP(
-        (low_bits) | (high_bits << 16),
+        (low_bits & 0xFFFF) | (high_bits << 16),
         register
     )
 ]) { return; }
