@@ -40,7 +40,7 @@ GCC_FLAGS  := -E -C -nostdinc -x c-header $(INC_DIRS)
 NMLC_FLAGS := \
 	--lang-dir="$(LNG_DIR)" \
 	--custom-tags="$(NML_DIR)/custom_tags.txt" \
-	--nml="$(BUILD_DIR)/$(FILENAME).nml" \
+	--nml="$(BUILD_DIR)/$(FILENAME)_optimised.nml" \
 	--nfo="$(BUILD_DIR)/$(FILENAME).nfo"
 
 PLATFORM := $(shell uname -s)
