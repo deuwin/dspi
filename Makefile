@@ -3,8 +3,8 @@ VERSION := $(shell \
 	grep VERSION ./src/nml/custom_tags.txt | cut --delimiter ":" --fields=2)
 FILENAME := $(PROJECT)_v$(VERSION)
 
-SRC_DIR    := ./src
-BUILD_DIR  := ./build
+SRC_DIR    := src
+BUILD_DIR  := build
 NML_DIR    := $(SRC_DIR)/nml
 PYTHON_DIR := $(SRC_DIR)/python
 PLNG_DIR   := $(NML_DIR)/lang
@@ -15,7 +15,7 @@ PLNG_FILES := $(shell find $(PLNG_DIR) -name "*.plng" -printf "%P ")
 LNG_FILES  := $(addprefix $(LNG_DIR)/,$(PLNG_FILES:.plng=.lng))
 
 PYTHON         := /usr/bin/env python3
-GENERATED_DIR  := $(BUILD_DIR)
+GENERATED_DIR  := $(BUILD_DIR)/generated
 GENERATOR_CMD  := $(PYTHON) $(PYTHON_DIR)/generate_pnml.py --output-directory $(GENERATED_DIR)
 TEMPLATE_FILES := $(shell find $(PYTHON_DIR) -name "*.py") \
 				  $(shell find $(PYTHON_DIR)/templates)
@@ -32,9 +32,11 @@ PROJECT_BUNDLE := $(BUILD_DIR)/$(FILENAME).tar
 BUNDLE_SRC   := $(PROJECT_NML) ./README.md ./COPYING ./changelog.txt
 BUNDLE_FILES := $(addprefix $(BUNDLE_DIR)/,readme.txt license.txt changelog.txt)
 
+OUTPUT_DIRS := $(BUILD_DIR) $(LNG_DIR) $(GENERATED_DIR)
+
 INC_DIRS := \
 	-I $(NML_DIR) \
-	-I $(GENERATED_DIR)
+	-I $(BUILD_DIR)
 
 GCC_FLAGS  := -E -C -nostdinc -x c-header
 NMLC_FLAGS := \
@@ -51,14 +53,13 @@ V = @
 .PHONY:    all dirs lang gen_pnml nml grf bundle clean
 .PRECIOUS: %.nml %.pnml
 
-all:      dirs lang nml grf
-dirs:     $(BUILD_DIR)
-lang:     $(LNG_FILES)
+all:      lang nml grf
+lang:     $(LNG_FILES) | $(OUTPUT_DIRS)
 nml:      $(PROJECT_NML)
 gen_pnml: $(PNML_GENERATED)
 docs:     $(LICENSE_FILE)
 grf:      $(PROJECT_GRF)
-bundle:   dirs lang docs nml grf $(PROJECT_BUNDLE)
+bundle:   lang docs nml grf $(PROJECT_BUNDLE)
 
 clean:
 	@rm --force --recursive \
@@ -75,8 +76,8 @@ else
 	$(V)install --mode=664 $(PROJECT_BUNDLE) $(HOME)/.local/share/openttd/newgrf
 endif
 
-$(BUILD_DIR):
-	$(V)mkdir --parents $(LNG_DIR)
+$(OUTPUT_DIRS):
+	$(V)mkdir --parents $@
 
 $(LNG_DIR)/%.lng: $(PLNG_DIR)/%.plng
 	@echo "-- Processing $<..."
