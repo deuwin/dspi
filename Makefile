@@ -11,8 +11,8 @@ PLNG_DIR   := $(NML_DIR)/lang
 LNG_DIR    := $(BUILD_DIR)/lang
 BUNDLE_DIR := $(BUILD_DIR)/$(FILENAME)
 
-PLNG_FILES := $(shell find $(PLNG_DIR) -name "*.plng")
-LNG_FILES  := $(subst $(PLNG_DIR),$(LNG_DIR),$(PLNG_FILES:.plng=.lng))
+PLNG_FILES := $(shell find $(PLNG_DIR) -name "*.plng" -printf "%P ")
+LNG_FILES  := $(addprefix $(LNG_DIR)/,$(PLNG_FILES:.plng=.lng))
 
 PYTHON         := /usr/bin/env python3
 GENERATED_DIR  := $(BUILD_DIR)
@@ -36,7 +36,7 @@ INC_DIRS := \
 	-I $(NML_DIR) \
 	-I $(GENERATED_DIR)
 
-GCC_FLAGS  := -E -C -nostdinc -x c-header $(INC_DIRS)
+GCC_FLAGS  := -E -C -nostdinc -x c-header
 NMLC_FLAGS := \
 	--lang-dir="$(LNG_DIR)" \
 	--custom-tags="$(NML_DIR)/custom_tags.txt" \
@@ -78,13 +78,13 @@ endif
 $(BUILD_DIR):
 	$(V)mkdir --parents $(LNG_DIR)
 
-$(LNG_FILES): $(PLNG_FILES)
+$(LNG_DIR)/%.lng: $(PLNG_DIR)/%.plng
 	@echo "-- Processing $<..."
-	$(V)gcc $(GCC_FLAGS) -o $@ $<
+	$(V)gcc $(GCC_FLAGS) -o $@ $^
 
 $(PROJECT_NML): $(PROJECT_PNML) $(PNML_FILES) $(LNG_FILES)
 	@echo "-- Processing $<..."
-	$(V)gcc $(GCC_FLAGS) -o $@ $<
+	$(V)gcc $(GCC_FLAGS) $(INC_DIRS) -o $@ $<
 
 $(PNML_GENERATED) &: $(TEMPLATE_FILES)
 	@echo "-- Generating PNML..."
