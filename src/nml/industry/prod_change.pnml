@@ -2,6 +2,11 @@
  * Production Change
  ********************/
 
+// Industries have 8 or 9 production ticks a month so we use 8.5 * 3 ≈ 26
+#define THREE_MONTH_PROD_TICKS 26
+#define STOCKPILE_REQUIRED     (THREE_MONTH_PROD_TICKS * GET_PERM(PRODUCTION_RATE))
+
+
 /* setProductionRate()
  * Convenience function to set production rate. */
 switch(FEAT_INDUSTRIES, SELF, setProductionRate, rate,
@@ -87,17 +92,40 @@ switch(FEAT_INDUSTRIES, SELF, updateProduction,
     setProductionLevel()
 ]) { return; }
 
+/* meetsChangeRequirements(stockpile_average, transported_pct)
+ * Returns 1 if the industry has met the minimum requirements of stockpile level
+ * and transported cargo. */
+#define TRANSPORTED_PCT_REQ 70
+switch(FEAT_INDUSTRIES, SELF, meetsChangeRequirements,
+    stockpile_average,
+    transported_pct,
+[
+    (GET_PERM(CHANGE_REQ_MET)) ? [
+        1
+    ]:[
+        SET_TEMP(REQUIREMENTS_MET,
+            stockpile_average >= STOCKPILE_REQUIRED
+        ),
+        (IND_PRODUCES) ? [
+            SET_TEMP(REQUIREMENTS_MET,
+                GET_TEMP(REQUIREMENTS_MET) && (transported_pct >= TRANSPORTED_PCT_REQ)
+            ),
+        ]:[0],
+        SET_PERM(CHANGE_REQ_MET, GET_TEMP(REQUIREMENTS_MET))
+    ]
+]) { return; }
+
 /* shouldProductionChange(stockpile_average, cargo_transported)
- * Random probability of change as long as output cargo has been transported */
+ * Random probability of change if requirements have been met */
 #define PRODUCTION_CHANGE_PROB 22
 switch(FEAT_INDUSTRIES, SELF, shouldProductionChange,
     stockpile_average,
     cargo_transported,
 [
-    (IND_PRODUCES) ? [
-        randomChance(1, PRODUCTION_CHANGE_PROB) && (cargo_transported > 0)
-    ] : [
+    (meetsChangeRequirements(stockpile_average, cargo_transported)) ? [
         randomChance(1, PRODUCTION_CHANGE_PROB)
+    ]:[
+        0
     ]
 ]) {
     1: updateProduction(stockpile_average, cargo_transported);
@@ -105,9 +133,8 @@ switch(FEAT_INDUSTRIES, SELF, shouldProductionChange,
 }
 
 /* evalProduction(stockpile_average, cargo_produced, cargo_transported)
- * Initial check to see if the industry has been abandoned. Not all parameters
- * are used for this check, but are used later in the chain for potential
- * production changes. */
+ * Initial abandonment check, followed by stockpile and transported cargo
+ * checks. */
 switch(FEAT_INDUSTRIES, SELF, evalProduction,
     stockpile_average,
     cargo_produced,

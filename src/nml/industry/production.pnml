@@ -6,9 +6,6 @@
 #define PRODUCTION_MIN  5
 #define PRODUCTION_MAX  255
 
-// Industries have 8 or 9 production ticks a month so we use 8.5 * 3 ≈ 26
-#define THREE_MONTH_PROD_TICKS 26
-
 produce(noProduction, [], [])
 
 
