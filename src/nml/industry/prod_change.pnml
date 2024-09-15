@@ -8,21 +8,29 @@
 
 
 /* setProductionRate()
- * Convenience function to set production rate. */
+ * Clamp and set production rate.
+ */
 switch(FEAT_INDUSTRIES, SELF, setProductionRate, rate,
     SET_PERM(PRODUCTION_RATE, clamp(rate, PRODUCTION_MIN, PRODUCTION_MAX))
 ){ return; }
 
+
+/* setProductionLevel()
+ * Set production level by halving the production rate. Not actually used by
+ * anything I believe...
+ */
+// TODO: Remove this?
 switch(FEAT_INDUSTRIES, SELF, setProductionLevel, [
-    // naively half the rate to get the level, for now anyway
     STORE_TEMP((GET_PERM(PRODUCTION_RATE) / 2) << 16, 0x100)
 ]) {
     return CB_RESULT_IND_PROD_SET_BY_0x100;
 }
 
+
 /* chanceToIncrease(percent)
  * Returns chance based on percent parameter. Should closely mirror the values
- * used in a smooth economy */
+ * used in a smooth economy.
+ */
 switch(FEAT_INDUSTRIES, SELF, chanceToIncrease, percent,
     percent
 ) {
@@ -31,16 +39,17 @@ switch(FEAT_INDUSTRIES, SELF, chanceToIncrease, percent,
     81..100: randomChance(5, 6);
 }
 
-/* updateProduction(stockpile_average, cargo_transported)
- * Calculate production change based on current production rate, stockpile
- * average, and cargo transported. */
 
+/* updateProduction(stockpile_average, transported_pct)
+ * Calculate production change based on current production rate, stockpile
+ * average, and cargo transported.
+ */
 // Maximum change allowed by assessment of stockpile level
 #define MAX_CHANGE_STOCKPILE_PCT 20
 
 switch(FEAT_INDUSTRIES, SELF, updateProduction,
     stockpile_average,
-    cargo_transported,
+    transported_pct,
 [
     // calculate impact of stockpile level
     (IND_CONSUMES) ? [
@@ -70,7 +79,7 @@ switch(FEAT_INDUSTRIES, SELF, updateProduction,
             max(1, randomRange(PROD_3_PCT, PROD_23_PCT) * GET_PERM(PRODUCTION_RATE) / PRODUCTION_MAX)
         ),
         SET_TEMP(CHANGE_DIRECTION,
-            chanceToIncrease(cargo_transported) ? 1 : -1
+            chanceToIncrease(transported_pct) ? 1 : -1
         ),
         SET_TEMP(TRANSPORTED_CHANGE,
             GET_TEMP(RANDOM_CHANGE) * GET_TEMP(CHANGE_DIRECTION)
@@ -92,9 +101,11 @@ switch(FEAT_INDUSTRIES, SELF, updateProduction,
     setProductionLevel()
 ]) { return; }
 
+
 /* meetsChangeRequirements(stockpile_average, transported_pct)
  * Returns 1 if the industry has met the minimum requirements of stockpile level
- * and transported cargo. */
+ * and transported cargo.
+ */
 #define TRANSPORTED_PCT_REQ 70
 switch(FEAT_INDUSTRIES, SELF, meetsChangeRequirements,
     stockpile_average,
@@ -115,30 +126,34 @@ switch(FEAT_INDUSTRIES, SELF, meetsChangeRequirements,
     ]
 ]) { return; }
 
-/* shouldProductionChange(stockpile_average, cargo_transported)
- * Random probability of change if requirements have been met */
+
+/* shouldProductionChange(stockpile_average, transported_pct)
+ * Random probability of change if requirements have been met.
+ */
 #define PRODUCTION_CHANGE_PROB 22
 switch(FEAT_INDUSTRIES, SELF, shouldProductionChange,
     stockpile_average,
-    cargo_transported,
+    transported_pct,
 [
-    (meetsChangeRequirements(stockpile_average, cargo_transported)) ? [
+    (meetsChangeRequirements(stockpile_average, transported_pct)) ? [
         randomChance(1, PRODUCTION_CHANGE_PROB)
     ]:[
         0
     ]
 ]) {
-    1: updateProduction(stockpile_average, cargo_transported);
+    1: updateProduction(stockpile_average, transported_pct);
     CB_RESULT_IND_PROD_NO_CHANGE;
 }
 
-/* evalProduction(stockpile_average, cargo_produced, cargo_transported)
+
+/* evalProduction(stockpile_average, cargo_produced, transported_pct)
  * Initial abandonment check, followed by stockpile and transported cargo
- * checks. */
+ * checks.
+ */
 switch(FEAT_INDUSTRIES, SELF, evalProduction,
     stockpile_average,
     cargo_produced,
-    cargo_transported,
+    transported_pct,
 [
     initRandom(),
     (IND_PRODUCES)
@@ -146,5 +161,5 @@ switch(FEAT_INDUSTRIES, SELF, evalProduction,
         : 0
 ]) {
     1: closeIndustry();
-    shouldProductionChange(stockpile_average, cargo_transported);
+    shouldProductionChange(stockpile_average, transported_pct);
 }
