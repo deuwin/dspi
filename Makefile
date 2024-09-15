@@ -20,9 +20,9 @@ GENERATOR_CMD  := $(PYTHON) $(PYTHON_DIR)/generate_pnml.py --output-directory $(
 TEMPLATE_FILES := $(shell find $(PYTHON_DIR) -name "*.py") \
 				  $(shell find $(PYTHON_DIR)/templates)
 
+PROJECT_PNML   := $(NML_DIR)/$(PROJECT).pnml
 PNML_GENERATED := $(shell $(GENERATOR_CMD) --list-files)
-PNML_FILES	   := $(NML_DIR)/$(PROJECT).pnml \
-				  $(shell find $(NML_DIR) -name "*.pnml" -not -name $(PROJECT).pnml) \
+PNML_FILES	   := $(shell find $(NML_DIR) -name "*.pnml" -not -name $(PROJECT).pnml) \
 				  $(PNML_GENERATED)
 
 PROJECT_NML    := $(BUILD_DIR)/$(FILENAME).nml
@@ -82,7 +82,7 @@ $(LNG_FILES): $(PLNG_FILES)
 	@echo "-- Processing $<..."
 	$(V)gcc $(GCC_FLAGS) -o $@ $<
 
-$(PROJECT_NML): $(PNML_FILES) $(LNG_FILES)
+$(PROJECT_NML): $(PROJECT_PNML) $(PNML_FILES) $(LNG_FILES)
 	@echo "-- Processing $<..."
 	$(V)gcc $(GCC_FLAGS) -o $@ $<
 
