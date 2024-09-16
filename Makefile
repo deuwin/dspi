@@ -1,108 +1,124 @@
 PROJECT := dspi
-VERSION := $(shell \
-	grep VERSION ./src/nml/custom_tags.txt | cut --delimiter ":" --fields=2)
-BASENAME := $(PROJECT)_v$(VERSION)
 
-SRC_DIR    := src
-BUILD_DIR  := build
-NML_DIR    := $(SRC_DIR)/nml
-PYTHON_DIR := $(SRC_DIR)/python
-PLNG_DIR   := $(NML_DIR)/lang
-LNG_DIR    := $(BUILD_DIR)/lang
-BUNDLE_DIR := $(BUILD_DIR)/$(BASENAME)
+# environment
+PYTHON := /usr/bin/env python3
 
-PLNG_FILES := $(shell find $(PLNG_DIR) -name "*.plng" -printf "%P ")
-LNG_FILES  := $(addprefix $(LNG_DIR)/,$(PLNG_FILES:.plng=.lng))
+# basic dirs
+SRC_DIR   := src
+BUILD_DIR := build
+NML_DIR   := $(SRC_DIR)/nml
 
-PYTHON         := /usr/bin/env python3
-GENERATED_DIR  := $(BUILD_DIR)/generated
-GENERATOR_CMD  := $(PYTHON) $(PYTHON_DIR)/generate_pnml.py --output-directory $(GENERATED_DIR)
-TEMPLATE_FILES := $(shell find $(PYTHON_DIR) -name "*.py") \
-				  $(shell find $(PYTHON_DIR)/templates)
+# lang files
+PLNG_DIR    := $(NML_DIR)/lang
+PLNG_FILES  := $(shell find $(PLNG_DIR) -name "*.plng" -printf "%P ")
+LANG_DIR    := $(BUILD_DIR)/lang
+LANG_FILES  := $(addprefix $(LANG_DIR)/,$(PLNG_FILES:.plng=.lng))
+CUSTOM_TAGS := $(NML_DIR)/custom_tags.txt
 
-PROJECT_PNML   := $(NML_DIR)/$(PROJECT).pnml
+# pnml generation
+GENERATOR_DIR     := $(SRC_DIR)/python
+GENERATOR_OUT_DIR := $(BUILD_DIR)/generated
+GENERATOR_CMD := \
+	$(PYTHON) $(GENERATOR_DIR)/generate_pnml.py --output-directory $(GENERATOR_OUT_DIR)
+GENERATOR_FILES := \
+	$(shell find $(GENERATOR_DIR) -name "*.py") \
+	$(shell find $(GENERATOR_DIR)/templates)
+
+# pnml files
 PNML_GENERATED := $(shell $(GENERATOR_CMD) --list-files)
-PNML_FILES	   := $(shell find $(NML_DIR) -name "*.pnml" -not -name $(PROJECT).pnml) \
-				  $(PNML_GENERATED)
+PNML_FILES := \
+	$(NML_DIR)/$(PROJECT).pnml \
+	$(shell find $(NML_DIR) -name "*.pnml" -not -name $(PROJECT).pnml) \
+	$(PNML_GENERATED)
 
-PROJECT_NML    := $(BUILD_DIR)/$(BASENAME).nml
-PROJECT_GRF    := $(BUILD_DIR)/$(BASENAME).grf
+# documentation
+DOC_FILES     := $(addprefix $(BUILD_DIR)/,readme.txt license.txt changelog.txt)
+DOC_FILES_SRC := README.md COPYING changelog.txt
 
+# output
+VERSION       := $(shell grep VERSION $(CUSTOM_TAGS) | cut --delimiter ":" --fields=2)
+BASENAME      := $(PROJECT)_v$(VERSION)
+OUTPUT_PREFIX := $(BUILD_DIR)/$(BASENAME)
 
-OUTPUT_DIRS := $(BUILD_DIR) $(LNG_DIR) $(GENERATED_DIR) $(BUNDLE_DIR)
+# installation
+PLATFORM    := $(shell uname -s)
+INSTALL_DIR := $(HOME)/.local/share/openttd/newgrf/$(BASENAME)
 
+# tool options
+GCC_FLAGS := -E -C -nostdinc -x c-header
 INC_DIRS := \
 	-I $(NML_DIR) \
 	-I $(BUILD_DIR)
 
-GCC_FLAGS  := -E -C -nostdinc -x c-header
 NMLC_FLAGS := \
-	--lang-dir="$(LNG_DIR)" \
-	--custom-tags="$(NML_DIR)/custom_tags.txt" \
-	--nml="$(BUILD_DIR)/$(BASENAME)_optimised.nml" \
-	--nfo="$(BUILD_DIR)/$(BASENAME).nfo"
-
-PLATFORM    := $(shell uname -s)
-INSTALL_DIR := $(HOME)/.local/share/openttd/newgrf/$(BASENAME)
-
-DOC_FILES     := $(addprefix $(BUNDLE_DIR)/,readme.txt license.txt changelog.txt)
-DOC_FILES_SRC := README.md COPYING changelog.txt
+	--lang-dir="$(LANG_DIR)" \
+	--custom-tags="$(CUSTOM_TAGS)" \
+	--nml="$(OUTPUT_PREFIX)_optimised.nml" \
+	--nfo="$(OUTPUT_PREFIX).nfo"
 
 # verbose toggle
 V = @
 
-.PHONY:    all dirs lang gen_pnml nml grf bundle clean
+# keep intermediate files
 .PRECIOUS: %.nml %.pnml
 
+# named recipes
+.PHONY:   all lang gen_pnml nml grf install bundle clean
 all:      grf
-lang:     $(LNG_FILES)
-nml:      $(PROJECT_NML)
+lang:     $(LANG_FILES)
+nml:      $(OUTPUT_PREFIX).nml
 gen_pnml: $(PNML_GENERATED)
-grf:      $(PROJECT_GRF)
-bundle:   $(BASENAME).tar
+grf:      $(OUTPUT_PREFIX).grf
+bundle:   $(OUTPUT_PREFIX).tar
 
 clean:
-	@rm --force --recursive \
-		$(BUILD_DIR)/$(BASENAME)* \
+	@rm --force \
+		$(OUTPUT_PREFIX)* \
 		$(PNML_GENERATED) \
-		$(LNG_FILES)
+		$(LANG_FILES) \
+		$(DOC_FILES)
 
-install: grf $(DOC_FILES)
+install: $(OUTPUT_PREFIX).grf $(DOC_FILES)
 ifneq ($(PLATFORM),Linux)
 	@echo "Installation directory not specified for $(PLATFORM)"
 	@false
 else
 	@echo "-- Install GRF..."
 	$(V)install --directory $(INSTALL_DIR)
-	$(V)install --mode=664 $(PROJECT_GRF) $(DOC_FILES) $(INSTALL_DIR)
+	$(V)install --mode=664 $^ $(INSTALL_DIR)
 endif
 
-$(OUTPUT_DIRS):
+# output directories
+$(LANG_DIR) $(GENERATOR_OUT_DIR):
 	$(V)mkdir --parents $@
 
-$(LNG_DIR)/%.lng: $(PLNG_DIR)/%.plng | $(OUTPUT_DIRS)
-	@echo "-- Processing $<..."
+# language files
+$(LANG_DIR)/%.lng: $(PLNG_DIR)/%.plng | $(LANG_DIR)
+	@echo "-- Processing lang $^..."
 	$(V)gcc $(GCC_FLAGS) -o $@ $^
 
-$(PROJECT_NML): $(PROJECT_PNML) $(PNML_FILES) $(LNG_FILES)
+# nml files
+%.nml: $(PNML_FILES)
 	@echo "-- Processing $<..."
 	$(V)gcc $(GCC_FLAGS) $(INC_DIRS) -o $@ $<
 
-$(PNML_GENERATED) &: $(TEMPLATE_FILES)
+$(PNML_GENERATED) &: $(GENERATOR_FILES) | $(GENERATOR_OUT_DIR)
 	@echo "-- Generating PNML..."
 	$(V)$(GENERATOR_CMD)
 
-$(PROJECT_GRF): $(PROJECT_NML)
-	@echo "-- Compile GRF..."
-	$(V)nmlc $(NMLC_FLAGS) --grf=$@ $^
-
-%.tar: $(BUNDLE_DIR) $(PROJECT_GRF) $(DOC_FILES)
-	@echo "-- Create bundle..."
-	$(V)cp $(PROJECT_GRF) $<
-	$(V)tar --create --file $@ --directory $< .
-
+# documentation
 $(DOC_FILES) &: $(DOC_FILES_SRC)
 	@echo "-- Create documentation..."
 	$(V)$(PYTHON) script/markdown_to_text.py ./README.md $(@D)/readme.txt
 	$(V)cp ./COPYING $(@D)/license.txt
 	$(V)cp ./changelog.txt $(@D)
+
+# grf
+%.grf: %.nml $(CUSTOM_TAGS) $(LANG_FILES)
+	@echo "-- Compile GRF..."
+	$(V)nmlc $(NMLC_FLAGS) --grf=$@ $<
+
+# bundle
+%.tar: %.grf $(DOC_FILES)
+	@echo "-- Create bundle..."
+	$(V)tar --create --file $@ --directory $(@D) $(^F)
