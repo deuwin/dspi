@@ -63,6 +63,11 @@ def main():
         exit(os.EX_OK)
 
     try:
+        if not args.output_directory.is_dir():
+            raise NotADirectoryError(
+                f'Output directory "{args.output_directory}" does not exist!'
+            )
+
         for file, generator in _OUTPUT_FILES.items():
             file_out = args.output_directory / file
             file_out.write_text(generator())
