@@ -1,5 +1,12 @@
 PROJECT := dspi
 
+# verbose toggle
+V = @
+
+# optional nmlc outputs
+# OPTIMISED_NML = 1
+# CREATE_NFO = 1
+
 # environment
 PYTHON := /usr/bin/env python3
 
@@ -52,12 +59,13 @@ INC_DIRS := \
 
 NMLC_FLAGS := \
 	--lang-dir="$(LANG_DIR)" \
-	--custom-tags="$(CUSTOM_TAGS)" \
-	--nml="$(OUTPUT_PREFIX)_optimised.nml" \
-	--nfo="$(OUTPUT_PREFIX).nfo"
-
-# verbose toggle
-V = @
+	--custom-tags="$(CUSTOM_TAGS)"
+ifdef OPTIMISED_NML
+NMLC_FLAGS += --nml="$(OUTPUT_PREFIX)_optimised.nml"
+endif
+ifdef CREATE_NFO
+NMLC_FLAGS += --nfo="$(OUTPUT_PREFIX).nfo"
+endif
 
 # keep intermediate files
 .PRECIOUS: %.nml %.pnml
