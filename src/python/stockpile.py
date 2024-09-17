@@ -15,7 +15,7 @@ def genIsStockpileFull():
         "    getbits(extra_callback_info2, 0, 8)\n"
         ") {\n"
         f"{cargo_cases}\n"
-        "}\n\n"
+        "}"
     )
 
 

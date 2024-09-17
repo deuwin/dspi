@@ -4,7 +4,7 @@ import os
 import argparse
 
 from industry import generateIndustryPnml
-from industry_functions import genIsStockpileFull
+from stockpile import genIsStockpileFull
 from cargotable import generateCargoTable
 
 
@@ -38,17 +38,10 @@ def parseArguments():
     return args
 
 
-def generateIndustryFile():
-    # functions shared by all industries
-    pnml = genIsStockpileFull()
-    # item blocks and functions particular to each industry
-    pnml += generateIndustryPnml()
-    return pnml
-
-
 _OUTPUT_FILES = {
     "cargotable.pnml": generateCargoTable,
-    "industry_items.pnml": generateIndustryFile,
+    "stockpile.pnml" : genIsStockpileFull,
+    "industry_items.pnml": generateIndustryPnml,
 }
 
 
