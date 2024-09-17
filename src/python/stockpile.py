@@ -19,6 +19,10 @@ def genIsStockpileFull():
     )
 
 
+def generate():
+    return genIsStockpileFull()
+
+
 def main():
     print(genIsStockpileFull())
 

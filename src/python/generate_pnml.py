@@ -2,10 +2,7 @@ from pathlib import Path
 import sys
 import os
 import argparse
-
-from industry import generateIndustryPnml
-from stockpile import genIsStockpileFull
-from cargotable import generateCargoTable
+import importlib
 
 
 def errorExit(error):
@@ -33,26 +30,7 @@ def parseArguments():
         help="List output files that would be generated but do not generate them",
         action="store_true",
     )
-    args = parser.parse_args()
-
-    return args
-
-
-_OUTPUT_FILES = {
-    "cargotable.pnml": generateCargoTable,
-    "stockpile.pnml" : genIsStockpileFull,
-    "industry_items.pnml": generateIndustryPnml,
-}
-
-
-def createHeader(output_directory):
-    header = ""
-    for file in _OUTPUT_FILES:
-        header += f'#include "{file}"\n'
-    try:
-        file_out = (output_directory / "header.pnml").write_text(header)
-    except OSError as err:
-        errorExit(err)
+    return  parser.parse_args()
 
 
 def addHeaderGuards(filename, text):
@@ -65,14 +43,24 @@ def addHeaderGuards(filename, text):
     )
 
 
+MODULES = [
+    "cargotable",
+    "stockpile",
+    "industry_items",
+]
+
 def main():
     args = parseArguments()
 
+    output_files = {}
+    for module in MODULES:
+        output_files[module + ".pnml"] = importlib.import_module(module)
+
     if args.list_files:
-        files = []
-        for file in list(_OUTPUT_FILES) + ["header.pnml"]:
-            files.append(str(args.output_directory / file))
-        print(" ".join(files))
+        filenames = []
+        for filename in list(output_files) + ["header.pnml"]:
+            filenames.append(str(args.output_directory / filename))
+        print(" ".join(filenames))
         exit(os.EX_OK)
 
     try:
@@ -81,13 +69,16 @@ def main():
                 f'Output directory "{args.output_directory}" does not exist!'
             )
 
-        for file, generator in _OUTPUT_FILES.items():
-            file_out = args.output_directory / file
-            file_out.write_text(addHeaderGuards(file, generator()))
+        header = ""
+        for filename, generator in output_files.items():
+            file = args.output_directory / filename
+            file.write_text(addHeaderGuards(filename, generator.generate()))
+            header += f'#include "{filename}"\n'
     except OSError as err:
         errorExit(err)
 
-    createHeader(args.output_directory)
+    # create header
+    (args.output_directory / "header.pnml").write_text(header)
 
     return os.EX_OK
 

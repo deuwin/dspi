@@ -18,7 +18,7 @@ class CargoTable(StrEnum):
 # fmt: on
 
 
-def generateCargoTable():
+def generate():
     cargoes = ", ".join([cargo for cargo in CargoTable])
     cargoes = "\n".join(
         textwrap.wrap(cargoes, initial_indent="    ", subsequent_indent="    ")
@@ -28,7 +28,7 @@ def generateCargoTable():
 
 
 def main(argv):
-    print(generateCargoTable())
+    print(generate())
 
 
 if __name__ == "__main__":

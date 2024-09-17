@@ -101,7 +101,7 @@ def getTemplate(name):
     return Template((TEMPLATE_DIR / (name + ".txt")).read_text())
 
 
-def generateIndustryPnml():
+def generate():
     pnml = ""
 
     secondary_template = getTemplate("secondary")
@@ -338,7 +338,7 @@ def genIndustryTiles(industry):
 
 
 def main(argv):
-    print(generateIndustryPnml())
+    print(generate())
 
 
 if __name__ == "__main__":
