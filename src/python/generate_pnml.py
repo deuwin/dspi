@@ -52,12 +52,32 @@ _OUTPUT_FILES = {
 }
 
 
+def createHeader(output_directory):
+    header = ""
+    for file in _OUTPUT_FILES:
+        header += f'#include "{file}"\n'
+    try:
+        file_out = (output_directory / "header.pnml").write_text(header)
+    except OSError as err:
+        errorExit(err)
+
+
+def addHeaderGuards(filename, text):
+    macro_name = "__GENERATED_" + filename.upper().replace(".", "_")
+    return (
+        f"#ifndef {macro_name}\n"
+        + f"#define {macro_name}\n\n"
+        + text
+        + f"\n\n#endif // {macro_name}"
+    )
+
+
 def main():
     args = parseArguments()
 
     if args.list_files:
         files = []
-        for file in _OUTPUT_FILES.keys():
+        for file in list(_OUTPUT_FILES) + ["header.pnml"]:
             files.append(str(args.output_directory / file))
         print(" ".join(files))
         exit(os.EX_OK)
@@ -70,9 +90,11 @@ def main():
 
         for file, generator in _OUTPUT_FILES.items():
             file_out = args.output_directory / file
-            file_out.write_text(generator())
+            file_out.write_text(addHeaderGuards(file, generator()))
     except OSError as err:
         errorExit(err)
+
+    createHeader(args.output_directory)
 
     return os.EX_OK
 
