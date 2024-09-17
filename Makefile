@@ -102,8 +102,8 @@ $(LANG_DIR) $(GENERATOR_OUT_DIR):
 
 # language files
 $(LANG_DIR)/%.lng: $(PLNG_DIR)/%.plng | $(LANG_DIR)
-	@echo "-- Processing lang $^..."
-	$(V)gcc $(GCC_FLAGS) -o $@ $^
+	@echo "-- Processing $^..."
+	$(V)$(PYTHON) scripts/plng_convert.py $^ $@
 
 # nml files
 %.nml: $(PNML_FILES)

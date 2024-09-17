@@ -1,2 +1,5 @@
 NAME   :dSPI
 VERSION:0.0.0
+
+# just eight non-breaking spaces
+TAB:\U00A0\U00A0\U00A0\U00A0\U00A0\U00A0\U00A0\U00A0

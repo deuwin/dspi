@@ -1,88 +1,73 @@
 ##grflangid 0x01
 
-# // this macro is for readability's sake, {} is still needed to make newlines
-# // in the displayed text
-#define JOIN_LINES(str) str
-
-#define _TAB_ {NBSP}{NBSP}{NBSP}{NBSP}
-
 STR_GRF_NAME:{NAME} v{VERSION}
 
-JOIN_LINES(
-    STR_GRF_DESCRIPTION:\
-        Description: {SILVER}{}
-        A vanilla industry set where input is stockpiled and cargo is created
-        at regular intervals. Keep a healthy stockpile and good level of
-        transported output to increase production with smooth economy style
-        changes.{}\
-        {}\
-        {BLACK}License: {SILVER}GPLv2 {COPYRIGHT} deuwin 2024{}\
-)
+STR_GRF_DESCRIPTION:
+    Description: {SILVER}{}
+    A vanilla industry set where input is stockpiled and cargo is created at
+    regular intervals. Keep a healthy stockpile and good level of transported
+    output to increase production with smooth economy style changes.{}
+    {}
+    {BLACK}License: {SILVER}GPLv2 {COPYRIGHT} deuwin 2024{}
 
 
-# /********************
-#  * Extra Text
-#  ********************/
+####################
+# Extra Text
+####################
 
-JOIN_LINES(STR_INDUSTRY_EXTRA_TEXT:
+STR_INDUSTRY_EXTRA_TEXT:
     Production capacity:{}
         {STRING}
-        _TAB_ {YELLOW}{UNSIGNED_WORD}%{BLACK} of maximum{}
+        {TAB}{YELLOW}{UNSIGNED_WORD}%{BLACK} of maximum{}
     {}
     Stockpile (average/required):{}
-        _TAB_ {STRING}: {UNSIGNED_WORD}/{UNSIGNED_WORD}
+        {TAB}{STRING}: {UNSIGNED_WORD}/{UNSIGNED_WORD}
     {STRING}
-)
 
-JOIN_LINES(STR_INDUSTRY_EXTRA_TEXT_STEEL_MILL:
+STR_INDUSTRY_EXTRA_TEXT_STEEL_MILL:
     Production capacity:{}
         {STRING}
-        _TAB_ {YELLOW}{UNSIGNED_WORD}%{BLACK} of maximum{}
+        {TAB}{YELLOW}{UNSIGNED_WORD}%{BLACK} of maximum{}
     {}
     Stockpile (average/required):{}
-        _TAB_ {STRING}: {UNSIGNED_WORD}/{UNSIGNED_WORD}{}
-        _TAB_ {STRING}: {UNSIGNED_WORD}/{UNSIGNED_WORD}
+        {TAB}{STRING}: {UNSIGNED_WORD}/{UNSIGNED_WORD}{}
+        {TAB}{STRING}: {UNSIGNED_WORD}/{UNSIGNED_WORD}
     {STRING}
-)
 
-JOIN_LINES(STR_INDUSTRY_EXTRA_TEXT_FACTORY:
+STR_INDUSTRY_EXTRA_TEXT_FACTORY:
     Production capacity:{}
         {STRING}
-        _TAB_ {YELLOW}{UNSIGNED_WORD}%{BLACK} of maximum{}
+        {TAB}{YELLOW}{UNSIGNED_WORD}%{BLACK} of maximum{}
     {}
     Stockpile:{}
-        _TAB_ {STRING}: {UNSIGNED_WORD}{}
-        _TAB_ {STRING}: {UNSIGNED_WORD}{}
-        _TAB_ {STRING}: {UNSIGNED_WORD}{}
-        _TAB_ Required: {UNSIGNED_WORD}
+        {TAB}{STRING}: {UNSIGNED_WORD}{}
+        {TAB}{STRING}: {UNSIGNED_WORD}{}
+        {TAB}{STRING}: {UNSIGNED_WORD}{}
+        {TAB}Required: {UNSIGNED_WORD}
     {STRING}
-)
 
-STR_POWER_STATUS_NONE:_TAB_{ORANGE}No power!{BLACK}{}
-STR_POWER_STATUS_LOW:_TAB_{YELLOW}Low power{BLACK}{}
+STR_POWER_STATUS_NONE:{TAB}{ORANGE}No power!{BLACK}{}
+STR_POWER_STATUS_LOW:{TAB}{YELLOW}Low power{BLACK}{}
 STR_EMPTY:
 
-JOIN_LINES(\
-    STR_PROD_BREAKDOWN:\
-        {}{}\
-        Production change breakdown:{}\
-            _TAB_ Stockpile impact: {SIGNED_WORD}%{}\
-            _TAB_ Transported impact: {SIGNED_WORD}%\
-)
+
+STR_PROD_BREAKDOWN:
+    {}{}
+    Production change breakdown:{}
+        {TAB}Stockpile impact: {SIGNED_WORD}%{}
+        {TAB}Transported impact: {SIGNED_WORD}%
 
 
-JOIN_LINES(
-    STR_INDUSTRY_EXTRA_TEXT_POWER_PLANT:
-        Production capacity:{}
-            _TAB_ {YELLOW}{UNSIGNED_WORD}%{BLACK} of maximum{}
-        {}
-        Grid status:{}
-            _TAB_ {STRING}{}
-        {}
-        Stockpile Average:{}
-            _TAB_ {STRING}: {UNSIGNED_WORD}{}
-            _TAB_ {STRING}: {UNSIGNED_WORD}
-)
+STR_INDUSTRY_EXTRA_TEXT_POWER_PLANT:
+    Production capacity:{}
+        {TAB}{YELLOW}{UNSIGNED_WORD}%{BLACK} of maximum{}
+    {}
+    Grid status:{}
+        {TAB}{STRING}{}
+    {}
+    Stockpile Average:{}
+        {TAB}{STRING}: {UNSIGNED_WORD}{}
+        {TAB}{STRING}: {UNSIGNED_WORD}
 
 STR_GRID_HEALTHY:{GREEN}Healthy{BLACK}
 STR_GRID_OVERLOADED:{YELLOW}Overloaded{BLACK}
@@ -90,19 +75,23 @@ STR_GRID_NO_POWER:{ORANGE}No power!{BLACK}
 STR_GRID_NO_DEMAND:{LTBLUE}No power demand{BLACK}
 
 
-# /********************
-#  * Parameters
-#  ********************/
+####################
+# Parameters
+####################
 
-STR_PARAM_PROD_BREAKDOWN_NAME: Show production change breakdown?
-STR_PARAM_PROD_BREAKDOWN_DESC: Display detailed information on the factors affecting production change.
+STR_PARAM_PROD_BREAKDOWN_NAME:
+    Show production change breakdown?
+STR_PARAM_PROD_BREAKDOWN_DESC:
+    Display detailed information on the factors affecting production change.
 
-STR_PARAM_POWER_REQUIRED_NAME: Secondary industries require power
-STR_PARAM_POWER_REQUIRED_DESC: If enabled secondary industries require power to produce cargo.
+STR_PARAM_POWER_REQUIRED_NAME:
+    Secondary industries require power
+STR_PARAM_POWER_REQUIRED_DESC:
+    If enabled secondary industries require power to produce cargo.
 
 
-# /********************
-#  * Errors
-#  ********************/
+####################
+#  Errors
+####################
 
 STR_ERROR_CLIMATE:{STRING} has only been tested with temperate climate!
