@@ -117,7 +117,7 @@ $(PNML_GENERATED) &: $(GENERATOR_FILES) | $(GENERATOR_OUT_DIR)
 # documentation
 $(DOC_FILES) &: $(DOC_FILES_SRC)
 	@echo "-- Create documentation..."
-	$(V)$(PYTHON) script/markdown_to_text.py ./README.md $(@D)/readme.txt
+	$(V)$(PYTHON) scripts/markdown_to_text.py ./README.md $(@D)/readme.txt
 	$(V)cp ./COPYING $(@D)/license.txt
 	$(V)cp ./changelog.txt $(@D)
 
