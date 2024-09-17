@@ -14,4 +14,20 @@
 #define divideCeil(numerator, denominator) \
     (((numerator) + (denominator) - 1) / (denominator))
 
+/* divideRoundUInt(numerator, denominator)
+ * Integer division with rounding.
+ * NOTE: Only for positive parameters!
+ */
+#define divideRoundUInt(numerator, denominator) \
+    (((numerator) + ((denominator) / 2)) / (denominator))
+
+/* divideRoundInt(numerator, denominator)
+ * Signed integer division with rounding. For details see:
+ * https://blog.pkh.me/p/36-figuring-out-round%2C-floor-and-ceil-with-integer-division.html
+ */
+#define divideRoundInt(numerator, denominator) \
+    (((numerator ^ denominator) < 0) \
+        ? ((numerator - (denominator / 2)) / denominator) \
+        : ((numerator + (denominator / 2)) / denominator))
+
 #endif // MATHS_PNML
