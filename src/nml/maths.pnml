@@ -14,30 +14,30 @@
  * https://blog.pkh.me/p/36-figuring-out-round%2C-floor-and-ceil-with-integer-division.html
  */
 
-/* divideCeilUInt(numerator, denominator)
+/* divideCeilUInt(dividend, divisor)
  * Round up integer division. NOTE: Only for positive parameters!
  */
-#define divideCeil(numerator, denominator) \
-    (((numerator) + (denominator) - 1) / (denominator))
+#define divideCeil(dividend, divisor) \
+    (((dividend) + (divisor) - 1) / (divisor))
 
 
 /* For the sake of completeness I'll note that for positive numbers standard
  * integer division is the same as a flooring function. */
 
 
-/* divideRoundUInt(numerator, denominator)
+/* divideRoundUInt(dividend, divisor)
  * Integer division with rounding. NOTE: Only for positive parameters!
  */
-#define divideRoundUInt(numerator, denominator) \
-    (((numerator) + ((denominator) / 2)) / (denominator))
+#define divideRoundUInt(dividend, divisor) \
+    (((dividend) + ((divisor) / 2)) / (divisor))
 
 
-/* divideRoundInt(numerator, denominator)
+/* divideRoundInt(dividend, divisor)
  * Signed integer division with rounding.
  */
-#define divideRoundInt(numerator, denominator) \
-    (((numerator ^ denominator) < 0) \
-        ? ((numerator - (denominator / 2)) / denominator) \
-        : ((numerator + (denominator / 2)) / denominator))
+#define divideRoundInt(dividend, divisor) \
+    (((dividend ^ divisor) < 0) \
+        ? ((dividend - (divisor / 2)) / divisor) \
+        : ((dividend + (divisor / 2)) / divisor))
 
 #endif // MATHS_PNML
