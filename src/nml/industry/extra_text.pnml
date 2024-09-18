@@ -74,7 +74,7 @@ switch(FEAT_INDUSTRIES, SELF, genExtraText, cargo_name, [
         getStockpileAverage(0),
         257),
     setProductionBreakdownHalfStart(
-        THREE_MONTH_PROD_TICKS * GET_PERM(PRODUCTION_RATE),
+        STOCKPILE_REQUIRED,
         258)
 ]) {
     return string(STR_INDUSTRY_EXTRA_TEXT);
@@ -87,12 +87,12 @@ switch(FEAT_INDUSTRIES, SELF, steel_mill_genExtraText, [
         getStockpileAverage(0),
         257),
     setDword(
-        THREE_MONTH_PROD_TICKS * GET_PERM(PRODUCTION_RATE),
+        STOCKPILE_REQUIRED,
         TTD_STR_CARGO_PLURAL_COAL,
         258),
     setDword(
         getStockpileAverage(1),
-        THREE_MONTH_PROD_TICKS * GET_PERM(PRODUCTION_RATE) / 2,
+        STOCKPILE_REQUIRED / 2,
         259),
     setProductionBreakdown(260)
 ]) {
@@ -114,7 +114,7 @@ switch(FEAT_INDUSTRIES, SELF, temperate_factory_genExtraText, [
         getStockpileAverage(2),
         259),
     setProductionBreakdownHalfStart(
-        THREE_MONTH_PROD_TICKS * GET_PERM(PRODUCTION_RATE),
+        STOCKPILE_REQUIRED,
         260)
 ]) {
     return string(STR_INDUSTRY_EXTRA_TEXT_FACTORY);
