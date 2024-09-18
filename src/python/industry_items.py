@@ -1,9 +1,8 @@
 from string import Template
-from pathlib import Path
 from functools import singledispatch
-import re
 
 from industry import INDUSTRIES, Sector
+from template_utils import getTemplate, getRatioString, cargoToPluralString
 
 
 def generate():
@@ -28,11 +27,6 @@ def generate():
     return pnml
 
 
-TEMPLATE_DIR = Path(__file__).parent / "templates"
-def getTemplate(name):
-    return Template((TEMPLATE_DIR / (name + ".txt")).read_text())
-
-
 # fmt: off
 def getTemplateMapping(industry):
     if industry.sector == Sector.Secondary:
@@ -47,7 +41,7 @@ def getTemplateMapping(industry):
             "output":            industry.output,
             "id":                industry.id,
             "cargo_types":       genCargoTypes(industry),
-            "extra_text":        genExtraText(industry),
+            "extra_text":        genExtraTextCall(industry),
         }
     else:
         return {
@@ -143,16 +137,6 @@ def genInputOutputRatio(industry):
     return indent([produce_str] + consume_limits, 1)
 
 
-def getRatioString(numerator, denominator):
-    ratio_str = ""
-    if numerator != denominator:
-        if numerator != 1:
-            ratio_str += f" * {numerator}"
-        if denominator != 1:
-            ratio_str += f" / {denominator}"
-    return ratio_str
-
-
 def genInputOutputPowerLimit(industry):
     if industry.ratio:
         produce_str = genRegisterPowerLimit("PRODUCE")
@@ -228,15 +212,7 @@ def genCargoTypes(industry):
     return accept_cargo + produce_cargo
 
 
-def cargoToPluralString(cargo):
-    # https://newgrf-specs.tt-wiki.net/wiki/NML:Default_TTD_strings
-    return (
-        "TTD_STR_CARGO_PLURAL_"
-        + "_".join(re.findall("[A-Z][a-z]+", cargo.name)).upper()
-    )
-
-
-def genExtraText(industry):
+def genExtraTextCall(industry):
     if len(industry.input) > 1:
         return f"{industry.name}_genExtraText()"
     else:

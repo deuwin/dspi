@@ -80,25 +80,6 @@ switch(FEAT_INDUSTRIES, SELF, genExtraText, cargo_name, [
     return string(STR_INDUSTRY_EXTRA_TEXT);
 }
 
-switch(FEAT_INDUSTRIES, SELF, steel_mill_genExtraText, [
-    setProductionCapacity(),
-    setDword(
-        TTD_STR_CARGO_PLURAL_IRON_ORE,
-        getStockpileAverage(0),
-        257),
-    setDword(
-        STOCKPILE_REQUIRED,
-        TTD_STR_CARGO_PLURAL_COAL,
-        258),
-    setDword(
-        getStockpileAverage(1),
-        STOCKPILE_REQUIRED / 2,
-        259),
-    setProductionBreakdown(260)
-]) {
-    return string(STR_INDUSTRY_EXTRA_TEXT_STEEL_MILL);
-}
-
 switch(FEAT_INDUSTRIES, SELF, temperate_factory_genExtraText, [
     setProductionCapacity(),
     setDword(

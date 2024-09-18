@@ -46,6 +46,7 @@ def addHeaderGuards(filename, text):
 MODULES = [
     "cargotable",
     "stockpile",
+    "extra_text",
     "industry_items",
 ]
 
