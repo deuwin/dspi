@@ -54,7 +54,7 @@ switch(FEAT_INDUSTRIES, SELF, updateStockpileAverage, idx, current,
     // cargo)
     (isValid(idx)) ? [
         setStockpile(idx,
-            getStockpileAverage(idx) + (current - getStockpileAverage(idx)) / SAMPLE_SIZE
+            (current + getStockpileAverage(idx) * (SAMPLE_SIZE - 1)) / SAMPLE_SIZE
         )
     ] : [
         (current > 0) ? [
