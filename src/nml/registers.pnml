@@ -75,11 +75,12 @@
 #define TEMP_POWER_STATUS       0x14
 #define TEMP_POWER_PCT          0x15
 #define TEMP_PROD_PCT           0x16
+#define TEMP_IND_COUNT          0x17
 
 // production
-#define TEMP_AVAILABLE_COAL     0x17
-#define TEMP_AVAILABLE_OIL_     0x18
-#define TEMP_AVAILABLE_TOTAL    0x19
+#define TEMP_AVAILABLE_COAL     0x18
+#define TEMP_AVAILABLE_OIL_     0x19
+#define TEMP_AVAILABLE_TOTAL    0x1A
 
 
 /***********************

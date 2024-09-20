@@ -10,13 +10,26 @@ switch(FEAT_INDUSTRIES, SELF, setDword, low_bits, high_bits, register, [
 ]) { return; }
 
 
-switch(FEAT_INDUSTRIES, SELF, setPowerStatus, power_pct, [
+switch(FEAT_INDUSTRIES, SELF, setPowerAvailableString, power_pct, [
     power_pct
 ]) {
     0:       SET_TEMP(POWER_STATUS, string(STR_POWER_STATUS_NONE));
     1..99:   SET_TEMP(POWER_STATUS, string(STR_POWER_STATUS_LOW));
     default: SET_TEMP(POWER_STATUS, string(STR_EMPTY));
 }
+
+switch(FEAT_INDUSTRIES, SELF, setPowerStatus, power_pct, [
+    // WARN: You can't use industry_town_count() directly must be stored and
+    // retrieved. Probably something to do with how using it trashes the
+    // contents of temporary storage registers 0x100 and 0x101.
+    SET_TEMP(IND_COUNT, industry_town_count(power_plant)),
+    (GET_TEMP(IND_COUNT) == 0) ? [
+        SET_TEMP(POWER_PCT, 0),
+        SET_TEMP(POWER_STATUS, string(STR_POWER_STATUS_NO_POWER_STATION))
+    ]:[
+        setPowerAvailableString(power_pct)
+    ],
+]) { return; }
 
 switch(FEAT_INDUSTRIES, SELF, setProductionCapacity, [
     (power_required == 1) ? [
