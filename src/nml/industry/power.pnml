@@ -66,7 +66,7 @@ switch(FEAT_INDUSTRIES, PARENT, adjustPowerSupplied, power_change, [
 
 /* setPowerSupplied(fuel_consumed) */
 switch(FEAT_INDUSTRIES, SELF, setPowerSupplied, fuel_consumed, [
-    SET_PERM(PRODUCTION_RATE, fuel_consumed),
+    SET_PERM(BURN_RATE, fuel_consumed),
     SET_TEMP(GENERATED_CHANGE,
         (fuel_consumed * SUPPLY_PER_FUEL) - GET_PERM(POWER_SUPPLY_PREV)
     ),

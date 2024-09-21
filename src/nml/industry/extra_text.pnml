@@ -127,13 +127,13 @@ switch(FEAT_INDUSTRIES, SELF, power_plant_genExtraText, [
         ? getGridStatus()
         : SET_TEMP(GRID_STATUS, string(STR_GRID_NO_DEMAND)),
 
-    SET_TEMP(PROD_PCT, GET_PERM(PRODUCTION_RATE) * 100 / PRODUCTION_MAX),
-    (GET_TEMP(PROD_PCT) == 0 && GET_PERM(PRODUCTION_RATE) != 0)
-        ? SET_TEMP(PROD_PCT, 1)
+    SET_TEMP(CAPACITY_PCT, GET_PERM(BURN_RATE) * 100 / BURN_RATE_MAX),
+    (GET_TEMP(CAPACITY_PCT) == 0 && GET_PERM(BURN_RATE) != 0)
+        ? SET_TEMP(CAPACITY_PCT, 1)
         : 0,
 
     setDword(
-        GET_TEMP(PROD_PCT),
+        GET_TEMP(CAPACITY_PCT),
         GET_TEMP(GRID_STATUS),
         256),
     setDword(
