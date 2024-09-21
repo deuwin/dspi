@@ -19,9 +19,9 @@ switch(FEAT_INDUSTRIES, SELF, setPowerAvailableString, power_pct, [
 }
 
 switch(FEAT_INDUSTRIES, SELF, setPowerStatus, power_pct, [
-    // WARN: You can't use industry_town_count() directly must be stored and
-    // retrieved. Probably something to do with how using it trashes the
-    // contents of temporary storage registers 0x100 and 0x101.
+    // WARN: You can't use industry_town_count() directly here. It must be
+    // stored and retrieved. Probably something to do with how using it trashes
+    // the contents of temporary storage registers 0x100 and 0x101.
     SET_TEMP(IND_COUNT, industry_town_count(power_plant)),
     (GET_TEMP(IND_COUNT) == 0) ? [
         SET_TEMP(POWER_PCT, 0),
@@ -128,6 +128,9 @@ switch(FEAT_INDUSTRIES, SELF, power_plant_genExtraText, [
         : SET_TEMP(GRID_STATUS, string(STR_GRID_NO_DEMAND)),
 
     SET_TEMP(CAPACITY_PCT, GET_PERM(BURN_RATE) * 100 / BURN_RATE_MAX),
+
+    // display a minimum of 1% production capacity if it would be rounded down
+    // to zero
     (GET_TEMP(CAPACITY_PCT) == 0 && GET_PERM(BURN_RATE) != 0)
         ? SET_TEMP(CAPACITY_PCT, 1)
         : 0,
