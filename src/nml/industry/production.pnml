@@ -5,6 +5,8 @@
 #define PRODUCTION_BASE 16
 #define PRODUCTION_MIN  5
 #define PRODUCTION_MAX  255
+#define BURN_RATE_MAX   127
+
 
 produce(noProduction, [], [])
 
@@ -24,7 +26,7 @@ produce(power_plant_produceBlock,
 #define AVAIL_NAME(name) AVAILABLE_##name
 #define SET_AVAILABLE(cargo) \
     SET_TEMP(AVAIL_NAME(cargo), \
-        min(incoming_cargo_waiting(#cargo), PRODUCTION_MAX) \
+        min(incoming_cargo_waiting(#cargo), BURN_RATE_MAX) \
     )
 
 switch(FEAT_INDUSTRIES, SELF, fixOvershoot, [
