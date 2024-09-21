@@ -49,9 +49,7 @@ switch(FEAT_INDUSTRIES, SELF, setPowerDemand,
 
 /* getFuelRequired() */
 switch(FEAT_INDUSTRIES, PARENT, getFuelRequired, [
-    ((GET_PERM(POWER_DEMAND_TOTAL) % SUPPLY_PER_FUEL) == 0)
-        ? GET_PERM(POWER_DEMAND_TOTAL) / SUPPLY_PER_FUEL
-        : GET_PERM(POWER_DEMAND_TOTAL) / SUPPLY_PER_FUEL + 1
+    divideCeil(GET_PERM(POWER_DEMAND_TOTAL), SUPPLY_PER_FUEL)
 ]) { return; }
 
 
