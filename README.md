@@ -11,12 +11,32 @@ will ramp up production allowing you to deliver more!
 
 
 ## Features
-  * Stockpiling secondary and tertiary industries (temperate only)
+  * Stockpiling secondary and tertiary industries
   * Smooth economy style production changes
-  * Power plant production tied to industry demand
+  * Power station consumption tied to industry demand
+  * Dual-fired power stations, coal and oil
   * Secondary industry power requirements (enabled via parameter)
+  * Iron ore and coal required to produce steel
 
-With hopefully more [to come](TODO.md)!
+With hopefully more [to come](TODO.md)! Temperate landscape only, for now at
+least.
+
+
+## Parameters
+**Secondary industries require power**  
+If enabled secondary industries require power to produce cargo.
+
+**Show production change breakdown**  
+Display detailed information on the factors affecting production change.
+
+
+## Recommended Settings
+The following settings are recommended when using dSPI:
+  * Economy type: Smooth
+  * No. of towns: Very Low
+
+This aligns primary industry production changes with other industries and allows
+power stations to cover as wide an area as possible.
 
 
 ## Acknowledgements

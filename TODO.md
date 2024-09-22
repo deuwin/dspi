@@ -8,7 +8,6 @@ this list will be subject to many changes.
 
 ## Medium Term
 * Fix Power Plant animation
-* Production rate changes based off cargo delivered per month, not stockpile?
 * Reimplement optional features from [BSPI.grf](https://www.tt-forums.net/viewtopic.php?t=84735)?
     * Valuables requirements to boost primary industries
     * Reserves for extractive industries
