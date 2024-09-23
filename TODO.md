@@ -5,9 +5,13 @@ this list will be subject to many changes.
 ## Short Term
 * Playtest production rate changes
 * Playtest power requirements
+* Unit conversion for displayed stockpile
+* Implement multiple power stations per town
 
 ## Medium Term
 * Fix Power Plant animation
+    * Re-enable chimney and sparking animation
+    * Stop animations if no fuel or demand
 * Reimplement optional features from [BSPI.grf](https://www.tt-forums.net/viewtopic.php?t=84735)?
     * Valuables requirements to boost primary industries
     * Reserves for extractive industries
@@ -17,7 +21,7 @@ this list will be subject to many changes.
     * act like a secondary industry
 
 ## Possible Ideas
-* Power Plant: No smokestack animation if no fuel?
+* Power Plant: Allow closure?
 * Power Plant: Base demand based on town population?
 * Temperate Farm: Make Grain and Livestock production rate the same?
 * Temperate Oil Wells: Remove IND_FLAG_NO_PRODUCTION_INCREASE?
