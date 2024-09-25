@@ -2,14 +2,65 @@
  * Extra Text
  ********************/
 
-switch(FEAT_INDUSTRIES, SELF, setDword, low_bits, high_bits, register, [
-    STORE_TEMP(
-        (low_bits & 0xFFFF) | (high_bits << 16),
-        register
-    )
+// NOTE: The REPEAT() define used in this file is a bit of macro abuse to avoid
+// tedious typing. Probably could've generated it with Python but this is kinda
+// fun. See repeat.pnml for implementation.
+
+/* Functions for temporary string parameter assignment and retrieval. These are
+ * required as NML does not allow you to load values from addresses >255.
+ */
+
+// number of available dwords for string parameters
+#define DWORD_NUMBER 6
+
+/* getTempParam(idx)
+ */
+#define CASE_GET_TEMP_STR_PARAM(idx, _) \
+    idx: LOAD_TEMP(TEMP_STR_PARAM + idx);
+switch(FEAT_INDUSTRIES, SELF, getTempParam, idx, [
+    idx
+]) {
+    REPEAT(DWORD_NUMBER, CASE_GET_TEMP_STR_PARAM, ~)
+    CB_FAILED;
+}
+
+/* setTempParam(low_bits, high_bits)
+ * Automatically increments the idx of the temporary stack "array". Should
+ * hopefully help to avoid any indexing errors.
+ */
+#define CASE_SET_TEMP_STR_PARAM(idx, _)          \
+    idx: STORE_TEMP(                             \
+        (low_bits & 0xFFFF) | (high_bits << 16), \
+        TEMP_STR_PARAM + idx                     \
+    );
+
+switch(FEAT_INDUSTRIES, SELF, setTempParam, low_bits, high_bits, [
+    // store increment for next call, but return unmodified for current call
+    INC_TEMP(STR_PARAM_IDX) - 1
+]) {
+    REPEAT(DWORD_NUMBER, CASE_SET_TEMP_STR_PARAM, ~)
+    CB_FAILED;
+}
+
+/* setTempParamHigh(high_bits)
+ */
+switch(FEAT_INDUSTRIES, SELF, setTempParamHigh, high_bits, [
+    DEC_TEMP(STR_PARAM_IDX),
+    setTempParam(getTempParam(GET_TEMP(STR_PARAM_IDX)), high_bits)
 ]) { return; }
 
+// set real string params
+#define STORE_STRING_PARAM(idx, _)       \
+    STORE_TEMP(                          \
+        LOAD_TEMP(TEMP_STR_PARAM + idx), \
+        256 + idx                        \
+    ),
+#define SET_STRING_PARAMETERS REPEAT(DWORD_NUMBER, STORE_STRING_PARAM, ~)
 
+
+//
+// Industry Power Status
+//
 switch(FEAT_INDUSTRIES, SELF, setPowerAvailableString, power_pct, [
     power_pct
 ]) {
@@ -31,6 +82,11 @@ switch(FEAT_INDUSTRIES, SELF, setPowerStatus, power_pct, [
     ],
 ]) { return; }
 
+
+//
+// Production Strings
+//
+/* setProductionCapacity() */
 switch(FEAT_INDUSTRIES, SELF, setProductionCapacity, [
     (power_required == 1) ? [
         SET_TEMP(POWER_PCT, getPowerSuppliedPct()),
@@ -39,77 +95,67 @@ switch(FEAT_INDUSTRIES, SELF, setProductionCapacity, [
         SET_TEMP(POWER_PCT, 100),
         SET_TEMP(POWER_STATUS, string(STR_EMPTY)),
     ],
-    setDword(
+    setTempParam(
         GET_TEMP(POWER_STATUS),
-        GET_PERM(PRODUCTION_RATE) * GET_TEMP(POWER_PCT) / PRODUCTION_MAX,
-        256),
+        GET_PERM(PRODUCTION_RATE) * GET_TEMP(POWER_PCT) / PRODUCTION_MAX)
 ]) { return; }
 
-switch(FEAT_INDUSTRIES, SELF, setProductionBreakdown, base_reg, [
+/* setProductionBreakdown(word_offset)
+ * If word_offset is 1, begin writing in the high bytes of the previous param
+ */
+switch(FEAT_INDUSTRIES, SELF, setProductionBreakdown, word_offset, [
     (show_prod_breakdown == 1) ? [
-        setDword(
-            string(STR_PROD_BREAKDOWN),
-            GET_PERM(IMPACT_STOCKPILE) * 100 / GET_PERM(PRODUCTION_RATE_PREV),
-            base_reg
-        ),
-        STORE_TEMP(
-            GET_PERM(IMPACT_TRANSPORTED) * 100 / GET_PERM(PRODUCTION_RATE_PREV),
-            base_reg + 1
-        )
+        (!word_offset) ? [
+            setTempParam(
+                string(STR_PROD_BREAKDOWN),
+                GET_PERM(IMPACT_STOCKPILE) * 100 / GET_PERM(PRODUCTION_RATE_PREV)
+            ),
+            setTempParam(
+                GET_PERM(IMPACT_TRANSPORTED) * 100 / GET_PERM(PRODUCTION_RATE_PREV),
+                0
+            )
+        ]:[
+            setTempParamHigh(
+                string(STR_PROD_BREAKDOWN)
+            ),
+            setTempParam(
+                GET_PERM(IMPACT_STOCKPILE) * 100 / GET_PERM(PRODUCTION_RATE_PREV),
+                GET_PERM(IMPACT_TRANSPORTED) * 100 / GET_PERM(PRODUCTION_RATE_PREV)
+            ),
+        ]
     ]:[0]
 ]) { return; }
 
-switch(FEAT_INDUSTRIES, SELF, setProductionBreakdownHalfStart,
-    low_bits,
-    base_reg,
-[
-    (show_prod_breakdown == 0) ? [
-        STORE_TEMP(
-            low_bits,
-            base_reg)
-    ]:[
-        setDword(
-            low_bits,
-            string(STR_PROD_BREAKDOWN),
-            base_reg),
-        setDword(
-            GET_PERM(IMPACT_STOCKPILE) * 100 / GET_PERM(PRODUCTION_RATE_PREV),
-            GET_PERM(IMPACT_TRANSPORTED) * 100 / GET_PERM(PRODUCTION_RATE_PREV),
-            base_reg + 1),
-    ]
-]) { return; }
 
-
+//
+// Extra Text
+//
 switch(FEAT_INDUSTRIES, SELF, genExtraText, cargo_name, [
     setProductionCapacity(),
-    setDword(
-        cargo_name,
-        getStockpileAverage(0),
-        257),
-    setProductionBreakdownHalfStart(
-        STOCKPILE_REQUIRED,
-        258)
+    setTempParam(cargo_name, getStockpileAverage(0)),
+    setTempParam(STOCKPILE_REQUIRED, 0),
+    setProductionBreakdown(1),
+    SET_STRING_PARAMETERS
 ]) {
     return string(STR_INDUSTRY_EXTRA_TEXT);
 }
 
 switch(FEAT_INDUSTRIES, SELF, temperate_factory_genExtraText, [
     setProductionCapacity(),
-    setDword(
+    setTempParam(
         TTD_STR_CARGO_PLURAL_LIVESTOCK,
-        getStockpileAverage(0),
-        257),
-    setDword(
+        getStockpileAverage(0)),
+    setTempParam(
         TTD_STR_CARGO_PLURAL_GRAIN,
-        getStockpileAverage(1),
-        258),
-    setDword(
+        getStockpileAverage(1)),
+    setTempParam(
         TTD_STR_CARGO_PLURAL_STEEL,
-        getStockpileAverage(2),
-        259),
-    setProductionBreakdownHalfStart(
+        getStockpileAverage(2)),
+    setTempParam(
         STOCKPILE_REQUIRED,
-        260)
+        0),
+    setProductionBreakdown(1),
+    SET_STRING_PARAMETERS
 ]) {
     return string(STR_INDUSTRY_EXTRA_TEXT_FACTORY);
 }
@@ -135,18 +181,16 @@ switch(FEAT_INDUSTRIES, SELF, power_plant_genExtraText, [
         ? SET_TEMP(CAPACITY_PCT, 1)
         : 0,
 
-    setDword(
+    setTempParam(
         GET_TEMP(CAPACITY_PCT),
-        GET_TEMP(GRID_STATUS),
-        256),
-    setDword(
+        GET_TEMP(GRID_STATUS)),
+    setTempParam(
         TTD_STR_CARGO_PLURAL_COAL,
-        GET_PERM(STOCKPILE_AVERAGE_0),
-        257),
-    setDword(
+        GET_PERM(STOCKPILE_AVERAGE_0)),
+    setTempParam(
         TTD_STR_CARGO_PLURAL_OIL,
-        GET_PERM(STOCKPILE_AVERAGE_1),
-        258),
+        GET_PERM(STOCKPILE_AVERAGE_1)),
+    SET_STRING_PARAMETERS
 ]) {
     return string(STR_INDUSTRY_EXTRA_TEXT_POWER_PLANT);
 }

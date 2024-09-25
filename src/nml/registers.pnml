@@ -77,11 +77,14 @@
 #define TEMP_POWER_PCT          0x15
 #define TEMP_CAPACITY_PCT       0x16
 #define TEMP_IND_COUNT          0x17
+#define TEMP_STR_PARAM_IDX      0x18
+#define TEMP_STR_PARAM          0x19
+// addresses 0x19 - 0x1E are reserved for TEMP_STR_PARAM array
 
 // production
-#define TEMP_AVAILABLE_COAL     0x18
-#define TEMP_AVAILABLE_OIL_     0x19
-#define TEMP_AVAILABLE_TOTAL    0x1A
+#define TEMP_AVAILABLE_COAL     0x1F
+#define TEMP_AVAILABLE_OIL_     0x20
+#define TEMP_AVAILABLE_TOTAL    0x21
 
 
 /***********************
@@ -95,5 +98,29 @@
 #define TEMP_NAME(name)       TEMP_##name
 #define GET_TEMP(name)        LOAD_TEMP(TEMP_NAME(name))
 #define SET_TEMP(name, value) STORE_TEMP(value, TEMP_NAME(name))
+
+// increment and decrement
+#define INC_PERM(name)                  \
+    STORE_PERM(                         \
+        LOAD_PERM(PERM_NAME(name)) + 1, \
+        PERM_NAME(name)                 \
+    )
+#define DEC_PERM(name)                  \
+    STORE_PERM(                         \
+        LOAD_PERM(PERM_NAME(name)) - 1, \
+        PERM_NAME(name)                 \
+    )
+
+#define INC_TEMP(name)                  \
+    STORE_TEMP(                         \
+        LOAD_TEMP(TEMP_NAME(name)) + 1, \
+        TEMP_NAME(name)                 \
+    )
+#define DEC_TEMP(name)                  \
+    STORE_TEMP(                         \
+        LOAD_TEMP(TEMP_NAME(name)) - 1, \
+        TEMP_NAME(name)                 \
+    )
+
 
 #endif // REGISTERS_PNML

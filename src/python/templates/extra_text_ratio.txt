@@ -1,18 +1,16 @@
 switch(FEAT_INDUSTRIES, SELF, ${name}_genExtraText, [
     setProductionCapacity(),
-    setDword(
+    setTempParam(
         ${cargo_name_0},
-        getStockpileAverage(0),
-        257),
-    setDword(
+        getStockpileAverage(0)),
+    setTempParam(
         STOCKPILE_REQUIRED${ratio_0},
-        ${cargo_name_1},
-        258),
-    setDword(
+        ${cargo_name_1}),
+    setTempParam(
         getStockpileAverage(1),
-        STOCKPILE_REQUIRED${ratio_1},
-        259),
-    setProductionBreakdown(260)
+        STOCKPILE_REQUIRED${ratio_1}),
+    setProductionBreakdown(0),
+    SET_STRING_PARAMETERS
 ]) {
     return string(STR_INDUSTRY_EXTRA_TEXT_RATIO);
 }
