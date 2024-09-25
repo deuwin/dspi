@@ -128,13 +128,56 @@ switch(FEAT_INDUSTRIES, SELF, setProductionBreakdown, word_offset, [
 
 
 //
+// Stockpile String
+//
+#define STOCKPILE_PCT(value) (value * 100 / STOCKPILE_LIMIT)
+
+switch(FEAT_INDUSTRIES, SELF, _setStockpileString,
+    cargo_name,
+    average,
+    required,
+    word_offset,
+[
+    (word_offset) ? [
+        setTempParamHigh(cargo_name),
+        setTempParam(STOCKPILE_PCT(average), STOCKPILE_PCT(required)),
+    ]:[
+        setTempParam(cargo_name, STOCKPILE_PCT(average)),
+        setTempParam(STOCKPILE_PCT(required), 0),
+    ]
+]) { return; }
+
+switch(FEAT_INDUSTRIES, SELF, setStockpileStringRatio,
+    cargo_name,
+    average,
+    required,
+    word_offset,
+[
+    _setStockpileString(cargo_name, average, required, word_offset)
+]) { return; }
+
+switch(FEAT_INDUSTRIES, SELF, setStockpileString,
+    cargo_name,
+    average,
+    word_offset,
+[
+    _setStockpileString(cargo_name, average, STOCKPILE_REQUIRED, word_offset)
+]) { return; }
+
+
+//
 // Extra Text
 //
 switch(FEAT_INDUSTRIES, SELF, genExtraText, cargo_name, [
     setProductionCapacity(),
-    setTempParam(cargo_name, getStockpileAverage(0)),
-    setTempParam(STOCKPILE_REQUIRED, 0),
+
+    setStockpileString(
+        cargo_name,
+        getStockpileAverage(0),
+        0),
+
     setProductionBreakdown(1),
+
     SET_STRING_PARAMETERS
 ]) {
     return string(STR_INDUSTRY_EXTRA_TEXT);
@@ -142,18 +185,20 @@ switch(FEAT_INDUSTRIES, SELF, genExtraText, cargo_name, [
 
 switch(FEAT_INDUSTRIES, SELF, temperate_factory_genExtraText, [
     setProductionCapacity(),
-    setTempParam(
+
+    setStockpileString(
         TTD_STR_CARGO_PLURAL_LIVESTOCK,
-        getStockpileAverage(0)),
-    setTempParam(
-        TTD_STR_CARGO_PLURAL_GRAIN,
-        getStockpileAverage(1)),
-    setTempParam(
-        TTD_STR_CARGO_PLURAL_STEEL,
-        getStockpileAverage(2)),
-    setTempParam(
-        STOCKPILE_REQUIRED,
+        getStockpileAverage(0),
         0),
+    setStockpileString(
+        TTD_STR_CARGO_PLURAL_GRAIN,
+        getStockpileAverage(1),
+        1),
+    setStockpileString(
+        TTD_STR_CARGO_PLURAL_STEEL,
+        getStockpileAverage(2),
+        0),
+
     setProductionBreakdown(1),
     SET_STRING_PARAMETERS
 ]) {

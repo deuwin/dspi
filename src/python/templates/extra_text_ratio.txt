@@ -1,14 +1,17 @@
 switch(FEAT_INDUSTRIES, SELF, ${name}_genExtraText, [
     setProductionCapacity(),
-    setTempParam(
+
+    setStockpileStringRatio(
         ${cargo_name_0},
-        getStockpileAverage(0)),
-    setTempParam(
+        getStockpileAverage(0),
         STOCKPILE_REQUIRED${ratio_0},
-        ${cargo_name_1}),
-    setTempParam(
+        0),
+    setStockpileStringRatio(
+        ${cargo_name_1},
         getStockpileAverage(1),
-        STOCKPILE_REQUIRED${ratio_1}),
+        STOCKPILE_REQUIRED${ratio_1},
+        1),
+
     setProductionBreakdown(0),
     SET_STRING_PARAMETERS
 ]) {
