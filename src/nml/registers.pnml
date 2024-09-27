@@ -91,13 +91,13 @@
  * Register Access
  ***********************/
 
-#define PERM_ADDR(name)       PERM_##name
-#define GET_PERM(name)        LOAD_PERM(PERM_ADDR(name))
-#define SET_PERM(name, value) STORE_PERM(value, PERM_ADDR(name))
+#define PERM_ADDR(name)          PERM_##name
+#define GET_PERM(name)           LOAD_PERM(PERM_ADDR(name))
+#define SET_PERM(name, value...) STORE_PERM(value, PERM_ADDR(name))
 
-#define TEMP_ADDR(name)       TEMP_##name
-#define GET_TEMP(name)        LOAD_TEMP(TEMP_ADDR(name))
-#define SET_TEMP(name, value) STORE_TEMP(value, TEMP_ADDR(name))
+#define TEMP_ADDR(name)          TEMP_##name
+#define GET_TEMP(name)           LOAD_TEMP(TEMP_ADDR(name))
+#define SET_TEMP(name, value...) STORE_TEMP(value, TEMP_ADDR(name))
 
 // increment and decrement
 #define INC_PERM(name)                  \
