@@ -23,19 +23,19 @@ switch(FEAT_INDUSTRIES, SELF, setStringParameters, [
 switch(FEAT_INDUSTRIES, SELF, setPowerAvailableString, power_pct, [
     power_pct
 ]) {
-    0:       SET_TEMP(POWER_STATUS, string(STR_POWER_STATUS_NONE));
-    1..99:   SET_TEMP(POWER_STATUS, string(STR_POWER_STATUS_LOW));
-    default: SET_TEMP(POWER_STATUS, string(STR_EMPTY));
+    0:       setTemp(POWER_STATUS, string(STR_POWER_STATUS_NONE));
+    1..99:   setTemp(POWER_STATUS, string(STR_POWER_STATUS_LOW));
+    default: setTemp(POWER_STATUS, string(STR_EMPTY));
 }
 
 switch(FEAT_INDUSTRIES, SELF, setPowerStatus, power_pct, [
     // WARN: You can't use industry_town_count() directly here. It must be
     // stored and retrieved. Probably something to do with how using it trashes
     // the contents of temporary storage registers 0x100 and 0x101.
-    SET_TEMP(IND_COUNT, industry_town_count(power_plant)),
-    (GET_TEMP(IND_COUNT) == 0) ? [
-        SET_TEMP(POWER_PCT, 0),
-        SET_TEMP(POWER_STATUS, string(STR_POWER_STATUS_NO_POWER_STATION))
+    setTemp(IND_COUNT, industry_town_count(power_plant)),
+    (getTemp(IND_COUNT) == 0) ? [
+        setTemp(POWER_PCT, 0),
+        setTemp(POWER_STATUS, string(STR_POWER_STATUS_NO_POWER_STATION))
     ]:[
         setPowerAvailableString(power_pct)
     ],
@@ -48,15 +48,15 @@ switch(FEAT_INDUSTRIES, SELF, setPowerStatus, power_pct, [
 /* setProductionCapacity() */
 switch(FEAT_INDUSTRIES, SELF, setProductionCapacity, [
     (power_required == 1) ? [
-        SET_TEMP(POWER_PCT, getPowerSuppliedPct()),
-        setPowerStatus(GET_TEMP(POWER_PCT))
+        setTemp(POWER_PCT, getPowerSuppliedPct()),
+        setPowerStatus(getTemp(POWER_PCT))
     ]:[
-        SET_TEMP(POWER_PCT, 100),
-        SET_TEMP(POWER_STATUS, string(STR_EMPTY)),
+        setTemp(POWER_PCT, 100),
+        setTemp(POWER_STATUS, string(STR_EMPTY)),
     ],
 
-    append(GET_TEMP(POWER_STATUS)),
-    append(GET_PERM(PRODUCTION_RATE) * GET_TEMP(POWER_PCT) / PRODUCTION_MAX)
+    append(getTemp(POWER_STATUS)),
+    append(getPerm(PRODUCTION_RATE) * getTemp(POWER_PCT) / PRODUCTION_MAX)
 ]) { return; }
 
 /* setProductionBreakdown()
@@ -65,10 +65,10 @@ switch(FEAT_INDUSTRIES, SELF, setProductionBreakdown, [
     (show_prod_breakdown == 1) ? [
         append(string(STR_PROD_BREAKDOWN)),
         append(
-            GET_PERM(IMPACT_STOCKPILE) * 100 / GET_PERM(PRODUCTION_RATE_PREV),
+            getPerm(IMPACT_STOCKPILE) * 100 / getPerm(PRODUCTION_RATE_PREV),
         ),
         append(
-            GET_PERM(IMPACT_TRANSPORTED) * 100 / GET_PERM(PRODUCTION_RATE_PREV)
+            getPerm(IMPACT_TRANSPORTED) * 100 / getPerm(PRODUCTION_RATE_PREV)
         ),
     ]:[0]
 ]) { return; }
@@ -149,32 +149,32 @@ switch(FEAT_INDUSTRIES, SELF, temperate_factory_genExtraText, [
 switch(FEAT_INDUSTRIES, SELF, getGridStatus, [
     getPowerSuppliedPct()
 ]) {
-    0:       SET_TEMP(GRID_STATUS, string(STR_GRID_NO_POWER));
-    1..99:   SET_TEMP(GRID_STATUS, string(STR_GRID_OVERLOADED));
-    default: SET_TEMP(GRID_STATUS, string(STR_GRID_HEALTHY));
+    0:       setTemp(GRID_STATUS, string(STR_GRID_NO_POWER));
+    1..99:   setTemp(GRID_STATUS, string(STR_GRID_OVERLOADED));
+    default: setTemp(GRID_STATUS, string(STR_GRID_HEALTHY));
 }
 
 switch(FEAT_INDUSTRIES, SELF, power_plant_genExtraText, [
     (hasPowerDemand())
         ? getGridStatus()
-        : SET_TEMP(GRID_STATUS, string(STR_GRID_NO_DEMAND)),
+        : setTemp(GRID_STATUS, string(STR_GRID_NO_DEMAND)),
 
-    SET_TEMP(CAPACITY_PCT, GET_PERM(BURN_RATE) * 100 / BURN_RATE_MAX),
+    setTemp(CAPACITY_PCT, getPerm(BURN_RATE) * 100 / BURN_RATE_MAX),
 
     // display a minimum of 1% production capacity if it would be rounded down
     // to zero
-    (GET_TEMP(CAPACITY_PCT) == 0 && GET_PERM(BURN_RATE) != 0)
-        ? SET_TEMP(CAPACITY_PCT, 1)
+    (getTemp(CAPACITY_PCT) == 0 && getPerm(BURN_RATE) != 0)
+        ? setTemp(CAPACITY_PCT, 1)
         : 0,
 
     clearArray(),
 
-    append(GET_TEMP(CAPACITY_PCT)),
-    append(GET_TEMP(GRID_STATUS)),
+    append(getTemp(CAPACITY_PCT)),
+    append(getTemp(GRID_STATUS)),
     append(TTD_STR_CARGO_PLURAL_COAL),
-    append(GET_PERM(STOCKPILE_AVERAGE_0)),
+    append(getPerm(STOCKPILE_AVERAGE_0)),
     append(TTD_STR_CARGO_PLURAL_OIL),
-    append(GET_PERM(STOCKPILE_AVERAGE_1)),
+    append(getPerm(STOCKPILE_AVERAGE_1)),
 
     setStringParameters()
 ]) {

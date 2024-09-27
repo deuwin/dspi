@@ -22,13 +22,13 @@
  * https://newgrf-specs.tt-wiki.net/wiki/NML:Switch
  */
 #define CASE_GET_ARRAY_VALUE(idx, _) \
-    idx: SET_TEMP(ARRAY_VALUE, LOAD_PERM(PERM_ARRAY + idx));
+    idx: setTemp(ARRAY_VALUE, LOAD_PERM(PERM_ARRAY + idx));
 switch(FEAT_INDUSTRIES, SELF, _getArrayValue, idx, [
     idx
 ]) {
     REPEAT(ARRAY_LEN_MAX, CASE_GET_ARRAY_VALUE, ~)
 }
-#define getArrayValue(idx) ((_getArrayValue(idx) & 0x0) + GET_TEMP(ARRAY_VALUE))
+#define getArrayValue(idx) ((_getArrayValue(idx) & 0x0) + getTemp(ARRAY_VALUE))
 
 
 /* setArrayValue(idx, value)
@@ -47,14 +47,14 @@ switch(FEAT_INDUSTRIES, SELF, setArrayValue, idx, value, [
 #define CASE_APPEND(idx, _) \
     idx: STORE_PERM(value, PERM_ARRAY + idx);
 switch(FEAT_INDUSTRIES, SELF, append, value, [
-    setArrayValue(GET_PERM(ARRAY_LEN), value),
-    INC_PERM(ARRAY_LEN),
+    setArrayValue(getPerm(ARRAY_LEN), value),
+    incPerm(ARRAY_LEN),
 ]) { return; }
 
 
 /* clearArray()
  */
 switch(FEAT_INDUSTRIES, SELF, clearArray, [
-    SET_PERM(ARRAY_LEN, 0),
+    setPerm(ARRAY_LEN, 0),
 ]) { return; }
 

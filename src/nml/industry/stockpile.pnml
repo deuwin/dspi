@@ -12,34 +12,34 @@
 switch(FEAT_INDUSTRIES, SELF, getStockpileAverage, idx, [
     idx
 ]) {
-    0: GET_PERM(STOCKPILE_AVERAGE_0);
-    1: GET_PERM(STOCKPILE_AVERAGE_1);
-    2: GET_PERM(STOCKPILE_AVERAGE_2);
+    0: getPerm(STOCKPILE_AVERAGE_0);
+    1: getPerm(STOCKPILE_AVERAGE_1);
+    2: getPerm(STOCKPILE_AVERAGE_2);
 }
 
 switch(FEAT_INDUSTRIES, SELF, setStockpile, idx, value, [
     idx
 ]) {
-    0: SET_PERM(STOCKPILE_AVERAGE_0, value);
-    1: SET_PERM(STOCKPILE_AVERAGE_1, value);
-    2: SET_PERM(STOCKPILE_AVERAGE_2, value);
+    0: setPerm(STOCKPILE_AVERAGE_0, value);
+    1: setPerm(STOCKPILE_AVERAGE_1, value);
+    2: setPerm(STOCKPILE_AVERAGE_2, value);
 }
 
 
 switch(FEAT_INDUSTRIES, SELF, isValid, idx, [
     idx
 ]) {
-    0: GET_PERM(STOCKPILE_VALID_0);
-    1: GET_PERM(STOCKPILE_VALID_1);
-    2: GET_PERM(STOCKPILE_VALID_2);
+    0: getPerm(STOCKPILE_VALID_0);
+    1: getPerm(STOCKPILE_VALID_1);
+    2: getPerm(STOCKPILE_VALID_2);
 }
 
 switch(FEAT_INDUSTRIES, SELF, setValid, idx, [
     idx
 ]) {
-    0: SET_PERM(STOCKPILE_VALID_0, 1);
-    1: SET_PERM(STOCKPILE_VALID_1, 1);
-    2: SET_PERM(STOCKPILE_VALID_2, 1);
+    0: setPerm(STOCKPILE_VALID_0, 1);
+    1: setPerm(STOCKPILE_VALID_1, 1);
+    2: setPerm(STOCKPILE_VALID_2, 1);
 }
 
 

@@ -96,32 +96,32 @@
  * Register Access
  ***********************/
 
-#define PERM_ADDR(name)          PERM_##name
-#define GET_PERM(name)           LOAD_PERM(PERM_ADDR(name))
-#define SET_PERM(name, value...) STORE_PERM(value, PERM_ADDR(name))
+#define PERM_ADDR(name)         PERM_##name
+#define getPerm(name)           LOAD_PERM(PERM_ADDR(name))
+#define setPerm(name, value...) STORE_PERM(value, PERM_ADDR(name))
 
-#define TEMP_ADDR(name)          TEMP_##name
-#define GET_TEMP(name)           LOAD_TEMP(TEMP_ADDR(name))
-#define SET_TEMP(name, value...) STORE_TEMP(value, TEMP_ADDR(name))
+#define TEMP_ADDR(name)         TEMP_##name
+#define getTemp(name)           LOAD_TEMP(TEMP_ADDR(name))
+#define setTemp(name, value...) STORE_TEMP(value, TEMP_ADDR(name))
 
 // increment and decrement
-#define INC_PERM(name)                  \
+#define incPerm(name)                   \
     STORE_PERM(                         \
         LOAD_PERM(PERM_ADDR(name)) + 1, \
         PERM_ADDR(name)                 \
     )
-#define DEC_PERM(name)                  \
+#define decPerm(name)                   \
     STORE_PERM(                         \
         LOAD_PERM(PERM_ADDR(name)) - 1, \
         PERM_ADDR(name)                 \
     )
 
-#define INC_TEMP(name)                  \
+#define incTemp(name)                   \
     STORE_TEMP(                         \
         LOAD_TEMP(TEMP_ADDR(name)) + 1, \
         TEMP_ADDR(name)                 \
     )
-#define DEC_TEMP(name)                  \
+#define decTemp(name)                   \
     STORE_TEMP(                         \
         LOAD_TEMP(TEMP_ADDR(name)) - 1, \
         TEMP_ADDR(name)                 \

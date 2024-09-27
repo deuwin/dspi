@@ -25,18 +25,18 @@
  * Temporary storage is uninitialised, must be set before use.
  * https://newgrf-specs.tt-wiki.net/wiki/Storages#Temporary_storage */
 switch(FEAT_INDUSTRIES, SELF, initRandom,
-    SET_TEMP(FIRST_BIT, 0)
+    setTemp(FIRST_BIT, 0)
 ) { return; }
 
 /* getRandomBits()
  * Convenience function to get random bits, so one does not need to remember to
  * bit shift extra_callback_info2. */
 switch(FEAT_INDUSTRIES, SELF, getRandomBits, [
-    SET_TEMP(RANDOM_NUMBER,
-        getbits(extra_callback_info2, GET_TEMP(FIRST_BIT), BIT_LEN)
+    setTemp(RANDOM_NUMBER,
+        getbits(extra_callback_info2, getTemp(FIRST_BIT), BIT_LEN)
     ),
-    SET_TEMP(FIRST_BIT, GET_TEMP(FIRST_BIT) + BIT_LEN),
-    GET_TEMP(RANDOM_NUMBER)
+    setTemp(FIRST_BIT, getTemp(FIRST_BIT) + BIT_LEN),
+    getTemp(RANDOM_NUMBER)
 ]) { return; }
 
 /* randomChance(n, d)

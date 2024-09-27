@@ -11,7 +11,7 @@
 
 /* adjustPowerDemand(demand_change) */
 switch(FEAT_INDUSTRIES, PARENT, adjustPowerDemand, demand_change, [
-    SET_PERM(POWER_DEMAND_TOTAL, GET_PERM(POWER_DEMAND_TOTAL) + demand_change)
+    setPerm(POWER_DEMAND_TOTAL, getPerm(POWER_DEMAND_TOTAL) + demand_change)
 ]) { return; }
 
 
@@ -22,70 +22,70 @@ switch(FEAT_INDUSTRIES, SELF, setPowerDemand,
     cargo_produced,
     max_possible,
 [
-    SET_TEMP(DEMAND_PRODUCED,
+    setTemp(DEMAND_PRODUCED,
         cargo_produced * DEMAND_PER_OUTPUT
     ),
     // idling capacity demands 10% of active production power
-    SET_TEMP(DEMAND_IDLE,
+    setTemp(DEMAND_IDLE,
         (max_possible - cargo_produced) * DEMAND_PER_OUTPUT / 10
     ),
 
-    SET_TEMP(DEMAND_CHANGE,
-        GET_TEMP(DEMAND_PRODUCED)
-        + GET_TEMP(DEMAND_IDLE)
-        - GET_PERM(POWER_DEMAND_PREV)
+    setTemp(DEMAND_CHANGE,
+        getTemp(DEMAND_PRODUCED)
+        + getTemp(DEMAND_IDLE)
+        - getPerm(POWER_DEMAND_PREV)
     ),
 
     // WARNING: For reasons probably best known to NFO wizards,
     // adjustPowerDemand() won't work if there isn't some sort of
     // STORE_PERM() command prior to it.
-    SET_PERM(POWER_DEMAND_PREV,
-        GET_TEMP(DEMAND_PRODUCED) + GET_TEMP(DEMAND_IDLE)
+    setPerm(POWER_DEMAND_PREV,
+        getTemp(DEMAND_PRODUCED) + getTemp(DEMAND_IDLE)
     ),
 
-    adjustPowerDemand(GET_TEMP(DEMAND_CHANGE))
+    adjustPowerDemand(getTemp(DEMAND_CHANGE))
 ]) { return; }
 
 
 /* getFuelRequired() */
 switch(FEAT_INDUSTRIES, PARENT, getFuelRequired, [
-    divideCeil(GET_PERM(POWER_DEMAND_TOTAL), SUPPLY_PER_FUEL)
+    divideCeil(getPerm(POWER_DEMAND_TOTAL), SUPPLY_PER_FUEL)
 ]) { return; }
 
 
 /* adjustPowerSupplied(power_change) */
 switch(FEAT_INDUSTRIES, PARENT, adjustPowerSupplied, power_change, [
-    SET_PERM(POWER_SUPPLY_TOTAL, GET_PERM(POWER_SUPPLY_TOTAL) + power_change),
-    SET_PERM(POWER_SUPPLY_PCT,
-        GET_PERM(POWER_SUPPLY_TOTAL) * 100 / GET_PERM(POWER_DEMAND_TOTAL)
+    setPerm(POWER_SUPPLY_TOTAL, getPerm(POWER_SUPPLY_TOTAL) + power_change),
+    setPerm(POWER_SUPPLY_PCT,
+        getPerm(POWER_SUPPLY_TOTAL) * 100 / getPerm(POWER_DEMAND_TOTAL)
     )
 ]) { return; }
 
 
 /* setPowerSupplied(fuel_consumed) */
 switch(FEAT_INDUSTRIES, SELF, setPowerSupplied, fuel_consumed, [
-    SET_PERM(BURN_RATE, fuel_consumed),
-    SET_TEMP(GENERATED_CHANGE,
-        (fuel_consumed * SUPPLY_PER_FUEL) - GET_PERM(POWER_SUPPLY_PREV)
+    setPerm(BURN_RATE, fuel_consumed),
+    setTemp(GENERATED_CHANGE,
+        (fuel_consumed * SUPPLY_PER_FUEL) - getPerm(POWER_SUPPLY_PREV)
     ),
-    SET_PERM(POWER_SUPPLY_PREV, fuel_consumed * SUPPLY_PER_FUEL),
+    setPerm(POWER_SUPPLY_PREV, fuel_consumed * SUPPLY_PER_FUEL),
 
     // NOTE: Similarly to setPowerDemand() passing variables between SELF and
-    // PARENT is very fussy. SET_TEMP() and SET_PERM() must be before this call
+    // PARENT is very fussy. setTemp() and setPerm() must be before this call
     // otherwise the change is not set correctly.
-    adjustPowerSupplied(GET_TEMP(GENERATED_CHANGE)),
+    adjustPowerSupplied(getTemp(GENERATED_CHANGE)),
 ]) { return; }
 
 
 /* getPowerSuppliedPct() */
 switch(FEAT_INDUSTRIES, PARENT, getPowerSuppliedPct, [
-    clamp(GET_PERM(POWER_SUPPLY_PCT), 0, 100)
+    clamp(getPerm(POWER_SUPPLY_PCT), 0, 100)
 ]) { return; }
 
 
 /* hasPowerDemand() */
 switch(FEAT_INDUSTRIES, PARENT, hasPowerDemand, [
-    GET_PERM(POWER_DEMAND_TOTAL) > 0
+    getPerm(POWER_DEMAND_TOTAL) > 0
 ]) { return; }
 
 #endif // POWER_PNML

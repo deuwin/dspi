@@ -68,11 +68,11 @@ def _(text: str, indent_level, start=1):
 def genProduceBlock(industry):
     consume = []
     for reg_idx, input in enumerate(industry.input):
-        consume.append(f"{input}: GET_TEMP(CONSUME_{reg_idx});")
+        consume.append(f"{input}: getTemp(CONSUME_{reg_idx});")
     consume = "\n" + indent(consume, 1, start=0) + "\n"
 
     if industry.output:
-        produce = f"\n    {industry.output}: GET_TEMP(PRODUCE);\n"
+        produce = f"\n    {industry.output}: getTemp(PRODUCE);\n"
     else:
         produce = ""
 
@@ -90,9 +90,9 @@ def genInputOutput(industry):
 
 def genInputOutputStandard(industry):
     consume_str = (
-        "SET_TEMP("
+        "setTemp("
             "CONSUME_{idx}, "
-            'min(incoming_cargo_waiting("{input}"), GET_PERM(PRODUCTION_RATE))'
+            'min(incoming_cargo_waiting("{input}"), getPerm(PRODUCTION_RATE))'
         "),"
     )
     consume_limits = []
@@ -104,21 +104,21 @@ def genInputOutputStandard(industry):
 
 
 def genProduceStringStandard(industry):
-    produce_str = "SET_TEMP(PRODUCE, "
+    produce_str = "setTemp(PRODUCE, "
     for idx in range(len(industry.input)):
-        produce_str += f"GET_TEMP(CONSUME_{idx}) + "
+        produce_str += f"getTemp(CONSUME_{idx}) + "
     return produce_str[:-3] + "),"
 
 
 CONSUME_STR_RATIO = (
-    "SET_TEMP("
+    "setTemp("
         "CONSUME_{idx}, "
-        "GET_TEMP(PRODUCE){ratio}"
+        "getTemp(PRODUCE){ratio}"
     "),"
 )
 
 def genInputOutputRatio(industry):
-    produce_str = "SET_TEMP(PRODUCE, min(GET_PERM(PRODUCTION_RATE), min("
+    produce_str = "setTemp(PRODUCE, min(getPerm(PRODUCTION_RATE), min("
     proportion_out = industry.ratio[-1]
     consume_limits = []
     for idx, input in enumerate(industry.input):
@@ -161,7 +161,7 @@ def genInputOutputPowerLimit(industry):
 
 
 def genOutputRateMax(industry):
-    output_rate_max = "GET_PERM(PRODUCTION_RATE)"
+    output_rate_max = "getPerm(PRODUCTION_RATE)"
     if len(industry.input) > 1 and not industry.ratio:
         output_rate_max += f" * {len(industry.input)}"
     return output_rate_max
@@ -169,8 +169,8 @@ def genOutputRateMax(industry):
 
 def genRegisterPowerLimit(register):
     return (
-        f"SET_TEMP({register}, "
-            f"GET_TEMP({register}) * getPowerSuppliedPct() / 100"
+        f"setTemp({register}, "
+            f"getTemp({register}) * getPowerSuppliedPct() / 100"
         "),"
     )
 

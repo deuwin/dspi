@@ -9,9 +9,9 @@
 
 switch(FEAT_INDUSTRIES, SELF, isAbandoned, cargo_produced, [
     (cargo_produced == 0)
-        ? INC_PERM(ABANDONMENT_PERIOD)
-        : SET_PERM(ABANDONMENT_PERIOD, 0),
-    GET_PERM(ABANDONMENT_PERIOD) > ABANDONMENT_THRESHOLD
+        ? incPerm(ABANDONMENT_PERIOD)
+        : setPerm(ABANDONMENT_PERIOD, 0),
+    getPerm(ABANDONMENT_PERIOD) > ABANDONMENT_THRESHOLD
 ]) {
     1: randomChance(1, CLOSURE_CHANCE);
     0;

@@ -10,8 +10,8 @@ switch(FEAT_INDUSTRIES, SELF, initPermanentStorage,
     production_rate,
     output_rate_max,
 [
-    SET_PERM(INDUSTRY_SECTOR, industry_sector),
-    SET_PERM(PRODUCTION_RATE, production_rate),
+    setPerm(INDUSTRY_SECTOR, industry_sector),
+    setPerm(PRODUCTION_RATE, production_rate),
     setPowerDemand(0, output_rate_max),
 
     // must not return 0

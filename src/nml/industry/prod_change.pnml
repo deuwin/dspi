@@ -4,14 +4,14 @@
 
 // Industries have 8 or 9 production ticks a month so we use 8.5 * 3 ≈ 26
 #define THREE_MONTH_PROD_TICKS 26
-#define STOCKPILE_REQUIRED     (THREE_MONTH_PROD_TICKS * GET_PERM(PRODUCTION_RATE))
+#define STOCKPILE_REQUIRED     (THREE_MONTH_PROD_TICKS * getPerm(PRODUCTION_RATE))
 
 
 /* setProductionRate()
  * Clamp and set production rate.
  */
 switch(FEAT_INDUSTRIES, SELF, setProductionRate, rate,
-    SET_PERM(PRODUCTION_RATE, clamp(rate, PRODUCTION_MIN, PRODUCTION_MAX))
+    setPerm(PRODUCTION_RATE, clamp(rate, PRODUCTION_MIN, PRODUCTION_MAX))
 ){ return; }
 
 
@@ -21,7 +21,7 @@ switch(FEAT_INDUSTRIES, SELF, setProductionRate, rate,
  */
 // TODO: Remove this?
 switch(FEAT_INDUSTRIES, SELF, setProductionLevel, [
-    STORE_TEMP((GET_PERM(PRODUCTION_RATE) / 2) << 16, 0x100)
+    STORE_TEMP((getPerm(PRODUCTION_RATE) / 2) << 16, 0x100)
 ]) {
     return CB_RESULT_IND_PROD_SET_BY_0x100;
 }
@@ -53,20 +53,20 @@ switch(FEAT_INDUSTRIES, SELF, updateProduction,
 [
     // calculate impact of stockpile level
     (IND_CONSUMES) ? [
-        SET_TEMP(DIFFERENCE,
-            (stockpile_average / THREE_MONTH_PROD_TICKS) - GET_PERM(PRODUCTION_RATE)
+        setTemp(DIFFERENCE,
+            (stockpile_average / THREE_MONTH_PROD_TICKS) - getPerm(PRODUCTION_RATE)
         ),
-        SET_TEMP(LIMIT,
-            divideRoundUInt(GET_PERM(PRODUCTION_RATE) * MAX_CHANGE_STOCKPILE_PCT, 100)
+        setTemp(LIMIT,
+            divideRoundUInt(getPerm(PRODUCTION_RATE) * MAX_CHANGE_STOCKPILE_PCT, 100)
         ),
-        SET_TEMP(STOCKPILE_CHANGE,
+        setTemp(STOCKPILE_CHANGE,
             clamp(
-                GET_TEMP(DIFFERENCE),
-                GET_TEMP(LIMIT) * -1,
-                GET_TEMP(LIMIT))
+                getTemp(DIFFERENCE),
+                getTemp(LIMIT) * -1,
+                getTemp(LIMIT))
         ),
     ] : [
-        SET_TEMP(STOCKPILE_CHANGE, 0)
+        setTemp(STOCKPILE_CHANGE, 0)
     ],
 
     // calculate impact of transported cargo
@@ -75,28 +75,28 @@ switch(FEAT_INDUSTRIES, SELF, updateProduction,
     #define PROD_3_PCT  10
     #define PROD_23_PCT 60
     (IND_PRODUCES) ? [
-        SET_TEMP(RANDOM_CHANGE,
-            max(1, randomRange(PROD_3_PCT, PROD_23_PCT) * GET_PERM(PRODUCTION_RATE) / PRODUCTION_MAX)
+        setTemp(RANDOM_CHANGE,
+            max(1, randomRange(PROD_3_PCT, PROD_23_PCT) * getPerm(PRODUCTION_RATE) / PRODUCTION_MAX)
         ),
-        SET_TEMP(CHANGE_DIRECTION,
+        setTemp(CHANGE_DIRECTION,
             chanceToIncrease(transported_pct) ? 1 : -1
         ),
-        SET_TEMP(TRANSPORTED_CHANGE,
-            GET_TEMP(RANDOM_CHANGE) * GET_TEMP(CHANGE_DIRECTION)
+        setTemp(TRANSPORTED_CHANGE,
+            getTemp(RANDOM_CHANGE) * getTemp(CHANGE_DIRECTION)
         ),
     ] : [
-        SET_TEMP(TRANSPORTED_CHANGE, 0)
+        setTemp(TRANSPORTED_CHANGE, 0)
     ],
 
     // store variables for detailed info
-    SET_PERM(PRODUCTION_RATE_PREV, GET_PERM(PRODUCTION_RATE)),
-    SET_PERM(IMPACT_STOCKPILE,     GET_TEMP(STOCKPILE_CHANGE)),
-    SET_PERM(IMPACT_TRANSPORTED,   GET_TEMP(TRANSPORTED_CHANGE)),
+    setPerm(PRODUCTION_RATE_PREV, getPerm(PRODUCTION_RATE)),
+    setPerm(IMPACT_STOCKPILE,     getTemp(STOCKPILE_CHANGE)),
+    setPerm(IMPACT_TRANSPORTED,   getTemp(TRANSPORTED_CHANGE)),
 
     setProductionRate(
-        GET_PERM(PRODUCTION_RATE)
-            + GET_TEMP(STOCKPILE_CHANGE)
-            + GET_TEMP(TRANSPORTED_CHANGE)
+        getPerm(PRODUCTION_RATE)
+            + getTemp(STOCKPILE_CHANGE)
+            + getTemp(TRANSPORTED_CHANGE)
     ),
     setProductionLevel()
 ]) { return; }
@@ -111,18 +111,18 @@ switch(FEAT_INDUSTRIES, SELF, meetsChangeRequirements,
     stockpile_average,
     transported_pct,
 [
-    (GET_PERM(CHANGE_REQ_MET)) ? [
+    (getPerm(CHANGE_REQ_MET)) ? [
         1
     ]:[
-        SET_TEMP(REQUIREMENTS_MET,
+        setTemp(REQUIREMENTS_MET,
             stockpile_average >= STOCKPILE_REQUIRED
         ),
         (IND_PRODUCES) ? [
-            SET_TEMP(REQUIREMENTS_MET,
-                GET_TEMP(REQUIREMENTS_MET) && (transported_pct >= TRANSPORTED_PCT_REQ)
+            setTemp(REQUIREMENTS_MET,
+                getTemp(REQUIREMENTS_MET) && (transported_pct >= TRANSPORTED_PCT_REQ)
             ),
         ]:[0],
-        SET_PERM(CHANGE_REQ_MET, GET_TEMP(REQUIREMENTS_MET))
+        setPerm(CHANGE_REQ_MET, getTemp(REQUIREMENTS_MET))
     ]
 ]) { return; }
 
