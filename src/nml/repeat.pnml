@@ -1,5 +1,5 @@
-#ifndef CONTROL_FLOW_PNML
-#define CONTROL_FLOW_PNML
+#ifndef REPEAT_PNML
+#define REPEAT_PNML
 
 // preprocessor abuse courtesy of:
 // https://github.com/pfultz2/Cloak/wiki/C-Preprocessor-tricks,-tips,-and-idioms
@@ -18,20 +18,6 @@
 #define EVAL3(...) EVAL4(EVAL4(EVAL4(__VA_ARGS__)))
 #define EVAL4(...) EVAL5(EVAL5(EVAL5(__VA_ARGS__)))
 #define EVAL5(...) __VA_ARGS__
-
-#define INC(x) PRIMITIVE_CAT(INC_, x)
-#define INC_0 1
-#define INC_1 2
-#define INC_2 3
-#define INC_3 4
-#define INC_4 5
-#define INC_5 6
-#define INC_6 7
-#define INC_7 8
-#define INC_8 9
-#define INC_9 10
-#define INC_10 11
-#define INC_11 12
 
 #define DEC(x) PRIMITIVE_CAT(DEC_, x)
 #define DEC_0  0
@@ -85,4 +71,4 @@
 #define REPEAT_INDIRECT() _REPEAT
 #define REPEAT(...)       EVAL(_REPEAT(__VA_ARGS__))
 
-#endif // CONTROL_FLOW_PNML
+#endif // REPEAT_PNML
