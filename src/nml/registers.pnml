@@ -27,6 +27,11 @@
 
 #define PERM_CHANGE_REQ_MET       0x13
 
+// Registers 0xC8 - 0x7F are reserved as a scratchpad. They store values that
+// would normally be set in temporary storage but fall out of scope.
+#define PERM_ARRAY_LEN            0xC8
+#define PERM_ARRAY                0xC9
+
 
 // town
 #define PERM_POWER_DEMAND_TOTAL   0x00
@@ -85,6 +90,9 @@
 #define TEMP_AVAILABLE_COAL     0x1F
 #define TEMP_AVAILABLE_OIL_     0x20
 #define TEMP_AVAILABLE_TOTAL    0x21
+
+// array
+#define TEMP_ARRAY_VALUE        0x1B
 
 
 /***********************

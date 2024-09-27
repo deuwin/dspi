@@ -1,0 +1,60 @@
+/********************
+ * Array
+ ********************/
+
+// Functions to manipulate sections of contiguous storage as if it was an array.
+// Obviously there's no dynamic allocation here, it's just a handy shorthand for
+// sequential register access instead of defining a bunch of addresses manually.
+
+// NOTE: The REPEAT() define used in this file is a bit of macro abuse to avoid
+// tedious typing. Probably could've generated it with Python but this is kinda
+// fun. See repeat.pnml for implementation.
+
+
+// array length is limited by the implementation of REPEAT(), although it can be
+// extended
+#define ARRAY_LEN_MAX 12
+
+
+/* getArrayValue(idx)
+ * Slight indirection here so we don't lose the top bits of the stored value
+ * since switches can only return 15 bits.
+ * https://newgrf-specs.tt-wiki.net/wiki/NML:Switch
+ */
+#define CASE_GET_ARRAY_VALUE(idx, _) \
+    idx: SET_TEMP(ARRAY_VALUE, LOAD_PERM(PERM_ARRAY + idx));
+switch(FEAT_INDUSTRIES, SELF, _getArrayValue, idx, [
+    idx
+]) {
+    REPEAT(ARRAY_LEN_MAX, CASE_GET_ARRAY_VALUE, ~)
+}
+#define getArrayValue(idx) ((_getArrayValue(idx) & 0x0) + GET_TEMP(ARRAY_VALUE))
+
+
+/* setArrayValue(idx, value)
+ */
+#define CASE_SET_ARRAY_VALUE(idx, _) \
+    idx: STORE_PERM(value, PERM_ARRAY + idx);
+switch(FEAT_INDUSTRIES, SELF, setArrayValue, idx, value, [
+    idx
+]) {
+    REPEAT(ARRAY_LEN_MAX, CASE_SET_ARRAY_VALUE, ~)
+}
+
+
+/* append(value)
+ */
+#define CASE_APPEND(idx, _) \
+    idx: STORE_PERM(value, PERM_ARRAY + idx);
+switch(FEAT_INDUSTRIES, SELF, append, value, [
+    setArrayValue(GET_PERM(ARRAY_LEN), value),
+    INC_PERM(ARRAY_LEN),
+]) { return; }
+
+
+/* clearArray()
+ */
+switch(FEAT_INDUSTRIES, SELF, clearArray, [
+    SET_PERM(ARRAY_LEN, 0),
+]) { return; }
+
