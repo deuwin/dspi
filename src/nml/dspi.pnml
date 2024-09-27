@@ -37,5 +37,6 @@ power_required = param[1];
 #include "maths.pnml"
 #include "random.pnml"
 #include "repeat.pnml"
+#include "array.pnml"
 #include "industry/industry.pnml"
 #include "generated/header.pnml"
