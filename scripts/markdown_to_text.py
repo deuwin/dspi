@@ -27,7 +27,10 @@ def parseArguments():
 
 class Heading:
     def __init__(self, label, level):
-        self.label = label
+        if type(label) is list:
+            self.label = " ".join(label)
+        else:
+            self.label = label
         match level:
             case 1:
                 self.sep = "="
@@ -82,7 +85,7 @@ def main(argv):
         if line:
             if line.startswith("#"):
                 split = line.split()
-                sections.append(Heading(split[1], len(split[0])))
+                sections.append(Heading(split[1:], len(split[0])))
             else:
                 paragraph.append(line)
         elif paragraph:
