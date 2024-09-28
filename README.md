@@ -26,9 +26,6 @@ least.
 **Secondary industries require power**  
 If enabled secondary industries require power to produce cargo.
 
-**Show production change breakdown**  
-Display detailed information on the factors affecting production change.
-
 
 ## Recommended Settings
 The following settings are recommended when using dSPI:
