@@ -6,16 +6,6 @@ grf {
     min_compatible_version: 4;
 
     param 0 {
-        prod_breakdown {
-            name:      string(STR_PARAM_PROD_BREAKDOWN_NAME);
-            desc:      string(STR_PARAM_PROD_BREAKDOWN_DESC);
-            type:      bool;
-            def_value: 0;
-            bit:       0;
-        }
-    }
-
-    param 1 {
         power_required {
             name:      string(STR_PARAM_POWER_REQUIRED_NAME);
             desc:      string(STR_PARAM_POWER_REQUIRED_DESC);
@@ -30,8 +20,7 @@ if (climate != CLIMATE_TEMPERATE) {
     error(FATAL, string(STR_ERROR_CLIMATE));
 }
 
-show_prod_breakdown = param[0];
-power_required = param[1];
+power_required = param[0];
 
 #include "registers.pnml"
 #include "maths.pnml"

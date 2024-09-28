@@ -12,8 +12,6 @@ switch(FEAT_INDUSTRIES, SELF, ${name}_genExtraText, [
         getStockpileAverage(1),
         STOCKPILE_REQUIRED${ratio_1}),
 
-    setProductionBreakdown(),
-
     setStringParameters()
 ]) {
     return string(STR_INDUSTRY_EXTRA_TEXT_RATIO);

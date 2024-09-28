@@ -22,7 +22,6 @@ STR_INDUSTRY_EXTRA_TEXT:
     {}
     Stockpile average (required):{}
         {TAB}{STRING}: {UNSIGNED_WORD}% ({UNSIGNED_WORD}%)
-    {STRING}
 
 STR_INDUSTRY_EXTRA_TEXT_RATIO:
     Production capacity:{}
@@ -32,7 +31,6 @@ STR_INDUSTRY_EXTRA_TEXT_RATIO:
     Stockpile average (required):{}
         {TAB}{STRING}: {UNSIGNED_WORD}% ({UNSIGNED_WORD}%){}
         {TAB}{STRING}: {UNSIGNED_WORD}% ({UNSIGNED_WORD}%)
-    {STRING}
 
 STR_INDUSTRY_EXTRA_TEXT_FACTORY:
     Production capacity:{}
@@ -43,19 +41,11 @@ STR_INDUSTRY_EXTRA_TEXT_FACTORY:
         {TAB}{STRING}: {UNSIGNED_WORD}% ({UNSIGNED_WORD}%){}
         {TAB}{STRING}: {UNSIGNED_WORD}% ({UNSIGNED_WORD}%){}
         {TAB}{STRING}: {UNSIGNED_WORD}% ({UNSIGNED_WORD}%)
-    {STRING}
 
 STR_POWER_STATUS_NO_POWER_STATION:{TAB}{RED}No power station!{BLACK}{}
 STR_POWER_STATUS_NONE:{TAB}{ORANGE}No power!{BLACK}{}
 STR_POWER_STATUS_LOW:{TAB}{YELLOW}Low power{BLACK}{}
 STR_EMPTY:
-
-
-STR_PROD_BREAKDOWN:
-    {}{}
-    Production change breakdown:{}
-        {TAB}Stockpile impact: {SIGNED_WORD}%{}
-        {TAB}Transported impact: {SIGNED_WORD}%
 
 
 STR_INDUSTRY_EXTRA_TEXT_POWER_PLANT:
@@ -78,11 +68,6 @@ STR_GRID_NO_DEMAND:{LTBLUE}No power demand{BLACK}
 ####################
 # Parameters
 ####################
-
-STR_PARAM_PROD_BREAKDOWN_NAME:
-    Show production change breakdown?
-STR_PARAM_PROD_BREAKDOWN_DESC:
-    Display detailed information on the factors affecting production change.
 
 STR_PARAM_POWER_REQUIRED_NAME:
     Secondary industries require power
