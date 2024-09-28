@@ -2,6 +2,7 @@ import sys
 import argparse
 import re
 import textwrap
+from enum import Enum, auto
 
 
 def parseArguments():
@@ -26,33 +27,40 @@ def parseArguments():
 
 
 class Heading:
-    def __init__(self, label, level):
+    def __init__(self, line):
+        (level, *label) = line.split()
         if type(label) is list:
             self.label = " ".join(label)
         else:
             self.label = label
-        match level:
-            case 1:
-                self.sep = "="
-            case 2:
-                self.sep = "-"
+        if len(level) == 1:
+            self.sep = "="
+        else:
+            self.sep = "-"
 
     def format(self):
-        return "\n" + self.label + "\n" + self.sep * len(self.label) + "\n"
+        return self.label + "\n" + self.sep * len(self.label) + "\n"
 
 
-class Paragraph:
-    def __init__(self, lines):
-        self.lines = lines
-        self.is_bullet = self._isBulletpointList()
+class Block:
+    def __init__(self, line):
+        self.lines = [line]
 
-    def _isBulletpointList(self):
-        for line in self.lines:
-            if line and line.lstrip()[0] == "*":
-                return True
-        else:
-            return False
+    def append(self, line):
+        self.lines.append(line)
 
+
+class Blank(Block):
+    def format(self):
+        return "\n" * len(self.lines)
+
+
+class BulletList(Block):
+    def format(self):
+        return "\n".join(self.lines) + "\n"
+
+
+class Paragraph(Block):
     def _stripUrls(self, line):
         match = re.search(r"(.*)\[(.*)\](\(.*\))(.*)", line)
         if not match:
@@ -65,12 +73,34 @@ class Paragraph:
         for idx, line in enumerate(self.lines):
             self.lines[idx] = self._stripUrls(line)
 
-        if self.is_bullet:
-            formatted = "\n".join(self.lines)
-        else:
-            formatted = textwrap.fill(" ".join(self.lines))
+        return textwrap.fill(" ".join(self.lines)) + "\n"
 
-        return formatted + "\n\n"
+
+# map line type to the class that formats the line
+class LineType(Enum):
+    Blank = Blank
+    Heading = Heading
+    BulletPoint = BulletList
+    Text = Paragraph
+
+
+class Line:
+    def __init__(self, line):
+        self.text = line
+        self.type = self._getLineType()
+
+    def _getLineType(self):
+        if len(self.text.strip()) == 0:
+            return LineType.Blank
+        elif self.text.startswith("#"):
+            return LineType.Heading
+        elif self.text.lstrip().startswith("*"):
+            return LineType.BulletPoint
+        else:
+            return LineType.Text
+
+    def newBlock(self):
+        return self.type.value(self.text)
 
 
 def main(argv):
@@ -79,25 +109,25 @@ def main(argv):
     with open(args.input) as input_file:
         input = input_file.read()
 
-    sections = []
-    paragraph = []
-    for line in input.splitlines():
-        if line:
-            if line.startswith("#"):
-                split = line.split()
-                sections.append(Heading(split[1:], len(split[0])))
-            else:
-                paragraph.append(line)
-        elif paragraph:
-            sections.append(Paragraph(paragraph))
-            paragraph = []
+    input_lines = input.splitlines()
+    line = Line(input_lines[0])
+    blocks = [line.newBlock()]
+    line_type_prev = line.type
+    for input_line in input_lines[1:]:
+        line = Line(input_line)
 
-    if paragraph:
-        sections.append(Paragraph(paragraph))
+        if line.type == LineType.Heading:
+            blocks.append(line.newBlock())
+        elif line.type == line_type_prev:
+            blocks[-1].append(line.text)
+        else:
+            blocks.append(line.newBlock())
+
+        line_type_prev = line.type
 
     output = ""
-    for section in sections:
-        output += section.format()
+    for block in blocks:
+        output += block.format()
     output = output.strip()
 
     with open(args.output, "w") as output_file:
