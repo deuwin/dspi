@@ -52,15 +52,19 @@ switch(FEAT_INDUSTRIES, SELF, power_plant_calcProduction, [
     ]:[
         setTemp(FUEL_REQUIRED, getFuelRequired()),
         setTemp(CONSUME_0,
-            divideCeil(
-                getTemp(AVAILABLE_COAL) * getTemp(FUEL_REQUIRED),
-                getTemp(AVAILABLE_TOTAL)
+            min(BURN_RATE_MAX,
+                divideCeil(
+                    getTemp(AVAILABLE_COAL) * getTemp(FUEL_REQUIRED),
+                    getTemp(AVAILABLE_TOTAL)
+                )
             )
         ),
         setTemp(CONSUME_1,
-            divideCeil(
-                getTemp(AVAILABLE_OIL_) * getTemp(FUEL_REQUIRED),
-                getTemp(AVAILABLE_TOTAL)
+            min(BURN_RATE_MAX,
+                divideCeil(
+                    getTemp(AVAILABLE_OIL_) * getTemp(FUEL_REQUIRED),
+                    getTemp(AVAILABLE_TOTAL)
+                )
             )
         )
     ],
