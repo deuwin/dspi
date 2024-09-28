@@ -154,9 +154,9 @@ switch(FEAT_INDUSTRIES, SELF, power_plant_genExtraText, [
     append(getTemp(CAPACITY_PCT)),
     append(getTemp(GRID_STATUS)),
     append(TTD_STR_CARGO_PLURAL_COAL),
-    append(getPerm(STOCKPILE_AVERAGE_0)),
+    append(STOCKPILE_PCT(getPerm(STOCKPILE_AVERAGE_0))),
     append(TTD_STR_CARGO_PLURAL_OIL),
-    append(getPerm(STOCKPILE_AVERAGE_1)),
+    append(STOCKPILE_PCT(getPerm(STOCKPILE_AVERAGE_1))),
 
     setStringParameters()
 ]) {
