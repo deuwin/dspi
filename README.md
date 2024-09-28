@@ -22,6 +22,12 @@ With hopefully more [to come](TODO.md)! Temperate landscape only, for now at
 least.
 
 
+## Screenshots
+![Factory showing stockpile requirements.](doc/img/ind_normal.png)
+![Power station with healthy grid status.](doc/img/grid_healthy.png)
+![Sawmill with no power.](doc/img/ind_no_power.png)
+
+
 ## Parameters
 **Secondary industries require power**  
 If enabled secondary industries require power to produce cargo.
