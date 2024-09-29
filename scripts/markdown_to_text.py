@@ -144,8 +144,22 @@ def main(argv):
         line_type_prev = line.type
 
     output = ""
+    skip_block = False
     for block in blocks:
+        # don't write out the screenshots section
+        try:
+            if block.label == "Screenshots":
+                skip_block = True
+            else:
+                skip_block = False
+        except:
+            pass
+
+        if skip_block:
+            continue
+
         output += block.format()
+
     output = output.strip()
 
     with open(args.output, "w") as output_file:
