@@ -52,12 +52,24 @@ class Block:
 
 class Blank(Block):
     def format(self):
-        return "\n" * len(self.lines)
+        return "\n"
 
 
 class BulletList(Block):
     def format(self):
         return "\n".join(self.lines) + "\n"
+
+
+class ItemList(Block):
+    def format(self):
+        name = "  - " + self.lines[0].strip("* ") + "\n"
+        definition = textwrap.fill(
+            " ".join(self.lines[1:]),
+            initial_indent="      ",
+            subsequent_indent="      ",
+        )
+
+        return name + definition + "\n"
 
 
 class Paragraph(Block):
@@ -83,6 +95,7 @@ class LineType(Enum):
     Blank = Blank
     Heading = Heading
     BulletPoint = BulletList
+    ItemName = ItemList
     Text = Paragraph
 
 
@@ -96,6 +109,8 @@ class Line:
             return LineType.Blank
         elif self.text.startswith("#"):
             return LineType.Heading
+        elif self.text.startswith("**") and self.text.endswith("**  "):
+            return LineType.ItemName
         elif self.text.lstrip().startswith("*"):
             return LineType.BulletPoint
         else:
@@ -115,12 +130,13 @@ def main(argv):
     line = Line(input_lines[0])
     blocks = [line.newBlock()]
     line_type_prev = line.type
+    always_new = set([LineType.Heading, LineType.Blank])
     for input_line in input_lines[1:]:
         line = Line(input_line)
 
-        if line.type == LineType.Heading:
+        if always_new.intersection([line.type, line_type_prev]):
             blocks.append(line.newBlock())
-        elif line.type == line_type_prev:
+        elif line.type in [line_type_prev, LineType.Text]:
             blocks[-1].append(line.text)
         else:
             blocks.append(line.newBlock())
