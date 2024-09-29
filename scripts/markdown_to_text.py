@@ -61,17 +61,19 @@ class BulletList(Block):
 
 
 class Paragraph(Block):
-    def _stripUrls(self, line):
-        match = re.search(r"(.*)\[(.*)\](\(.*\))(.*)", line)
-        if not match:
-            return line
-        else:
-            return match.group(1) + match.group(2) + match.group(4)
+    link = re.compile(r"\[(.*?)\](\(.*?\))")
+    comment = re.compile(r"<!--.*?-->")
+
+    def _getLinkText(self, match):
+        return match.group(1)
 
     def format(self):
-        # strip URLs since one cannot interact with them via the in-game reader
         for idx, line in enumerate(self.lines):
-            self.lines[idx] = self._stripUrls(line)
+            # replace links
+            line = re.sub(self.link, self._getLinkText, line)
+            # strip comments
+            line = re.sub(self.comment, "", line)
+            self.lines[idx] = line
 
         return textwrap.fill(" ".join(self.lines)) + "\n"
 
