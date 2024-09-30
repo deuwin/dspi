@@ -2,9 +2,9 @@
 
 dSPI is a vanilla industry stockpiling NewGRF for OpenTTD.
 
-Industries are altered so that cargo is produced periodically by drawing on
-their input stockpile. If you fill up the stockpile, the industry will refuse
-delivery and you won't get paid!
+Industries are changed so that cargo is produced regularly by drawing on their
+input stockpile. If you fill up the stockpile, the industry will refuse delivery
+and you won't get paid!
 
 However, industries with a healthy stockpile and good level of transported cargo
 will ramp up production allowing you to deliver more!
