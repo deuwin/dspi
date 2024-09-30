@@ -10,6 +10,7 @@ STR_GRF_DESCRIPTION:
     {}
     {BLACK}License: {SILVER}GPLv2 {COPYRIGHT} deuwin 2024{}
 
+STR_GRF_URL:https://github.com/deuwin/dspi
 
 ####################
 # Extra Text
