@@ -95,8 +95,8 @@ switch(FEAT_INDUSTRIES, SELF, updateProduction,
 
     setProductionRate(
         getPerm(PRODUCTION_RATE)
-            + getTemp(STOCKPILE_CHANGE)
-            + getTemp(TRANSPORTED_CHANGE)
+        + getTemp(STOCKPILE_CHANGE)
+        + getTemp(TRANSPORTED_CHANGE)
     ),
     setProductionLevel()
 ]) { return; }
