@@ -1,5 +1,9 @@
+v0.1.0 (2024-09-30)
+------------------------------------------------------------------------
+First release!
 
-v0.0.0
+
+v0.0.0 (Unreleased)
 ------------------------------------------------------------------------
 Initial development.
 
@@ -7,5 +11,8 @@ Initial development.
   * Secondary industry production rate tied to stockpile level and cargo
     transported with smooth economy style changes
   * Calculate running average of stockpile level
-  * Power plant production tied to industry power demand
+  * Iron ore and coal required to produce steel
   * Secondary industry power requirements, controlled by parameter
+  * Dual-fired power stations
+  * Power station production tied to industry power demand
+  * Power supply and grid status messages
