@@ -11,7 +11,10 @@ this list will be subject to many changes.
 * Fix Power Plant animation
     * Re-enable chimney and sparking animation
     * Stop animations if no fuel or demand
-* Reimplement optional features from [BSPI.grf](https://www.tt-forums.net/viewtopic.php?t=84735)?
+* Production Change:
+    * Limit to once every 12 months?
+    * Occurs at least once every 60 months?
+* Reimplement optional features from [BSPI]?
     * Valuables requirements to boost primary industries
     * Reserves for extractive industries
     * Fertility for organic industries
@@ -31,4 +34,5 @@ this list will be subject to many changes.
 * Parameter for production change frequency?
     * Standard, Keen, or Zealous/Intense/Fervid
 
+[BSPI]: https://www.tt-forums.net/viewtopic.php?t=84735?
 
