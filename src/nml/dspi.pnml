@@ -2,8 +2,8 @@ grf {
     grfid: "de\01\01";
     name: string(STR_GRF_NAME);
     desc: string(STR_GRF_DESCRIPTION);
-    version: 4;
-    min_compatible_version: 4;
+    version: 5;
+    min_compatible_version: 5;
 
     param 0 {
         power_required {
