@@ -1,0 +1,30 @@
+/********************
+ * Sprite Layout
+ ********************/
+
+/* Power Plant
+ * Only need to specify the chimney tile, the rest take their sprites from the
+ * base graphics.
+ */
+spritelayout power_plant_chimney {
+    childsprite {
+        // bare ground
+        // https://github.com/OpenTTD/OpenGFX/blob/7.1/sprites/base/base-3924-terrain.pnml#L3
+        sprite: 3924;
+    }
+    building {
+        // default power plant sprites are defined here:
+        // https://github.com/OpenTTD/OpenGFX/blob/7.1/sprites/base/base-2011-industries.pnml#L46
+        sprite: 2050;
+    }
+    building {
+        // smoke animation starts at sprite 3701
+        // https://github.com/OpenTTD/OpenGFX/blob/7.1/sprites/base/base-3701-smoke-explosion.pnml
+        sprite:  3701 + (animation_frame % 8);
+        xoffset: 5;
+        yoffset: 2;
+        zoffset: 39;
+    }
+}
+
+

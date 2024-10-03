@@ -47,6 +47,30 @@ class IndustryTile:
     default:    str = None
 
 
+# specific industry tile definitions
+def getPowerPlantTiles():
+    return [
+        # cooling tower
+        IndustryTile(7),
+        # chimney
+        IndustryTile(
+            id         = 8,
+            info       = "[ANIMATION_LOOPING, 7]",
+            speed      = 3,
+            next_frame = "CB_RESULT_NEXT_FRAME",
+            default    = "power_plant_chimney",
+        ),
+        # small building
+        IndustryTile(9),
+        # substation
+        IndustryTile(
+            id    = 10,
+            info  = "[ANIMATION_LOOPING, 128]",
+            speed = 2,
+        ),
+    ]
+
+
 @dataclass(frozen=True)
 class Industry:
     """
@@ -148,7 +172,7 @@ INDUSTRIES = [
             Cargo.Oil,
         ],
         output = None,
-        tiles  = getBasicIndustryTiles(7, 10),
+        tiles  = getPowerPlantTiles(),
     ),
 ]
 # fmt: on

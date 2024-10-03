@@ -225,9 +225,36 @@ def genIndustryTiles(industry):
 
     tile_items = ""
     tile_template = getTemplate("industry_tile")
-    for idx, tile_id in enumerate(industry.tiles):
+    for idx, tile in enumerate(industry.tiles):
+        animation_props = []
+        if tile.info:
+            animation_props.append(f"animation_info: {tile.info};")
+        if tile.speed:
+            animation_props.append(f"animation_speed: {tile.speed};")
+        if tile.triggers:
+            animation_props.append(f"animation_triggers: bitmask({', '.join(tile.triggers)});")
+        animation_props = indent(animation_props, 2)
+
+        callbacks = []
+        if tile.control:
+            callbacks.append(f"anim_control: {tile.control};")
+        if tile.next_frame:
+            callbacks.append(f"anim_next_frame: {tile.next_frame};")
+        if tile.default:
+            callbacks.append(f"{tile.default};")
+        callbacks = indent(callbacks, 1, start=0)
+
+        if callbacks:
+            graphics_block = indent("graphics {\n" + callbacks + "\n}", 1)
+        else:
+            graphics_block = ""
+
         tile_items += tile_template.substitute(
-            name=industry.name, idx=idx, tile_id=tile_id
+            name=industry.name,
+            idx=idx,
+            tile_id=tile.id,
+            animation_props=animation_props,
+            graphics_block=graphics_block,
         )
 
     return tile_items

@@ -24,3 +24,4 @@
 #include "prod_change.pnml"
 #include "extra_text.pnml"
 #include "init.pnml"
+#include "spritelayout.pnml"

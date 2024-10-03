@@ -3,6 +3,8 @@ item(FEAT_INDUSTRYTILES, ${name}_tile_${idx}) {
         substitute:    $tile_id;
         override:      $tile_id;
         special_flags: bitmask(INDTILE_FLAG_ACCEPT_ALL);
+        $animation_props
     }
+    $graphics_block
 }
 
