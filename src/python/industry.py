@@ -1,4 +1,4 @@
-from enum import IntEnum, unique
+from enum import Flag, unique
 from dataclasses import dataclass, InitVar, field
 from typing import Optional
 
@@ -7,7 +7,7 @@ from cargotable import CargoTable as Cargo
 
 # fmt: off
 @unique
-class Sector(IntEnum):
+class Sector(Flag):
     # matches the definition in industry.pnml, if that ever becomes relevant
     Primary   = 0x01
     Secondary = 0x03
