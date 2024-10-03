@@ -11,6 +11,7 @@ this list will be subject to many changes.
 * Fix Power Plant animation
     * Re-enable chimney and sparking animation
     * Stop animations if no fuel or demand
+    * Continuous sparking if overloaded
 * Production Change:
     * Limit to once every 12 months?
     * Occurs at least once every 60 months?
