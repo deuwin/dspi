@@ -41,10 +41,10 @@ class Industry:
     tiles:  Optional[list[int]] = None
     ratio:  Optional[list[int]] = field(default=None)
 
-    def __post_init__(self, _input):
+    def __post_init__(self):
         # convert input if required
-        _input = [_input] if isinstance(_input, str) else _input
-        object.__setattr__(self, "input", _input)
+        input = [self.input] if isinstance(self.input, str) else self.input
+        object.__setattr__(self, "input", input)
 
         # validate ratio
         if self.ratio and len(self.ratio) != len(self.input) + 1:
@@ -66,43 +66,43 @@ class Industry:
 INDUSTRIES = [
     # secondary
     Industry(
-        "INDUSTRYTYPE_STEEL_MILL",
-        [
+        id     = "INDUSTRYTYPE_STEEL_MILL",
+        input  = [
             Cargo.IronOre,
             Cargo.Coal,
         ],
-        Cargo.Steel,
-        list(range(52, 58)),
-        [2, 1, 2],
+        output = Cargo.Steel,
+        tiles  = list(range(52, 58)),
+        ratio  = [2, 1, 2],
     ),
     Industry(
-        "INDUSTRYTYPE_SAWMILL",
-        Cargo.Wood,
-        Cargo.Goods,
+        id     = "INDUSTRYTYPE_SAWMILL",
+        input  = Cargo.Wood,
+        output = Cargo.Goods,
     ),
     Industry(
-        "INDUSTRYTYPE_TEMPERATE_FACTORY",
-        [
+        id     = "INDUSTRYTYPE_TEMPERATE_FACTORY",
+        input  = [
             Cargo.Livestock,
             Cargo.Grain,
             Cargo.Steel,
         ],
-        Cargo.Goods,
+        output = Cargo.Goods,
     ),
     Industry(
-        "INDUSTRYTYPE_OIL_REFINERY",
-        Cargo.Oil,
-        Cargo.Goods
+        id     = "INDUSTRYTYPE_OIL_REFINERY",
+        input  = Cargo.Oil,
+        output = Cargo.Goods
     ),
     # tertiary
     Industry(
-        "INDUSTRYTYPE_POWER_PLANT",
-        [
+        id     = "INDUSTRYTYPE_POWER_PLANT",
+        input  = [
             Cargo.Coal,
             Cargo.Oil,
         ],
-        None,
-        list(range(7, 11))
+        output = None,
+        tiles  = list(range(7, 11)),
     ),
 ]
 # fmt: on
