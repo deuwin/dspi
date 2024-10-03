@@ -28,5 +28,5 @@ power_required = param[0];
 #include "random.pnml"
 #include "repeat.pnml"
 #include "array.pnml"
-#include "industry/industry.pnml"
+#include "industry/header.pnml"
 #include "generated/header.pnml"
