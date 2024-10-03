@@ -54,20 +54,22 @@ def getPowerPlantTiles():
         IndustryTile(7),
         # chimney
         IndustryTile(
-            id         = 8,
-            info       = "[ANIMATION_LOOPING, 7]",
-            speed      = 3,
-            triggers   = ["ANIM_TRIGGER_INDTILE_CONSTRUCTION_STATE"],
-            next_frame = "CB_RESULT_NEXT_FRAME",
-            default    = "power_plant_getChimneyGraphics",
+            id       = 8,
+            info     = "[ANIMATION_LOOPING, 7]",
+            speed    = 3,
+            triggers = ["ANIM_TRIGGER_INDTILE_CONSTRUCTION_STATE"],
+            control  = "getRandomFirstFrame(7)",
+            default  = "power_plant_getChimneyGraphics",
         ),
         # small building
         IndustryTile(9),
         # substation
         IndustryTile(
-            id    = 10,
-            info  = "[ANIMATION_LOOPING, 128]",
-            speed = 2,
+            id       = 10,
+            info     = "[ANIMATION_LOOPING, 128]",
+            speed    = 2,
+            triggers = ["ANIM_TRIGGER_INDTILE_CONSTRUCTION_STATE"],
+            control  = "getRandomFirstFrame(128)",
         ),
     ]
 

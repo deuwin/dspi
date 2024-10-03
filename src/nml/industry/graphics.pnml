@@ -2,6 +2,14 @@
  * Sprite Layout
  ********************/
 
+
+switch(FEAT_INDUSTRYTILES, SELF, getRandomFirstFrame, animation_length, [
+    // abs is required since the random number in extra_callback_info1 may be
+    // interpreted as being negative
+    abs(extra_callback_info1 % animation_length)
+]) { return; }
+
+
 /* Power Plant
  * Only need to specify the chimney tile, the rest take their sprites from the
  * base graphics.
@@ -29,7 +37,7 @@ spritelayout power_plant_chimney {
     // smoke
     building {
         // animation_frame is a tile variable
-        sprite:  3701 + (animation_frame % 8);
+        sprite:  3701 + (animation_frame % 7);
         xoffset: 5;
         yoffset: 2;
         zoffset: 39;
