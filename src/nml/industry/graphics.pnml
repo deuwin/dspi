@@ -1,0 +1,75 @@
+/********************
+ * Sprite Layout
+ ********************/
+
+/* Power Plant
+ * Only need to specify the chimney tile, the rest take their sprites from the
+ * base graphics.
+ *
+ * Sprite Sources:
+ *   bare ground:
+ *     https://github.com/OpenTTD/OpenGFX/blob/7.1/sprites/base/base-3924-terrain.pnml#L3
+ *   power plant:
+ *     https://github.com/OpenTTD/OpenGFX/blob/7.1/sprites/base/base-2011-industries.pnml#L46
+ *   smoke:
+ *     animation starts at sprite 3701
+ *     https://github.com/OpenTTD/OpenGFX/blob/7.1/sprites/base/base-3701-smoke-explosion.pnml
+ */
+
+// finished state
+spritelayout power_plant_chimney {
+    // ground
+    childsprite {
+        sprite: 3924;
+    }
+    // chimney
+    building {
+        sprite: 2050;
+    }
+    // smoke
+    building {
+        // animation_frame is a tile variable
+        sprite:  3701 + (animation_frame % 8);
+        xoffset: 5;
+        yoffset: 2;
+        zoffset: 39;
+    }
+}
+
+// construction states
+spritelayout power_plant_chimney_build_0 {
+    childsprite {
+        sprite: 3924;
+    }
+    building {
+        sprite: 2048;
+    }
+}
+
+spritelayout power_plant_chimney_build_1 {
+    childsprite {
+        sprite: 3924;
+    }
+    building {
+        sprite: 2049;
+    }
+}
+
+spritelayout power_plant_chimney_build_2 {
+    childsprite {
+        sprite: 3924;
+    }
+    building {
+        sprite: 2050;
+    }
+}
+
+switch(FEAT_INDUSTRYTILES, SELF, power_plant_getChimneyGraphics, [
+    // construction_state is a tile variable
+    construction_state
+]) {
+    0:       power_plant_chimney_build_0;
+    1:       power_plant_chimney_build_1;
+    2:       power_plant_chimney_build_2;
+    default: power_plant_chimney;
+}

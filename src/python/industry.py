@@ -57,8 +57,9 @@ def getPowerPlantTiles():
             id         = 8,
             info       = "[ANIMATION_LOOPING, 7]",
             speed      = 3,
+            triggers   = ["ANIM_TRIGGER_INDTILE_CONSTRUCTION_STATE"],
             next_frame = "CB_RESULT_NEXT_FRAME",
-            default    = "power_plant_chimney",
+            default    = "power_plant_getChimneyGraphics",
         ),
         # small building
         IndustryTile(9),
