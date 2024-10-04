@@ -21,14 +21,21 @@
  * since switches can only return 15 bits.
  * https://newgrf-specs.tt-wiki.net/wiki/NML:Switch
  */
+#define GET_ARRAY_VALUE_IDX(idx, _) \
+    switch(FEAT_INDUSTRIES, SELF, _getArrayValue##idx, [ \
+        LOAD_PERM(PERM_ARRAY + idx) \
+    ]) { return; }
+
+REPEAT(ARRAY_LEN_MAX, GET_ARRAY_VALUE_IDX, ~)
+
 #define CASE_GET_ARRAY_VALUE(idx, _) \
-    idx: setTemp(ARRAY_VALUE, LOAD_PERM(PERM_ARRAY + idx));
+    idx: _getArrayValue##idx();
 switch(FEAT_INDUSTRIES, SELF, _getArrayValue, idx, [
     idx
 ]) {
     REPEAT(ARRAY_LEN_MAX, CASE_GET_ARRAY_VALUE, ~)
 }
-#define getArrayValue(idx) ((_getArrayValue(idx) & 0x0) + getTemp(ARRAY_VALUE))
+#define getArrayValue(idx) ((_getArrayValue(idx) & 0x0) + last_computed_result)
 
 
 /* setArrayValue(idx, value)

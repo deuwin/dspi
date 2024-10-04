@@ -88,9 +88,6 @@
 #define TEMP_AVAILABLE_OIL_     0x19
 #define TEMP_AVAILABLE_TOTAL    0x1A
 
-// array
-#define TEMP_ARRAY_VALUE        0x1B
-
 
 /***********************
  * Register Access

@@ -2,7 +2,7 @@ grf {
     grfid: "de\01\01";
     name: string(STR_GRF_NAME);
     desc: string(STR_GRF_DESCRIPTION);
-    version: 5;
+    version: 6;
     min_compatible_version: 5;
     url: string(STR_GRF_URL);
 
