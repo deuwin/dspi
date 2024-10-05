@@ -44,6 +44,7 @@ class IndustryTile:
     # callbacks
     control:    str = None
     next_frame: str = None
+    random:     str = None
     default:    str = None
 
 
@@ -55,21 +56,23 @@ def getPowerPlantTiles():
         # chimney
         IndustryTile(
             id       = 8,
-            info     = "[ANIMATION_LOOPING, 7]",
+            info     = "[ANIMATION_LOOPING, ANI_LEN_CHIMNEY_SMOKE]",
             speed    = 3,
             triggers = ["ANIM_TRIGGER_INDTILE_CONSTRUCTION_STATE"],
-            control  = "getRandomFirstFrame(7)",
+            control  = "getRandomFirstFrame(ANI_LEN_CHIMNEY_SMOKE)",
             default  = "power_plant_getChimneyGraphics",
         ),
         # small building
         IndustryTile(9),
         # substation
         IndustryTile(
-            id       = 10,
-            info     = "[ANIMATION_LOOPING, 128]",
-            speed    = 2,
-            triggers = ["ANIM_TRIGGER_INDTILE_CONSTRUCTION_STATE"],
-            control  = "getRandomFirstFrame(128)",
+            id         = 10,
+            info       = "[ANIMATION_LOOPING, ANI_LEN_SPARK]",
+            speed      = 2,
+            triggers   = ["ANIM_TRIGGER_INDTILE_TILE_LOOP"],
+            next_frame = "getNextFrameSpark()",
+            control    = "shouldSpark()",
+            random     = "shouldSpark()",
         ),
     ]
 

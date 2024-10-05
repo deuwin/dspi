@@ -24,6 +24,10 @@ switch(FEAT_INDUSTRYTILES, SELF, getRandomFirstFrame, animation_length, [
  *     https://github.com/OpenTTD/OpenGFX/blob/7.1/sprites/base/base-3701-smoke-explosion.pnml
  */
 
+
+/* chimney smoke control */
+#define ANI_LEN_CHIMNEY_SMOKE 7
+
 // finished state
 spritelayout power_plant_chimney {
     // ground
@@ -37,7 +41,7 @@ spritelayout power_plant_chimney {
     // smoke
     building {
         // animation_frame is a tile variable
-        sprite:  3701 + (animation_frame % 7);
+        sprite:  (3701 + animation_frame) * getTemp(CHIMNEY_ANIMATED);
         xoffset: 5;
         yoffset: 2;
         zoffset: 39;
@@ -72,6 +76,12 @@ spritelayout power_plant_chimney_build_2 {
     }
 }
 
+switch(FEAT_INDUSTRYTILES, PARENT, getChimneyAnimation, [
+    setTemp(CHIMNEY_ANIMATED, getPerm(POWER_SUPPLY_PREV) > 0)
+]) {
+    power_plant_chimney;
+}
+
 switch(FEAT_INDUSTRYTILES, SELF, power_plant_getChimneyGraphics, [
     // construction_state is a tile variable
     construction_state
@@ -79,5 +89,46 @@ switch(FEAT_INDUSTRYTILES, SELF, power_plant_getChimneyGraphics, [
     0:       power_plant_chimney_build_0;
     1:       power_plant_chimney_build_1;
     2:       power_plant_chimney_build_2;
-    default: power_plant_chimney;
+    default: getChimneyAnimation();
 }
+
+
+/* substation spark control */
+
+// the animation is actually 6 frames, but we want to include frame zero as a
+// stop frame
+#define ANI_LEN_SPARK 7
+
+/* getNextFrameSpark()
+ * Run the animation once
+ */
+switch(FEAT_INDUSTRYTILES, SELF, getNextFrameSpark, [
+    (animation_frame == 0)
+        ? 0
+        : (animation_frame + 1) % ANI_LEN_SPARK
+]) { return; }
+
+/* isGenerating() */
+switch(FEAT_INDUSTRYTILES, PARENT, isGenerating, [
+    getPerm(POWER_SUPPLY_PREV) > 0
+]) { return; }
+
+/* sparkChance()
+ * 1/3 chance of sparks
+ */
+random_switch(FEAT_INDUSTRYTILES, SELF, sparkChance,
+    bitmask(TRIGGER_INDUSTRYTILE_TILELOOP)
+) {
+    2: 0;
+    1: 1;
+}
+
+/* shouldSpark()
+ * Whether the spark animation should kick off. Conveniently returns 0 or 1,
+ * doubling up as a boolean and the frame to display.
+ */
+switch(FEAT_INDUSTRYTILES, SELF, shouldSpark, [
+    (animation_frame == 0)
+        && sparkChance()
+        && isGenerating()
+]) { return; }

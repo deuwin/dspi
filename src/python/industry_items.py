@@ -240,6 +240,8 @@ def genIndustryTiles(industry):
             callbacks.append(f"anim_control: {tile.control};")
         if tile.next_frame:
             callbacks.append(f"anim_next_frame: {tile.next_frame};")
+        if tile.random:
+            callbacks.append(f"random_trigger: {tile.random};")
         if tile.default:
             callbacks.append(f"{tile.default};")
         callbacks = indent(callbacks, 1, start=0)
