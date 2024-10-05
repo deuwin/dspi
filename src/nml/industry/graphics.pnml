@@ -28,7 +28,6 @@ switch(FEAT_INDUSTRYTILES, SELF, getRandomFirstFrame, animation_length, [
 /* chimney smoke control */
 #define ANI_LEN_CHIMNEY_SMOKE 7
 
-// finished state
 spritelayout power_plant_chimney {
     // ground
     childsprite {
@@ -36,7 +35,7 @@ spritelayout power_plant_chimney {
     }
     // chimney
     building {
-        sprite: 2050;
+        sprite: 2048 + getTemp(CONSTRUCT_STATE);
     }
     // smoke
     building {
@@ -48,48 +47,20 @@ spritelayout power_plant_chimney {
     }
 }
 
-// construction states
-spritelayout power_plant_chimney_build_0 {
-    childsprite {
-        sprite: 3924;
-    }
-    building {
-        sprite: 2048;
-    }
-}
-
-spritelayout power_plant_chimney_build_1 {
-    childsprite {
-        sprite: 3924;
-    }
-    building {
-        sprite: 2049;
-    }
-}
-
-spritelayout power_plant_chimney_build_2 {
-    childsprite {
-        sprite: 3924;
-    }
-    building {
-        sprite: 2050;
-    }
-}
-
-switch(FEAT_INDUSTRYTILES, PARENT, getChimneyAnimation, [
+switch(FEAT_INDUSTRYTILES, PARENT, getChimneySpriteLayout, constuct_state, [
+    setTemp(CONSTRUCT_STATE, constuct_state),
     setTemp(CHIMNEY_ANIMATED, getPerm(POWER_SUPPLY_PREV) > 0)
 ]) {
     power_plant_chimney;
 }
 
-switch(FEAT_INDUSTRYTILES, SELF, power_plant_getChimneyGraphics, [
+switch(FEAT_INDUSTRYTILES, SELF, power_plant_getChimneySprites, [
     // construction_state is a tile variable
-    construction_state
+    setTemp(CONSTRUCT_STATE, construction_state)
 ]) {
-    0:       power_plant_chimney_build_0;
-    1:       power_plant_chimney_build_1;
-    2:       power_plant_chimney_build_2;
-    default: getChimneyAnimation();
+    0:       getChimneySpriteLayout(0);
+    1:       getChimneySpriteLayout(1);
+    default: getChimneySpriteLayout(2);
 }
 
 

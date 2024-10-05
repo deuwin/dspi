@@ -60,7 +60,7 @@ def getPowerPlantTiles():
             speed    = 3,
             triggers = ["ANIM_TRIGGER_INDTILE_CONSTRUCTION_STATE"],
             control  = "getRandomFirstFrame(ANI_LEN_CHIMNEY_SMOKE)",
-            default  = "power_plant_getChimneyGraphics",
+            default  = "power_plant_getChimneySprites",
         ),
         # small building
         IndustryTile(9),

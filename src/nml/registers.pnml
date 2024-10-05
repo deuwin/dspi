@@ -90,6 +90,7 @@
 
 // graphics
 #define TEMP_CHIMNEY_ANIMATED   0x1B
+#define TEMP_CONSTRUCT_STATE    0x1C
 
 
 /***********************
