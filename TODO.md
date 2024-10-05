@@ -8,10 +8,6 @@ this list will be subject to many changes.
 * Implement multiple power stations per town
 
 ## Medium Term
-* Fix Power Plant animation
-    * Re-enable chimney and sparking animation
-    * Stop animations if no fuel or demand
-    * Continuous sparking if overloaded
 * Production Change:
     * Limit to once every 12 months?
     * Occurs at least once every 60 months?
@@ -30,8 +26,10 @@ this list will be subject to many changes.
 * Anything that depends on town size should have a parameter toggle
 
 ## Possible Ideas
-* Power Plant: Allow closure?
-* Power Plant: Base demand based on town population?
+* Power Plant:
+    * Allow closure?
+    * Base demand based on town population?
+    * Continuous sparking animation if overloaded?
 * Temperate Farm:
     * Make Grain and Livestock production rate the same?
     * Split into separate Grain and Livestock farms?
