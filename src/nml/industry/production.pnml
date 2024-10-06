@@ -55,14 +55,9 @@ switch(FEAT_INDUSTRIES, SELF, power_plant_calcProduction, [
         getTemp(BURNABLE_COAL) + getTemp(BURNABLE_OIL_)
     ),
 
-    (getTemp(BURNABLE_TOTAL) == 0) ? [
-        setTemp(BURNED_COAL, 0),
-        setTemp(BURNED_OIL_, 0)
-    ]:[
-        setTemp(FUEL_REQUIRED, getFuelRequired()),
-        SET_BURNED(COAL),
-        SET_BURNED(OIL_),
-    ],
+    setTemp(FUEL_REQUIRED, getFuelRequired()),
+    SET_BURNED(COAL),
+    SET_BURNED(OIL_),
     setTemp(BURNED_TOTAL, getTemp(BURNED_COAL) + getTemp(BURNED_OIL_)),
 
     // using divideCeil() may cause the plant to burn a little extra than it

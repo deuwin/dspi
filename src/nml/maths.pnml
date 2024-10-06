@@ -14,11 +14,18 @@
  * https://blog.pkh.me/p/36-figuring-out-round%2C-floor-and-ceil-with-integer-division.html
  */
 
-/* divideCeilUInt(dividend, divisor)
- * Round up integer division. NOTE: Only for positive parameters!
+/* divideCeil(dividend, divisor)
+ * Signed integer division with ceiling function applied to result
  */
+switch(FEAT_INDUSTRIES, SELF, _divideCeil,
+    dividend,
+    divisor,
+[
+    dividend / divisor
+        + (dividend % divisor != 0 && (((dividend ^ divisor) >> 31) == 0))
+]) { return; }
 #define divideCeil(dividend, divisor) \
-    (((dividend) + (divisor) - 1) / (divisor))
+    ((_divideCeil(dividend, divisor) & 0x0) + last_computed_result)
 
 
 /* For the sake of completeness I'll note that for positive numbers standard
