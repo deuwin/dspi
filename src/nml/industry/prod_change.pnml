@@ -57,7 +57,7 @@ switch(FEAT_INDUSTRIES, SELF, updateProduction,
             (stockpile_average / THREE_MONTH_PROD_TICKS) - getPerm(PRODUCTION_RATE)
         ),
         setTemp(LIMIT,
-            divideRoundUInt(getPerm(PRODUCTION_RATE) * MAX_CHANGE_STOCKPILE_PCT, 100)
+            divideRound(getPerm(PRODUCTION_RATE) * MAX_CHANGE_STOCKPILE_PCT, 100)
         ),
         setTemp(STOCKPILE_CHANGE,
             clamp(
