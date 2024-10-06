@@ -81,7 +81,7 @@ bundle:   $(OUTPUT_PREFIX).tar
 
 clean:
 	@rm --force \
-		$(OUTPUT_PREFIX)* \
+		$(BUILD_DIR)/$(PROJECT)_v* \
 		$(PNML_GENERATED) \
 		$(LANG_FILES) \
 		$(DOC_FILES)
