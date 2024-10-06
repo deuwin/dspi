@@ -84,13 +84,16 @@
 #define TEMP_IND_COUNT          0x17
 
 // production
-#define TEMP_AVAILABLE_COAL     0x18
-#define TEMP_AVAILABLE_OIL_     0x19
-#define TEMP_AVAILABLE_TOTAL    0x1A
+#define TEMP_BURNABLE_COAL      0x18
+#define TEMP_BURNABLE_OIL_      0x19
+#define TEMP_BURNABLE_TOTAL     0x1A
+#define TEMP_BURNED_COAL        0x1B
+#define TEMP_BURNED_OIL_        0x1C
+#define TEMP_BURNED_TOTAL       0x1D
 
 // graphics
-#define TEMP_CHIMNEY_ANIMATED   0x1B
-#define TEMP_CONSTRUCT_STATE    0x1C
+#define TEMP_CHIMNEY_ANIMATED   0x1E
+#define TEMP_CONSTRUCT_STATE    0x1F
 
 
 /***********************

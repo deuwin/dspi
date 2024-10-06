@@ -17,64 +17,60 @@ produce(noProduction, [], [])
 
 produce(power_plant_produceBlock,
     [
-        COAL: getTemp(CONSUME_0);
-        OIL_: getTemp(CONSUME_1);
+        COAL: getTemp(BURNED_COAL);
+        OIL_: getTemp(BURNED_OIL_);
     ], [],
     0
 )
 
-#define AVAIL_NAME(name) AVAILABLE_##name
-#define SET_AVAILABLE(cargo) \
-    setTemp(AVAIL_NAME(cargo), \
-        min(incoming_cargo_waiting(#cargo), BURN_RATE_MAX) \
+#define SET_BURNABLE(fuel) \
+    setTemp(BURNABLE_##fuel, \
+        min(incoming_cargo_waiting(#fuel), BURN_RATE_MAX) \
     )
 
-switch(FEAT_INDUSTRIES, SELF, fixOvershoot, [
+#define SET_BURNED(fuel) \
+    setTemp(BURNED_##fuel, \
+        min(BURN_RATE_MAX, \
+            divideCeil( \
+                getTemp(BURNABLE_##fuel) * getTemp(FUEL_REQUIRED), \
+                getTemp(BURNABLE_TOTAL) \
+            ) \
+        ) \
+    )
+
+switch(FEAT_INDUSTRIES, SELF, correctBurnedFuel, [
     CMP(incoming_cargo_waiting("COAL"), incoming_cargo_waiting("OIL_"))
 ]) {
-    CMP_LESS: setTemp(CONSUME_0, getTemp(CONSUME_0) - 1);
-    default:  setTemp(CONSUME_1, getTemp(CONSUME_1) - 1);
+    CMP_LESS: setTemp(BURNED_COAL, getTemp(BURNED_COAL) - 1);
+    default:  setTemp(BURNED_OIL_, getTemp(BURNED_OIL_) - 1);
 }
 
 switch(FEAT_INDUSTRIES, SELF, power_plant_calcProduction, [
     updateStockpileAverage(0, incoming_cargo_waiting("COAL")),
     updateStockpileAverage(1, incoming_cargo_waiting("OIL_")),
 
-    SET_AVAILABLE(COAL),
-    SET_AVAILABLE(OIL_),
-    setTemp(AVAILABLE_TOTAL,
-        getTemp(AVAILABLE_COAL) + getTemp(AVAILABLE_OIL_)
+    SET_BURNABLE(COAL),
+    SET_BURNABLE(OIL_),
+    setTemp(BURNABLE_TOTAL,
+        getTemp(BURNABLE_COAL) + getTemp(BURNABLE_OIL_)
     ),
 
-    (getTemp(AVAILABLE_TOTAL) == 0) ? [
-        setTemp(CONSUME_0, 0),
-        setTemp(CONSUME_1, 0)
+    (getTemp(BURNABLE_TOTAL) == 0) ? [
+        setTemp(BURNED_COAL, 0),
+        setTemp(BURNED_OIL_, 0)
     ]:[
         setTemp(FUEL_REQUIRED, getFuelRequired()),
-        setTemp(CONSUME_0,
-            min(BURN_RATE_MAX,
-                divideCeil(
-                    getTemp(AVAILABLE_COAL) * getTemp(FUEL_REQUIRED),
-                    getTemp(AVAILABLE_TOTAL)
-                )
-            )
-        ),
-        setTemp(CONSUME_1,
-            min(BURN_RATE_MAX,
-                divideCeil(
-                    getTemp(AVAILABLE_OIL_) * getTemp(FUEL_REQUIRED),
-                    getTemp(AVAILABLE_TOTAL)
-                )
-            )
-        )
+        SET_BURNED(COAL),
+        SET_BURNED(OIL_),
     ],
+    setTemp(BURNED_TOTAL, getTemp(BURNED_COAL) + getTemp(BURNED_OIL_)),
 
     // using divideCeil() may cause the plant to burn a little extra than it
     // should, so that's adjusted here
-    ((getTemp(CONSUME_0) + getTemp(CONSUME_1)) > getTemp(FUEL_REQUIRED))
-        ? fixOvershoot()
+    (getTemp(BURNED_TOTAL) > getTemp(FUEL_REQUIRED))
+        ? correctBurnedFuel()
         : 0,
 
-    setPowerSupplied(getTemp(CONSUME_0) + getTemp(CONSUME_1)),
+    setPowerSupplied(getTemp(BURNED_TOTAL)),
 ]) { return power_plant_produceBlock; }
 
