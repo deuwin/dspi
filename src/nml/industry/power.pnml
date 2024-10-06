@@ -9,11 +9,15 @@
 #define SUPPLY_PER_FUEL   1500
 
 
+/********************
+ * Demand Changes
+ * Update the power required. Called by secondary industries
+ ********************/
+
 /* adjustPowerDemand(demand_change) */
 switch(FEAT_INDUSTRIES, PARENT, adjustPowerDemand, demand_change, [
     setPerm(POWER_DEMAND_TOTAL, getPerm(POWER_DEMAND_TOTAL) + demand_change)
 ]) { return; }
-
 
 /* setPowerDemand(cargo_produced, max_possible)
  * Calculate power required using current output and maximum possible at present
@@ -47,11 +51,15 @@ switch(FEAT_INDUSTRIES, SELF, setPowerDemand,
 ]) { return; }
 
 
+/********************
+ * Supply Changes
+ * Update the power available. Called by power stations.
+ ********************/
+
 /* getFuelRequired() */
 switch(FEAT_INDUSTRIES, PARENT, getFuelRequired, [
     divideCeil(getPerm(POWER_DEMAND_TOTAL), SUPPLY_PER_FUEL)
 ]) { return; }
-
 
 /* adjustPowerSupplied(power_change) */
 switch(FEAT_INDUSTRIES, PARENT, adjustPowerSupplied, power_change, [
@@ -60,7 +68,6 @@ switch(FEAT_INDUSTRIES, PARENT, adjustPowerSupplied, power_change, [
         getPerm(POWER_SUPPLY_TOTAL) * 100 / getPerm(POWER_DEMAND_TOTAL)
     )
 ]) { return; }
-
 
 /* setPowerSupplied(fuel_consumed) */
 switch(FEAT_INDUSTRIES, SELF, setPowerSupplied, fuel_consumed, [
@@ -77,15 +84,20 @@ switch(FEAT_INDUSTRIES, SELF, setPowerSupplied, fuel_consumed, [
 ]) { return; }
 
 
+/********************
+ * Accessors
+ * For information display
+ ********************/
+
 /* getPowerSuppliedPct() */
 switch(FEAT_INDUSTRIES, PARENT, getPowerSuppliedPct, [
     clamp(getPerm(POWER_SUPPLY_PCT), 0, 100)
 ]) { return; }
 
-
 /* hasPowerDemand() */
 switch(FEAT_INDUSTRIES, PARENT, hasPowerDemand, [
     getPerm(POWER_DEMAND_TOTAL) > 0
 ]) { return; }
+
 
 #endif // POWER_PNML
