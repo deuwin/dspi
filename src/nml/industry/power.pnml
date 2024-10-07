@@ -69,8 +69,8 @@ switch(FEAT_INDUSTRIES, PARENT, adjustPowerSupplied, power_change, [
     )
 ]) { return; }
 
-/* setPowerSupplied(fuel_consumed) */
-switch(FEAT_INDUSTRIES, SELF, setPowerSupplied, fuel_consumed, [
+/* updateGridPowerSupplied(fuel_consumed) */
+switch(FEAT_INDUSTRIES, SELF, updateGridPowerSupplied, fuel_consumed, [
     setPerm(BURN_RATE, fuel_consumed),
     setTemp(GENERATED_CHANGE,
         (fuel_consumed * SUPPLY_PER_FUEL) - getPerm(POWER_SUPPLY_PREV)
@@ -81,6 +81,24 @@ switch(FEAT_INDUSTRIES, SELF, setPowerSupplied, fuel_consumed, [
     // PARENT is very fussy. setTemp() and setPerm() must be before this call
     // otherwise the change is not set correctly.
     adjustPowerSupplied(getTemp(GENERATED_CHANGE)),
+]) { return; }
+
+/* adjustFuelAvailable(fuel_change) */
+switch(FEAT_INDUSTRIES, PARENT, adjustFuelAvailable, fuel_change, [
+    setPerm(FUEL_AVAIL_TOTAL, getPerm(FUEL_AVAIL_TOTAL) + fuel_change),
+]) { return; }
+
+/* updateGridFuelAvailable(fuel_available) */
+switch(FEAT_INDUSTRIES, SELF, updateGridFuelAvailable, fuel_available, [
+    setTemp(FUEL_CHANGE,
+        fuel_available - getPerm(FUEL_AVAIL_PREV)
+    ),
+    setPerm(FUEL_AVAIL_PREV, fuel_available),
+
+    // NOTE: Similarly to setPowerDemand() passing variables between SELF and
+    // PARENT is very fussy. setTemp() and setPerm() must be before this call
+    // otherwise the change is not set correctly.
+    adjustFuelAvailable(getTemp(FUEL_CHANGE)),
 ]) { return; }
 
 
@@ -97,6 +115,13 @@ switch(FEAT_INDUSTRIES, PARENT, getPowerSuppliedPct, [
 /* hasPowerDemand() */
 switch(FEAT_INDUSTRIES, PARENT, hasPowerDemand, [
     getPerm(POWER_DEMAND_TOTAL) > 0
+]) { return; }
+
+/* getGridFuelAvailable()
+ * Fuel available from all power stations in the grid
+ */
+switch(FEAT_INDUSTRIES, PARENT, getGridFuelAvailable, [
+    getPerm(FUEL_AVAIL_TOTAL)
 ]) { return; }
 
 

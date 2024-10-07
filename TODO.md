@@ -5,7 +5,6 @@ this list will be subject to many changes.
 ## Short Term
 * Playtest production rate changes
 * Playtest power requirements
-* Implement multiple power stations per town
 
 ## Medium Term
 * Production Change:

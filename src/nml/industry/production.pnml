@@ -23,26 +23,52 @@ produce(power_plant_produceBlock,
     0
 )
 
-#define getStockpiled(fuel) incoming_cargo_waiting(#fuel)
+#define ADJUST_COAL 1
+#define ADJUST_OIL  2
+switch(FEAT_INDUSTRIES, SELF, adjustFuelBurned, coal, oil, [
+    // I think this might count as syntax abuse...
+    (coal == 0) ?
+        ADJUST_OIL
+    :(oil == 0) ?
+        ADJUST_COAL
+    :(coal < oil) ?
+        ADJUST_OIL
+    :
+        ADJUST_COAL
+]) {
+    ADJUST_COAL: setTemp(BURNED_COAL, coal - 1);
+    ADJUST_OIL:  setTemp(BURNED_OIL,  oil - 1);
+}
 
 switch(FEAT_INDUSTRIES, SELF, power_plant_calcProduction, [
     updateStockpileAverage(0, getStockpiled(COAL)),
     updateStockpileAverage(1, getStockpiled(OIL_)),
 
+    // get fuel available to burn
     setTemp(FUEL_STOCKPILED, getStockpiled(COAL) + getStockpiled(OIL_)),
     setTemp(FUEL_AVAILABLE, min(getTemp(FUEL_STOCKPILED), BURN_RATE_MAX)),
+    updateGridFuelAvailable(getTemp(FUEL_AVAILABLE)),
+
+    // calculate how much this station should burn, taking into account other
+    // stations on the grid
+    setTemp(FUEL_REQUIRED,
+        divideCeil(
+            getFuelRequired() * getTemp(FUEL_AVAILABLE),
+            getGridFuelAvailable())
+    ),
     setTemp(BURN_LIMIT,
-        min(getTemp(FUEL_AVAILABLE), getFuelRequired())
+        min(getTemp(FUEL_AVAILABLE), getTemp(FUEL_REQUIRED))
     ),
 
+    // calculate ratios of what should be burned
     setTemp(BURNED_COAL,
         divideCeil(
-            getStockpiled(COAL) * getTemp(BURN_LIMIT),
+            getStockpiled(COAL) * getTemp(FUEL_REQUIRED),
             getTemp(FUEL_STOCKPILED))
     ),
     setTemp(BURNED_OIL,
         divideCeil(
-            getStockpiled(OIL_) * getTemp(BURN_LIMIT),
+            getStockpiled(OIL_) * getTemp(FUEL_REQUIRED),
             getTemp(FUEL_STOCKPILED))
     ),
     setTemp(BURNED_TOTAL,
@@ -52,11 +78,10 @@ switch(FEAT_INDUSTRIES, SELF, power_plant_calcProduction, [
     // using divideCeil() may cause the plant to burn a little extra than it
     // should, so that's adjusted here
     (getTemp(BURNED_TOTAL) > getTemp(BURN_LIMIT)) ? [
-        (CMP(getStockpiled(COAL), getStockpiled(OIL_)) == CMP_LESS)
-            ? setTemp(BURNED_COAL, getTemp(BURNED_COAL) - 1)
-            : setTemp(BURNED_OIL,  getTemp(BURNED_OIL) - 1)
+        adjustFuelBurned(getTemp(BURNED_COAL), getTemp(BURNED_OIL)),
+        setTemp(BURNED_TOTAL, getTemp(BURNED_COAL) + getTemp(BURNED_OIL))
     ]:[0],
 
-    setPowerSupplied(getTemp(BURNED_TOTAL)),
+    updateGridPowerSupplied(getTemp(BURNED_TOTAL)),
 ]) { return power_plant_produceBlock; }
 

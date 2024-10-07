@@ -17,6 +17,8 @@
 
 #define PERM_POWER_DEMAND_PREV    0x06
 #define PERM_POWER_SUPPLY_PREV    0x07
+// TODO: correct ordering
+#define PERM_FUEL_AVAIL_PREV      0x0F
 
 #define PERM_STOCKPILE_AVERAGE_0  0x08
 #define PERM_STOCKPILE_AVERAGE_1  0x09
@@ -37,6 +39,7 @@
 #define PERM_POWER_DEMAND_TOTAL   0x00
 #define PERM_POWER_SUPPLY_TOTAL   0x01
 #define PERM_POWER_SUPPLY_PCT     0x02
+#define PERM_FUEL_AVAIL_TOTAL     0x03
 
 
 // debug
@@ -68,13 +71,13 @@
 #define TEMP_DEMAND_IDLE        0x0B
 #define TEMP_DEMAND_CHANGE      0x0C
 #define TEMP_GENERATED_CHANGE   0x0D
+#define TEMP_FUEL_CHANGE        0x0E
 
 // industry.py
-#define TEMP_CONSUME_0          0x0E
-#define TEMP_CONSUME_1          0x0F
-#define TEMP_CONSUME_2          0x10
-#define TEMP_PRODUCE            0x11
-#define TEMP_FUEL_REQUIRED      0x12
+#define TEMP_CONSUME_0          0x0F
+#define TEMP_CONSUME_1          0x10
+#define TEMP_CONSUME_2          0x11
+#define TEMP_PRODUCE            0x12
 
 // extra_text
 #define TEMP_GRID_STATUS        0x13
@@ -84,16 +87,17 @@
 #define TEMP_IND_COUNT          0x17
 
 // production
-#define TEMP_BURNABLE_COAL      0x18
-#define TEMP_BURNABLE_OIL_      0x19
-#define TEMP_BURNABLE_TOTAL     0x1A
-#define TEMP_BURNED_COAL        0x1B
-#define TEMP_BURNED_OIL_        0x1C
-#define TEMP_BURNED_TOTAL       0x1D
+#define TEMP_FUEL_STOCKPILED    0x18
+#define TEMP_FUEL_AVAILABLE     0x19
+#define TEMP_FUEL_REQUIRED      0x1A
+#define TEMP_BURN_LIMIT         0x1B
+#define TEMP_BURNED_COAL        0x1C
+#define TEMP_BURNED_OIL         0x1D
+#define TEMP_BURNED_TOTAL       0x1E
 
 // graphics
-#define TEMP_CHIMNEY_ANIMATED   0x1E
-#define TEMP_CONSTRUCT_STATE    0x1F
+#define TEMP_CHIMNEY_ANIMATED   0x1F
+#define TEMP_CONSTRUCT_STATE    0x20
 
 // macros
 #define TEMP_SCRATCH            0x7F
