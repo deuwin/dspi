@@ -1,0 +1,32 @@
+#ifndef MACROS_PNML
+#define MACROS_PNML
+
+/********************
+ * Macros
+ *
+ * Function-like macros used in multiple files. Also has alternate names for
+ * built-in NML functions, either because they fit my naming scheme better, or
+ * cos I felt like it.
+ ********************/
+
+/* LAST_COMPUTED(switch_id, function_args...)
+ * Switches can only return a maximum of 15 bits, limiting positive values to
+ * 32767 and destroying any negative values. This define is a wrapper that calls
+ * the switch (with optional arguments) and returns last_computed_result.
+ *
+ * The scratch register is unused but without it incorrect values are stored in
+ * some cases. For example:
+ *
+ *     setTemp(TEMP_A, divideCeil(a * b, c)),
+ *     setTemp(TEMP_B, divideCeil(d * e, f)),
+ *
+ * would assign the result of `divideCeil(d * e, f)` to both TEMP_A and TEMP_B!
+ */
+#define LAST_COMPUTED(switch_id, ...) \
+    setTemp(SCRATCH, \
+        (switch_id(__VA_ARGS__) & 0x0) + last_computed_result \
+    )
+
+#define getStockpiled(cargo) incoming_cargo_waiting(#cargo)
+
+#endif // MACROS_PNML

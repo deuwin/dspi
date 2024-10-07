@@ -14,9 +14,6 @@
  * https://blog.pkh.me/p/36-figuring-out-round%2C-floor-and-ceil-with-integer-division.html
  */
 
-#define LAST_COMPUTED(function, ...) \
-     ((_##function(__VA_ARGS__) & 0x0) + last_computed_result)
-
 /* divideCeil(dividend, divisor)
  * Signed integer division with ceiling function applied to result
  */
@@ -24,7 +21,7 @@ switch(FEAT_INDUSTRIES, SELF, _divideCeil, dividend, divisor, [
     dividend / divisor + (dividend % divisor != 0 && (((dividend ^ divisor) >> 31) == 0))
 ]) { return; }
 
-#define divideCeil(dividend, divisor) LAST_COMPUTED(divideCeil, dividend, divisor)
+#define divideCeil(dividend, divisor) LAST_COMPUTED(_divideCeil, dividend, divisor)
 
 
 /* divideFloor(dividend, divisor)
@@ -34,7 +31,7 @@ switch(FEAT_INDUSTRIES, SELF, _divideFloor, dividend, divisor, [
     dividend / divisor - (dividend % divisor != 0 && (((dividend ^ divisor) >> 31) == 0))
 ]) { return; }
 
-#define divideFloor(dividend, divisor) LAST_COMPUTED(divideFloor, dividend, divisor)
+#define divideFloor(dividend, divisor) LAST_COMPUTED(_divideFloor, dividend, divisor)
 
 
 /* divideRound(dividend, divisor)
@@ -46,7 +43,7 @@ switch(FEAT_INDUSTRIES, SELF, _divideRound, dividend, divisor, [
         : (dividend + divisor / 2) / divisor
 ]) { return; }
 
-#define divideRound(dividend, divisor) LAST_COMPUTED(divideRound, dividend, divisor)
+#define divideRound(dividend, divisor) LAST_COMPUTED(_divideRound, dividend, divisor)
 
 
 #endif // MATHS_PNML

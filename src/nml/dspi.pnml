@@ -24,6 +24,7 @@ if (climate != CLIMATE_TEMPERATE) {
 power_required = param[0];
 
 #include "registers.pnml"
+#include "macros.pnml"
 #include "maths.pnml"
 #include "random.pnml"
 #include "repeat.pnml"

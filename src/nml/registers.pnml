@@ -95,6 +95,9 @@
 #define TEMP_CHIMNEY_ANIMATED   0x1E
 #define TEMP_CONSTRUCT_STATE    0x1F
 
+// macros
+#define TEMP_SCRATCH            0x7F
+
 
 /***********************
  * Register Access

@@ -35,7 +35,7 @@ switch(FEAT_INDUSTRIES, SELF, _getArrayValue, idx, [
 ]) {
     REPEAT(ARRAY_LEN_MAX, CASE_GET_ARRAY_VALUE, ~)
 }
-#define getArrayValue(idx) ((_getArrayValue(idx) & 0x0) + last_computed_result)
+#define getArrayValue(idx) (LAST_COMPUTED(_getArrayValue, idx))
 
 
 /* setArrayValue(idx, value)
