@@ -1,3 +1,15 @@
+v0.2.0
+------------------------------------------------------------------------
+Power station updates
+
+Fix:
+  * Restored animations
+
+Changes:
+  * Responsive animations, i.e. no animation if no power is being generated
+  * Multiple power stations per town share generation duties
+
+
 v0.1.1 (2024-10-04)
 ------------------------------------------------------------------------
 Bugfix release.
